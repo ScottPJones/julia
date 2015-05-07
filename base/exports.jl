@@ -163,6 +163,7 @@ export
     ProcessExitedException,
     SystemError,
     TypeError,
+    UnicodeError,
     AssertionError,
 
 # Global constants and variables
