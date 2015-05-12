@@ -440,3 +440,16 @@ export float32_isvalid, float64_isvalid
 @deprecate (&)(x::Char, y::Char)  Char(UInt32(x) & UInt32(y))
 @deprecate (|)(x::Char, y::Char)  Char(UInt32(x) | UInt32(y))
 @deprecate ($)(x::Char, y::Char)  Char(UInt32(x) $ UInt32(y))
+
+# 11241
+
+@deprecate is_valid_char(ch::Char) isvalid(ch)
+@deprecate is_valid_char(ch::Union(Unsigned, Integer)) isvalid(Char, ch)
+@deprecate is_valid_ascii(str::ASCIIString) isvalid(str)
+@deprecate is_valid_ascii(str::Union(AbstractArray{UInt8}, UTF8String)) isvalid(ASCIIString, str)
+@deprecate is_valid_utf8(str::UTF8String) isvalid(str)
+@deprecate is_valid_utf8(str::Union(AbstractArray{UInt8}, ASCIIString)) isvalid(UTF8String, str)
+@deprecate is_valid_utf16(str::UTF16String) isvalid(str)
+@deprecate is_valid_utf16(str::AbstractArray{UInt16}) isvalid(UTF16String, str)
+@deprecate is_valid_utf32(str::UTF32String) isvalid(str)
+@deprecate is_valid_utf32(str::AbstractArray{UInt32}) isvalid(UTF32String, str)
