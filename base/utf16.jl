@@ -160,6 +160,7 @@ function reverse(s::UTF16String)
     UTF16String(out)
 end
 
+#=
 function convert(::Type{UTF16String}, str::AbstractString)
     len, cnt2::UInt, cnt3::UInt, cnt4::UInt, flags::UInt = check_string(UTF32String, str)
     buf = Vector{UInt16}(len+cnt4+1)
@@ -176,6 +177,23 @@ function convert(::Type{UTF16String}, str::AbstractString)
         end
     end
     buf[i += 1] = 0 # NULL termination
+    UTF16String(buf)
+end
+=#
+function encode16(s::AbstractString)
+    buf = UInt16[]
+    for ch in s
+        c = reinterpret(UInt32, ch)
+        if c < 0x10000
+            push!(buf, UInt16(c))
+        elseif c <= 0x10ffff
+            push!(buf, UInt16(0xd7c0 + (c>>10)))
+            push!(buf, UInt16(0xdc00 + (c & 0x3ff)))
+        else
+            throw(ArgumentError("invalid Unicode character (0x$(hex(c)) > 0x10ffff)"))
+        end
+    end
+    push!(buf, 0) # NULL termination
     UTF16String(buf)
 end
 #=
@@ -580,6 +598,7 @@ end
 
 utf16(x) = convert(UTF16String, x)
 convert(::Type{UTF16String}, s::UTF16String) = s
+convert(::Type{UTF16String}, s::AbstractString) = encode16(s)
 convert(::Type{Vector{UInt16}}, s::UTF16String) = s.data
 convert(::Type{Array{UInt16}}, s::UTF16String) = s.data
 
@@ -592,7 +611,7 @@ sizeof(s::UTF16String) = sizeof(s.data) - sizeof(UInt16)
 unsafe_convert{T<:Union(Int16,UInt16)}(::Type{Ptr{T}}, s::UTF16String) =
     convert(Ptr{T}, pointer(s))
 
-function is_valid_utf16(data::AbstractVector{UInt16})
+function is_valid_utf16(data::AbstractArray{UInt16})
     i = 1
     n = length(data) # this may include NULL termination; that's okay
     while i < n # check for unpaired surrogates
