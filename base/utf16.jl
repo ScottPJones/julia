@@ -162,7 +162,7 @@ end
 
 #=
 function convert(::Type{UTF16String}, str::AbstractString)
-    len, cnt2::UInt, cnt3::UInt, cnt4::UInt, flags::UInt = check_string(UTF32String, str)
+    len, cnt2::UInt, cnt3::UInt, cnt4::UInt, flags::UInt = check_string_utf32(str)
     buf = Vector{UInt16}(len+cnt4+1)
     i = 0
     @inbounds for ch in str
@@ -200,15 +200,13 @@ end
 """
 @brief      reencodes an ASCII string using UTF-16 encoding
 
-@param[in]  UTF16String
 @param[in]  str::Vector{UInt8}
-@param[in]  ASCIIString
 
 @return     ::UTF16String
 @throws     ArgumentError
 """
 =#
-function reencode_string(::Type{UTF16String}, str::Vector{UInt8}, ::Type{ASCIIString})
+function reencode_string_a_16(str::Vector{UInt8})
     len::Int = sizeof(str)
     buf = Vector{UInt16}(len+1)
     for i = 1:len
@@ -241,7 +239,7 @@ const UTF_SURROGATE = 32        # surrogate pairs present
 @throws     ArgumentError
 """ ->
 =#
-function check_string(::Type{UTF8String}, str::Vector{UInt8}, options::Integer=0)
+function check_string_utf8(str::Vector{UInt8}, options::Integer=0)
     ch::UInt32 = 0
     c1::UInt32 = 0
     c2::UInt32 = 0
@@ -348,7 +346,7 @@ end
 @throws     ArgumentError
 """ ->
 =#
-function check_string(::Type{UTF16String}, str::Vector{UInt16}, options::Integer=0)
+function check_string_utf16(str::Vector{UInt16}, options::Integer=0)
     ch::UInt32 = 0
     cntT::UInt = 0      # total # of characters
     cnt2::UInt = 0      # number of characters in the range (0x80-0x7ff)
@@ -398,7 +396,7 @@ end
 @throws     ArgumentError
 """
 =#
-function check_string(::Type{UTF32String}, str::Vector{UInt32}, options::Integer=0)
+function check_string_utf32(str::Vector{UInt32}, options::Integer=0)
     cntT::UInt = 0      # total # of characters
     cnt2::UInt = 0      # number of characters in the range (0x80-0x7ff)
     cnt3::UInt = 0      # number of characters in the range (0x800-0xd7ff,0xe000-0xffff)
@@ -452,7 +450,7 @@ end
 @throws     ArgumentError
 """
 =#
-function check_string(::Type{UTF32String}, str::AbstractString, options::Integer=0)
+function check_string_utf32(str::AbstractString, options::Integer=0)
     cntT::UInt = 0      # total # of characters
     cnt2::UInt = 0      # number of characters in the range (0x80-0x7ff)
     cnt3::UInt = 0      # number of characters in the range (0x800-0xd7ff,0xe000-0xffff)
@@ -497,15 +495,13 @@ end
 @doc """
 @brief      Converts a UTF-8 encoded string to UTF-16 encoding
 
-@param[in]  UTF16String
 @param[in]  str::Vector{UInt8}
-@param[in]  UTF8String
 
 @return     ::UTF16String
 @throws     ArgumentError
 """ ->
 =#
-function reencode_string(::Type{UTF16String}, str::Vector{UInt8}, ::Type{UTF8String})
+function reencode_string_8_16(str::Vector{UInt8})
     len::UInt = sizeof(str)
     # handle zero length string quickly
     if len == 0
@@ -514,9 +510,9 @@ function reencode_string(::Type{UTF16String}, str::Vector{UInt8}, ::Type{UTF8Str
         return UTF16String(buf)
     end
     # Check that is correct UTF-8 encoding and get number of words needed
-    len, cnt2::UInt, cnt3::UInt, cnt4::UInt, flags::UInt = check_string(UTF8String, str)
+    len, cnt2::UInt, cnt3::UInt, cnt4::UInt, flags::UInt = check_string_utf8(str)
     # Optimize case where no characters > 0x7f
-    flags == 0 && return reencode_string(UTF16String, str, ASCIIString)
+    flags == 0 && return reencode_string_a_16(str)
     len += cnt4
     buf = Vector{UInt16}(len+1)
     @inbounds begin
@@ -548,19 +544,17 @@ end
 @doc """
 @brief      Reencodes a UTF-16 encoded string using UTF-8 encoding
 
-@param[in]  UTF8String
 @param[in]  str::Vector{UInt16}
-@param[in]  UTF16String
 
 @return     ::UTF8String
 @throws     ArgumentError
 """ ->
 =#
-function reencode_string(::Type{UTF8String}, str::Vector{UInt16}, ::Type{UTF16String})
+function reencode_string_16_8(str::Vector{UInt16})
     # handle zero length string quickly
     sizeof(str) <= 2 && return UTF8String("")
     # get number of bytes to allocate
-    len::UInt, cnt2::UInt, cnt3::UInt, cnt4::UInt, flags::UInt = check_string(UTF16String, str)
+    len::UInt, cnt2::UInt, cnt3::UInt, cnt4::UInt, flags::UInt = check_string_utf16(str)
     len += cnt2 + cnt3*2 + cnt4*3
     buf = Vector{UInt8}(len)
     @inbounds begin
@@ -602,10 +596,10 @@ convert(::Type{UTF16String}, s::AbstractString) = encode16(s)
 convert(::Type{Vector{UInt16}}, s::UTF16String) = s.data
 convert(::Type{Array{UInt16}}, s::UTF16String) = s.data
 
-convert(::Type{UTF8String}, str::Vector{UInt16}) = reencode_string(UTF8String, str, UTF16String)
-convert(::Type{UTF8String},  str::UTF16String) = reencode_string(UTF8String, str.data, UTF16String)
-convert(::Type{UTF16String}, str::ASCIIString) = reencode_string(UTF16String, str.data, ASCIIString)
-convert(::Type{UTF16String}, str::UTF8String) = reencode_string(UTF16String, str.data, UTF8String)
+convert(::Type{UTF8String}, str::Vector{UInt16}) = reencode_string_16_8(str)
+convert(::Type{UTF8String},  str::UTF16String) = reencode_string_16_8(str.data)
+convert(::Type{UTF16String}, str::ASCIIString) = reencode_string_a_16(str.data)
+convert(::Type{UTF16String}, str::UTF8String) = reencode_string_8_16(str.data)
 
 sizeof(s::UTF16String) = sizeof(s.data) - sizeof(UInt16)
 unsafe_convert{T<:Union(Int16,UInt16)}(::Type{Ptr{T}}, s::UTF16String) =
