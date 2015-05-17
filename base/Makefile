@@ -55,6 +55,11 @@ ifeq ($(USE_GPL_LIBS), 1)
 else
 	@echo "const USE_GPL_LIBS = false" >> $@
 endif
+ifeq ($(BUILD_LITE), 1)
+	@echo "const BUILD_LITE = true" >> $@
+else
+	@echo "const BUILD_LITE = false" >> $@
+endif
 	@echo "const libfftw_name = \"$(LIBFFTWNAME)\"" >> $@
 	@echo "const libfftwf_name = \"$(LIBFFTWFNAME)\"" >> $@
 	@echo "const libllvm_version = \"$(LLVM_VER)\"" >> $@

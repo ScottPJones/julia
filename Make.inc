@@ -54,6 +54,9 @@ USE_INTEL_JITEVENTS ?= 0
 USEICC  ?= 0
 USEIFC  ?= 0
 
+# Set to 1 to build a "lite" version of Julia
+BUILD_LITE ?= 0
+
 ifeq ($(USE_MKL), 1)
 $(warning "The julia make variable USE_MKL has been renamed to USE_INTEL_MKL")
 USE_INTEL_MKL = 1
@@ -91,7 +94,11 @@ JULIA_COMMIT = $(JULIA_VERSION)
 endif
 
 # Whether to use GPL libraries or not.
+ifeq ($(BUILD_LITE), 1)
+USE_GPL_LIBS ?= 0
+else
 USE_GPL_LIBS ?= 1
+endif
 
 # Directories where said libraries get installed to
 prefix ?= $(abspath julia-$(JULIA_COMMIT))

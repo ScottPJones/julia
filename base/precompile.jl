@@ -295,7 +295,9 @@ precompile(Base.next, (Dict{Symbol,Any},Int))
 precompile(Base.next, (IntSet, Int))
 precompile(Base.next, (UnitRange{Int},Int))
 precompile(Base.nextind, (ASCIIString, Int))
+if !BUILD_LITE
 precompile(Base.nnz, (BitArray{1},))
+end
 precompile(Base.normpath, (ASCIIString,))
 precompile(Base.notify, (Condition, Any))
 precompile(Base.notify_empty, (Base.RemoteValue,))

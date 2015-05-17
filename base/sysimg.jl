@@ -248,6 +248,7 @@ using .Markdown
 # misc useful functions & macros
 include("util.jl")
 
+if !BUILD_LITE
 # dense linear algebra
 include("linalg.jl")
 importall .LinAlg
@@ -269,6 +270,7 @@ if USE_GPL_LIBS
     include("dsp.jl")
     importall .DSP
 end
+end
 
 # system information
 include("sysinfo.jl")
@@ -277,9 +279,11 @@ import .Sys.CPU_CORES
 # mathematical constants
 include("constants.jl")
 
+if !BUILD_LITE
 # Numerical integration
 include("quadgk.jl")
 importall .QuadGK
+end
 
 # Fast math
 include("fastmath.jl")
@@ -289,6 +293,7 @@ importall .FastMath
 include("pkg.jl")
 const Git = Pkg.Git
 
+if !BUILD_LITE
 # profiler
 include("profile.jl")
 importall .Profile
@@ -296,6 +301,7 @@ importall .Profile
 # dates
 include("Dates.jl")
 import .Dates: Date, DateTime, now
+end
 
 # deprecated functions
 include("deprecated.jl")

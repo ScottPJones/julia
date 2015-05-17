@@ -374,8 +374,10 @@ end
 end
 
 # 8898
+if !BUILD_LITE
 @deprecate precision(x::DateTime) eps(x)
 @deprecate precision(x::Date) eps(x)
+end
 
 @deprecate names(t::DataType) fieldnames(t)
 @deprecate names(v) fieldnames(v)
