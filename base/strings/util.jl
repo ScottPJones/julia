@@ -32,7 +32,8 @@ endswith(str::AbstractString, chars::Chars) = !isempty(str) && last(str) in char
 
 startswith(a::ByteString, b::ByteString) = startswith(a.data, b.data)
 startswith(a::Vector{UInt8}, b::Vector{UInt8}) =
-    (length(a) >= length(b) && ccall(:memcmp, Int32, (Ptr{UInt8}, Ptr{UInt8}, UInt), a, b, length(b)) == 0)
+    (length(a) >= length(b) &&
+     ccall(:memcmp, Int32, (Ptr{UInt8}, Ptr{UInt8}, UInt), a, b, length(b)) == 0)
 
 # TODO: fast endswith
 
@@ -123,9 +124,16 @@ cpad(s, n::Integer, p=" ") = rpad(lpad(s,div(n+strwidth(s),2),p),n,p)
 
 # splitter can be a Char, Vector{Char}, AbstractString, Regex, ...
 # any splitter that provides search(s::AbstractString, splitter)
-split{T<:SubString}(str::T, splitter; limit::Integer=0, keep::Bool=true) = _split(str, splitter, limit, keep, T[])
-split{T<:AbstractString}(str::T, splitter; limit::Integer=0, keep::Bool=true) = _split(str, splitter, limit, keep, SubString{T}[])
-function _split{T<:AbstractString,U<:Array}(str::T, splitter, limit::Integer, keep_empty::Bool, strs::U)
+split{T<:SubString}(str::T, splitter; limit::Integer=0, keep::Bool=true) =
+    _split(str, splitter, limit, keep, T[])
+split{T<:AbstractString}(str::T, splitter; limit::Integer=0, keep::Bool=true) =
+    _split(str, splitter, limit, keep, SubString{T}[])
+
+function _split{T<:AbstractString,U<:Array}(str::T,
+                                            splitter,
+                                            limit::Integer,
+                                            keep_empty::Bool,
+                                            strs::U)
     i = start(str)
     n = endof(str)
     r = search(str,splitter,i)
@@ -150,9 +158,16 @@ end
 # a bit oddball, but standard behavior in Perl, Ruby & Python:
 split(str::AbstractString) = split(str, _default_delims; limit=0, keep=false)
 
-rsplit{T<:SubString}(str::T, splitter; limit::Integer=0, keep::Bool=true) = _rsplit(str, splitter, limit, keep, T[])
-rsplit{T<:AbstractString}(str::T, splitter   ; limit::Integer=0, keep::Bool=true) = _rsplit(str, splitter, limit, keep, SubString{T}[])
-function _rsplit{T<:AbstractString,U<:Array}(str::T, splitter, limit::Integer, keep_empty::Bool, strs::U)
+rsplit{T<:SubString}(str::T, splitter; limit::Integer=0, keep::Bool=true) =
+    _rsplit(str, splitter, limit, keep, T[])
+rsplit{T<:AbstractString}(str::T, splitter   ; limit::Integer=0, keep::Bool=true) =
+    _rsplit(str, splitter, limit, keep, SubString{T}[])
+
+function _rsplit{T<:AbstractString,U<:Array}(str::T,
+                                             splitter,
+                                             limit::Integer,
+                                             keep_empty::Bool,
+                                             strs::U)
     i = start(str)
     n = endof(str)
     r = rsearch(str,splitter)
@@ -234,7 +249,7 @@ function hex2bytes(s::AbstractString)
     return a
 end
 
-function hex(arr::Vector{UInt8})
+function bytes2hex(arr::Vector{UInt8})
     out = Vector{UInt8}(length(arr)<<1)
     o = 0
     for i = 1:length(arr)
@@ -246,7 +261,3 @@ function hex(arr::Vector{UInt8})
     end
     ASCIIString(out)
 end
-
-hex(str::ByteString) = hex(str.data)
-
-bytes2hex(arr::Vector{UInt8}) = hex(arr)
