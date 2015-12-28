@@ -618,6 +618,7 @@ b2 = trues(n1, n2)
 @check_bit_operation div(Array(b1),b2) BitMatrix
 @check_bit_operation mod(Array(b1),b2) BitMatrix
 
+if Base.BUILD_LINALG
 while true
     global b1
     b1 = bitrand(n1, n1)
@@ -630,13 +631,15 @@ b2 = bitrand(n1, n1)
 @check_bit_operation (*)(b1, b2) Matrix{Int}
 @check_bit_operation (/)(b1, b1) Matrix{Float64}
 @check_bit_operation (\)(b1, b1) Matrix{Float64}
+end
 
 b0 = falses(0)
 @check_bit_operation (&)(b0, b0)  BitVector
 @check_bit_operation (|)(b0, b0)  BitVector
 @check_bit_operation ($)(b0, b0)  BitVector
 @check_bit_operation (.*)(b0, b0) BitVector
-@check_bit_operation (*)(b0, b0') Matrix{Int}
+
+Base.BUILD_LINALG && @check_bit_operation (*)(b0, b0') Matrix{Int}
 
 # Matrix{Bool}/Matrix{Int}
 b1 = bitrand(n1, n2)
@@ -666,9 +669,6 @@ b2 = bitrand(n1, n2)
 i1 = rand(1:10)
 u1 = UInt8(i1)
 f1 = Float64(i1)
-ci1 = complex(i1)
-cu1 = complex(u1)
-cf1 = complex(f1)
 
 @check_bit_operation (&)(i1, b2)  Matrix{Int}
 @check_bit_operation (|)(i1, b2)  Matrix{Int}
@@ -684,13 +684,18 @@ cf1 = complex(f1)
 @check_bit_operation (.-)(u1, b2)  Matrix{UInt8}
 @check_bit_operation (.*)(u1, b2) Matrix{UInt8}
 
-for (x1,t1) = [(f1, Float64),
-               (ci1, Complex{Int}),
-               (cu1, Complex{UInt8}),
-               (cf1, Complex128)]
-    @check_bit_operation (.+)(x1, b2)  Matrix{t1}
-    @check_bit_operation (.-)(x1, b2)  Matrix{t1}
-    @check_bit_operation (.*)(x1, b2) Matrix{t1}
+if Base.BUILD_COMPLEX
+    ci1 = complex(i1)
+    cu1 = complex(u1)
+    cf1 = complex(f1)
+    for (x1,t1) = [(f1, Float64),
+                   (ci1, Complex{Int}),
+                   (cu1, Complex{UInt8}),
+                   (cf1, Complex128)]
+        @check_bit_operation (.+)(x1, b2) Matrix{t1}
+        @check_bit_operation (.-)(x1, b2) Matrix{t1}
+        @check_bit_operation (.*)(x1, b2) Matrix{t1}
+    end
 end
 
 b2 = trues(n1, n2)
@@ -713,9 +718,11 @@ b2 = trues(n1, n2)
 @check_bit_operation div(f1, b2)  Matrix{Float64}
 @check_bit_operation mod(f1, b2)  Matrix{Float64}
 
-@check_bit_operation (./)(ci1, b2) Matrix{Complex128}
-@check_bit_operation (./)(cu1, b2) Matrix{Complex128}
-@check_bit_operation (./)(cf1, b2) Matrix{Complex128}
+if Base.BUILD_COMPLEX
+    @check_bit_operation (./)(ci1, b2) Matrix{Complex128}
+    @check_bit_operation (./)(cu1, b2) Matrix{Complex128}
+    @check_bit_operation (./)(cf1, b2) Matrix{Complex128}
+end
 
 b2 = bitrand(n1, n2)
 @check_bit_operation (.^)(false, b2) BitMatrix
@@ -727,22 +734,27 @@ b2 = bitrand(n1, n2)
 @check_bit_operation (.^)(1, b2)     Matrix{Int}
 @check_bit_operation (.^)(0.0, b2)   Matrix{Float64}
 @check_bit_operation (.^)(1.0, b2)   Matrix{Float64}
-@check_bit_operation (.^)(0.0im, b2) Matrix{Complex128}
-@check_bit_operation (.^)(1.0im, b2) Matrix{Complex128}
-@check_bit_operation (.^)(0im, b2)   Matrix{Complex{Int}}
-@check_bit_operation (.^)(1im, b2)   Matrix{Complex{Int}}
-@check_bit_operation (.^)(0x0im, b2) Matrix{Complex{UInt8}}
-@check_bit_operation (.^)(0x1im, b2) Matrix{Complex{UInt8}}
+
+if Base.BUILD_COMPLEX
+    @check_bit_operation (.^)(0.0im, b2) Matrix{Complex128}
+    @check_bit_operation (.^)(1.0im, b2) Matrix{Complex128}
+    @check_bit_operation (.^)(0im, b2)   Matrix{Complex{Int}}
+    @check_bit_operation (.^)(1im, b2)   Matrix{Complex{Int}}
+    @check_bit_operation (.^)(0x0im, b2) Matrix{Complex{UInt8}}
+    @check_bit_operation (.^)(0x1im, b2) Matrix{Complex{UInt8}}
+end
 
 # Matrix/Number
 b1 = bitrand(n1, n2)
 i2 = rand(1:10)
 u2 = UInt8(i2)
 f2 = Float64(i2)
-ci2 = complex(i2)
-cu2 = complex(u2)
-cf2 = complex(f2)
 b2 = Array(bitrand(n1,n2))
+if Base.BUILD_COMPLEX
+    ci2 = complex(i2)
+    cu2 = complex(u2)
+    cf2 = complex(f2)
+end
 
 @check_bit_operation (&)(b1, true)   BitMatrix
 @check_bit_operation (&)(b1, false)  BitMatrix
@@ -802,6 +814,7 @@ b2 = Array(bitrand(n1,n2))
 @check_bit_operation div(b1, f2)  Matrix{Float64}
 @check_bit_operation mod(b1, f2)  Matrix{Float64}
 
+if Base.BUILD_COMPLEX
 @check_bit_operation (.+)(b1, ci2)  Matrix{Complex{Int}}
 @check_bit_operation (.-)(b1, ci2)  Matrix{Complex{Int}}
 @check_bit_operation (.*)(b1, ci2) Matrix{Complex{Int}}
@@ -816,6 +829,7 @@ b2 = Array(bitrand(n1,n2))
 @check_bit_operation (.-)(b1, cf2)  Matrix{Complex128}
 @check_bit_operation (.*)(b1, cf2) Matrix{Complex128}
 @check_bit_operation (./)(b1, cf2) Matrix{Complex128}
+end
 
 @check_bit_operation (.^)(b1, false) BitMatrix
 @check_bit_operation (.^)(b1, true)  BitMatrix
@@ -826,17 +840,21 @@ b2 = Array(bitrand(n1,n2))
 @check_bit_operation (.^)(b1, -1.0)  Matrix{Float64}
 @check_bit_operation (.^)(b1, 0.0)   Matrix{Float64}
 @check_bit_operation (.^)(b1, 1.0)   Matrix{Float64}
+if Base.BUILD_COMPLEX
 @check_bit_operation (.^)(b1, 0.0im) Matrix{Complex128}
 @check_bit_operation (.^)(b1, 0x0im) Matrix{Complex128}
 @check_bit_operation (.^)(b1, 0im)   Matrix{Complex128}
+end
 @test_throws DomainError (.^)(b1, -1)
 
 b1 = trues(n1, n2)
+if Base.BUILD_COMPLEX
 @check_bit_operation (.^)(b1, -1.0im) Matrix{Complex128}
 @check_bit_operation (.^)(b1, 1.0im)  Matrix{Complex128}
 @check_bit_operation (.^)(b1, -1im)   Matrix{Complex128}
 @check_bit_operation (.^)(b1, 1im)    Matrix{Complex128}
 @check_bit_operation (.^)(b1, 0x1im)  Matrix{Complex128}
+end
 
 timesofar("binary arithmetic")
 
@@ -1211,6 +1229,7 @@ end
 
 timesofar("cat")
 
+if Base.BUILD_LINALG
 # Linear algebra
 
 b1 = bitrand(v1)
@@ -1354,3 +1373,4 @@ B = trues(Int64(10))
 A = falses(Int32(10))
 B = falses(Int64(10))
 @test A == B
+end

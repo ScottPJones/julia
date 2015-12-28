@@ -1278,6 +1278,7 @@ fill!(buffer,0);
 map(x->Grisu.Bignums.zero!(x),bignums)
 
 #Float16
+if Base.BUILD_FLOAT16
 min_double = realmin(Float16)
 status,len,point = Grisu.fastshortest(min_double,buffer)
 @test status
@@ -1426,6 +1427,7 @@ status,len,point = Grisu.fastfixedtoa(Float16(0.5), 0,0, buffer)
 @test "1" == unsafe_string(pointer(buffer))
 @test 1 == point
 fill!(buffer,0);
+end
 
 #dtoa
 len,point,neg = Grisu.grisu(0.0, Grisu.SHORTEST, 0, buffer)

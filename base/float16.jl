@@ -1,5 +1,42 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
+## floating point traits ##
+
+const Inf16 = box(Float16,unbox(UInt16,0x7c00))
+const NaN16 = box(Float16,unbox(UInt16,0x7e00))
+
+## conversions to floating-point ##
+convert(::Type{Float16}, x::Integer) = convert(Float16, convert(Float32,x))
+for t in (Int8,Int16,Int32,Int64,Int128,UInt8,UInt16,UInt32,UInt64,UInt128)
+    @eval promote_rule(::Type{Float16}, ::Type{$t}) = Float32
+end
+
+## floating point promotions ##
+promote_rule(::Type{Float16}, ::Type{Bool}) = Float16
+promote_rule(::Type{Float32}, ::Type{Float16}) = Float32
+promote_rule(::Type{Float64}, ::Type{Float16}) = Float64
+
+#convert(::Type{Float16}, x::Float32) = box(Float16,fptrunc(Float16,x))
+convert(::Type{Float16}, x::Float64) = convert(Float16, convert(Float32,x))
+#convert(::Type{Float32}, x::Float16) = box(Float32,fpext(Float32,x))
+convert(::Type{Float64}, x::Float16) = convert(Float64, convert(Float32,x))
+
+# fallbacks
+widen(::Type{Float16}) = Float32
+
+## precision, as defined by the effective number of bits in the mantissa ##
+precision(::Type{Float16}) = 11
+
+nextfloat(x::Float16, i::Integer) =
+    (isinf(x)&&sign(x)==sign(i)) ? x : reinterpret(Float16,float_lex_order(reinterpret(Int16,x), i))
+@eval begin
+    typemin(::Type{Float16}) = $(box(Float16,unbox(UInt16,0xfc00)))
+    typemax(::Type{Float16}) = $(Inf16)
+    realmin(::Type{Float16}) = $(box(Float16,unbox(UInt16,0x0400)))
+    realmax(::Type{Float16}) = $(box(Float16,unbox(UInt16,0x7bff)))
+    eps(::Type{Float16}) = $(box(Float16,unbox(UInt16,0x1400)))
+end
+
 function convert(::Type{Float32}, val::Float16)
     ival::UInt32 = reinterpret(UInt16, val)
     sign::UInt32 = (ival & 0x8000) >> 15

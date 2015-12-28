@@ -107,7 +107,7 @@ for v = [sqrt(2),-1/3,nextfloat(1.0),prevfloat(1.0),nextfloat(-1.0),
     @test pu - pd == eps(pz)
 end
 
-for T in [Float32,Float64]
+Base.BUILD_BIGFLT && for T in [Float32,Float64]
     for v in [sqrt(big(2.0)),-big(1.0)/big(3.0),nextfloat(big(1.0)),
               prevfloat(big(1.0)),nextfloat(big(0.0)),prevfloat(big(0.0)),
               pi,e,eulergamma,catalan,golden,

@@ -20,6 +20,14 @@ macro profile(ex)
     end
 end
 
+"""
+    @profile
+
+`@profile <expression>` runs your expression while taking periodic backtraces. These are
+appended to an internal buffer of backtraces.
+"""
+:@profile
+
 ####
 #### User-level functions
 ####

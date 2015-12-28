@@ -2,35 +2,40 @@
 
 # Test integer conversion routines from int.jl
 
+postypes = [4, Float32(4), 4.0]
+negtypes = [-4, Float32(-4), -4.0]
+Base.BUILD_BIGFLT && (push!(negtypes, big(-4.0)) ; push!(postypes, big(4.0)))
 
-for y in (-4, Float32(-4), -4.0, big(-4.0))
+for y in negtypes
     @test flipsign(3, y)  == -3
     @test flipsign(-3, y) == 3
     @test copysign(3, y)  == -3
     @test copysign(-3, y) == -3
 end
 
-for y in (4, Float32(4), 4.0, big(4.0))
+for y in postypes
     @test flipsign(3, y)  == 3
     @test flipsign(-3, y) == -3
     @test copysign(3, y)  == 3
     @test copysign(-3, y) == 3
 end
 
+numtypes = [Base.BitInteger_types..., Float32, Float64]
+Base.BUILD_FLOAT16 && push!(numtypes, Float16)
+Base.BUILD_BIGINT && push!(numtypes, BigInt)
+if Base.BUILD_RATIONAL
+    push!(numtypes, Rational{Int})
+    Base.BUILD_BIGINT && push!(numtypes, Rational{BigInt})
+end
+
 # Result type must be type of first argument
-for T in (Base.BitInteger_types..., BigInt,
-          Rational{Int}, Rational{BigInt},
-          Float16, Float32, Float64)
-    for U in (Base.BitInteger_types..., BigInt,
-              Rational{Int}, Rational{BigInt},
-              Float16, Float32, Float64)
-        @test typeof(copysign(T(3), U(4))) === T
-        @test typeof(flipsign(T(3), U(4))) === T
-    end
+for T in numtypes, U in numtypes
+    @test typeof(copysign(T(3), U(4))) === T
+    @test typeof(flipsign(T(3), U(4))) === T
 end
 
 for s1 in (-1,+1), s2 in (-1,+1)
-    @test flipsign(Int16(3s1), Float16(3s2)) === Int16(3s1*s2)
+    Base.BUILD_FLOAT16 && @test flipsign(Int16(3s1), Float16(3s2)) === Int16(3s1*s2)
     @test flipsign(Int32(3s1), Float32(3s2)) === Int32(3s1*s2)
     @test flipsign(Int64(3s1), Float64(3s2)) === Int64(3s1*s2)
 end
@@ -76,12 +81,6 @@ end
 
 @test floor(3) == 3
 @test ceil(3) == 3
-
-@test big"2"^100 == BigInt(2)^100
-@test isa(big"2", BigInt)
-@test big"1.0" == BigFloat(1.0)
-@test_throws ArgumentError big"1.0.3"
-@test_throws ArgumentError big"pi"
 
 @test round(UInt8, 123) == 123
 @test mod(123, UInt8) == 0x7b
@@ -162,15 +161,11 @@ end
 @test widen(UInt16(3)) === UInt32(3)
 @test widen(UInt32(3)) === UInt64(3)
 @test widen(UInt64(3)) === UInt128(3)
-@test widen(UInt128(3)) == 3
-@test typeof(widen(UInt128(3))) == BigInt
 
 @test widen(Int8(-3)) === Int32(-3)
 @test widen(Int16(-3)) === Int32(-3)
 @test widen(Int32(-3)) === Int64(-3)
 @test widen(Int64(-3)) === Int128(-3)
-@test widen(Int128(-3)) == -3
-@test typeof(widen(Int128(-3))) == BigInt
 
 @test widemul(false, false) == false
 @test widemul(false, 3) == 0

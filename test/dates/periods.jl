@@ -67,8 +67,8 @@ ms = Dates.Millisecond(1)
 @test typeof(UInt64(y)) <: UInt64
 @test typeof(Int128(y)) <: Int128
 @test typeof(UInt128(y)) <: UInt128
-@test typeof(convert(BigInt,y)) <: BigInt
-@test typeof(convert(BigFloat,y)) <: BigFloat
+Base.BUILD_BIGINT && @test typeof(convert(BigInt,y)) <: BigInt
+Base.BUILD_BIGFLT && @test typeof(convert(BigFloat,y)) <: BigFloat
 @test typeof(convert(Complex,y)) <: Complex
 @test typeof(convert(Rational,y)) <: Rational
 @test typeof(Float16(y)) <: Float16
@@ -84,8 +84,8 @@ ms = Dates.Millisecond(1)
 @test Dates.Year(convert(UInt64,1)) == y
 @test Dates.Year(convert(Int128,1)) == y
 @test Dates.Year(convert(UInt128,1)) == y
-@test Dates.Year(convert(BigInt,1)) == y
-@test Dates.Year(convert(BigFloat,1)) == y
+Base.BUILD_BIGINT && @test Dates.Year(convert(BigInt,1)) == y
+Base.BUILD_BIGFLT && @test Dates.Year(convert(BigFloat,1)) == y
 @test Dates.Year(convert(Complex,1)) == y
 @test Dates.Year(convert(Rational,1)) == y
 @test Dates.Year(convert(Float16,1)) == y
@@ -115,12 +115,12 @@ y2 = Dates.Year(2)
 @test Dates.Year(UInt128(1)) == y
 @test Dates.Year(UInt128(1)) == y
 @test Dates.Year(big(1)) == y
-@test Dates.Year(BigFloat(1)) == y
+Base.BUILD_BIGFLT && @test Dates.Year(BigFloat(1)) == y
 @test Dates.Year(float(1)) == y
 @test Dates.Year(Float32(1)) == y
 @test Dates.Year(Rational(1)) == y
 @test Dates.Year(complex(1)) == y
-@test_throws InexactError Dates.Year(BigFloat(1.2)) == y
+Base.BUILD_BIGFLT && @test_throws InexactError Dates.Year(BigFloat(1.2)) == y
 @test_throws InexactError Dates.Year(1.2) == y
 @test_throws InexactError Dates.Year(Float32(1.2)) == y
 @test_throws InexactError Dates.Year(3//4) == y

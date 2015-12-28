@@ -57,6 +57,9 @@ USEIFC  ?= 0
 
 JULIA_THREADS := 1 # Enable threading with one thread
 
+# Set to 1 to build a "lite" version of Julia
+BUILD_LITE ?= 0
+
 ifeq ($(USE_MKL), 1)
 $(warning "The julia make variable USE_MKL has been renamed to USE_INTEL_MKL")
 USE_INTEL_MKL := 1
@@ -160,8 +163,45 @@ else
 JULIA_COMMIT := $(JULIA_VERSION)
 endif
 
+# Default to building lite version
+BUILD_FULL ?= 0
+
 # Whether to use GPL libraries or not.
-USE_GPL_LIBS ?= 1
+USE_GPL_LIBS   ?= $(BUILD_FULL)
+
+BUILD_BIGINT   ?= $(BUILD_FULL)
+BUILD_BIGFLT   ?= $(BUILD_FULL)
+BUILD_DSP      ?= $(BUILD_FULL)
+BUILD_DATES    ?= $(BUILD_FULL)
+BUILD_STATS    ?= $(BUILD_FULL)
+BUILD_THREADS  ?= $(BUILD_FULL)
+BUILD_PROFILER ?= $(BUILD_FULL)
+BUILD_MMAP     ?= $(BUILD_FULL)
+BUILD_PKG      ?= $(BUILD_FULL)
+BUILD_FLOAT16  ?= $(BUILD_FULL)
+BUILD_LINALG   ?= $(BUILD_FULL)
+BUILD_SPARSE   ?= $(BUILD_FULL)
+BUILD_COMPLEX  ?= $(BUILD_FULL)
+BUILD_RATIONAL ?= $(BUILD_FULL)
+
+BUILD_PARALLEL ?= 1
+BUILD_DOCS     ?= 1
+BUILD_HELP     ?= 1
+BUILD_REPL     ?= 1
+BUILD_TEST     ?= 1
+
+ifeq ($(BUILD_BIGINT), 0)
+USE_SYSTEM_GMP := 1
+endif
+ifeq ($(BUILD_BIGFLT), 0)
+USE_SYSTEM_MPFR := 1
+endif
+ifeq ($(BUILD_LINALG), 0)
+USE_SYSTEM_BLAS := 1
+USE_SYSTEM_LAPACK := 1
+USE_SYSTEM_ARPACK := 1
+USE_SYSTEM_SUITESPARSE := 1
+endif
 
 # Directories where said libraries get installed to
 prefix ?= $(abspath julia-$(JULIA_COMMIT))
@@ -634,6 +674,11 @@ ISX86:=1
 else
 # For all other architectures (ARM, PPC, AArch64, etc.)
 ISX86:=0
+endif
+ifeq ($(BUILD_BIGINT),0)
+ifeq ($(BINARY),32)
+BUILD_BIGINT:=1
+endif
 endif
 
 # If we are running on powerpc64, set certain options automatically

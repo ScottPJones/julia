@@ -33,6 +33,18 @@ include("generator.jl")
 include("reflection.jl")
 include("options.jl")
 
+# Load generated build and version constants
+
+if slt_int(unbox(Int,arraylen(Core.ARGS)),unbox(Int,2))
+    include("build_h.jl")
+    include("version_git.jl")
+else
+    include(UTF8String(vcat(Core.ARGS[2].data, "build_h.jl".data)))
+    include(UTF8String(vcat(Core.ARGS[2].data, "version_git.jl".data)))
+end
+include("exports.jl")
+
+
 # core operations & types
 include("promotion.jl")
 include("tuple.jl")
@@ -79,12 +91,13 @@ Array{T}(::Type{T}, m::Integer,n::Integer)            = Array{T,2}(Int(m),Int(n)
 Array{T}(::Type{T}, m::Integer,n::Integer,o::Integer) = Array{T,3}(Int(m),Int(n),Int(o))
 
 # numeric operations
+include("basetypes.jl")
 include("hashing.jl")
 include("rounding.jl")
 importall .Rounding
 include("float.jl")
-include("complex.jl")
-include("rational.jl")
+BUILD_COMPLEX && include("complex.jl")
+BUILD_RATIONAL && include("rational.jl")
 include("multinverses.jl")
 using .MultiplicativeInverses
 include("abstractarraymath.jl")
@@ -170,7 +183,7 @@ include("math.jl")
 importall .Math
 const (√)=sqrt
 const (∛)=cbrt
-include("float16.jl")
+BUILD_FLOAT16 && include("float16.jl")
 
 # multidimensional arrays
 include("cartesian.jl")
@@ -205,13 +218,19 @@ importall .Sort
 include("version.jl")
 
 # BigInts and BigFloats
-include("gmp.jl")
-importall .GMP
-include("mpfr.jl")
-importall .MPFR
-big(n::Integer) = convert(BigInt,n)
-big(x::AbstractFloat) = convert(BigFloat,x)
-big(q::Rational) = big(num(q))//big(den(q))
+if BUILD_BIGINT
+    include("gmp.jl")
+    importall .GMP
+    big(n::Integer) = convert(BigInt,n)
+end
+if BUILD_BIGFLT
+    include("mpfr.jl")
+    importall .MPFR
+    big(x::AbstractFloat) = convert(BigFloat,x)
+end
+if BUILD_RATIONAL && (BUILD_BIGINT || BUILD_BIGFLT)
+    big(q::Rational) = big(num(q))//big(den(q))
+end
 
 include("combinatorics.jl")
 
@@ -237,47 +256,57 @@ importall .Enums
 # concurrency and parallelism
 include("serialize.jl")
 importall .Serializer
-include("channels.jl")
-include("multi.jl")
-include("workerpool.jl")
-include("pmap.jl")
-include("managers.jl")
-include("asyncmap.jl")
+if BUILD_PARALLEL
+    include("channels.jl")
+    include("multi.jl")
+    include("workerpool.jl")
+    include("pmap.jl")
+    include("managers.jl")
+    include("asyncmap.jl")
+end
+include("mapiterator.jl")
 
 # code loading
 include("loading.jl")
 
 # memory-mapped and shared arrays
-include("mmap.jl")
-import .Mmap
-include("sharedarray.jl")
+if BUILD_MMAP
+    include("mmap.jl")
+    import .Mmap
+    include("sharedarray.jl")
+end
 
 # utilities - timing, help, edit
 include("datafmt.jl")
 importall .DataFmt
 include("deepcopy.jl")
 include("interactiveutil.jl")
-include("replutil.jl")
-include("test.jl")
+BUILD_REPL && include("replutil.jl")
+BUILD_TEST && include("test.jl")
 include("i18n.jl")
 using .I18n
 
 # frontend
-include("initdefs.jl")
-include("Terminals.jl")
-include("LineEdit.jl")
-include("REPLCompletions.jl")
-include("REPL.jl")
-include("client.jl")
+if BUILD_REPL
+    include("initdefs.jl")
+    include("Terminals.jl")
+    include("LineEdit.jl")
+    include("REPLCompletions.jl")
+    include("REPL.jl")
+    include("client.jl")
+end
 
 # misc useful functions & macros
 include("util.jl")
 
 # dense linear algebra
-include("linalg.jl")
-importall .LinAlg
-const ⋅ = dot
-const × = cross
+if BUILD_LINALG
+    include("linalg.jl")
+    importall .LinAlg
+    const ⋅ = dot
+    const × = cross
+end
+
 include("broadcast.jl")
 importall .Broadcast
 
@@ -288,58 +317,72 @@ include("statistics.jl")
 include("irrationals.jl")
 
 # signal processing
-include("dft.jl")
-importall .DFT
-include("dsp.jl")
-importall .DSP
+if BUILD_DSP
+    include("dft.jl")
+    importall .DFT
+    include("dsp.jl")
+    importall .DSP
+end
 
-# Numerical integration
-include("quadgk.jl")
-importall .QuadGK
+if BUILD_FULL
+    # Numerical integration
+    include("quadgk.jl")
+    importall .QuadGK
 
-# Fast math
-include("fastmath.jl")
-importall .FastMath
+    # Fast math
+    include("fastmath.jl")
+    importall .FastMath
+end
 
-# libgit2 support
-include("libgit2.jl")
+if BUILD_PKG
+    # libgit2 support
+    include("libgit2.jl")
 
-# package manager
-include("pkg.jl")
-const Git = Pkg.Git
+    # package manager
+    include("pkg.jl")
+    const Git = Pkg.Git
+end
 
 # Stack frames and traces
 include("stacktraces.jl")
 importall .StackTraces
 
 # profiler
-include("profile.jl")
-importall .Profile
+if BUILD_PROFILER
+    include("profile.jl")
+    importall .Profile
+end
 
 # dates
-include("Dates.jl")
-import .Dates: Date, DateTime, now
+if BUILD_DATES
+    include("Dates.jl")
+    import .Dates: Date, DateTime, now
+end
 
 # sparse matrices, vectors, and sparse linear algebra
-include("sparse.jl")
-importall .SparseArrays
+if BUILD_SPARSE
+    include("sparse.jl")
+    importall .SparseArrays
+end
 
 # threads
-include("threads.jl")
-include("threadcall.jl")
+if BUILD_THREADS
+    include("threads.jl")
+    include("threadcall.jl")
+end
 
 # deprecated functions
-include("deprecated.jl")
-
-# Some basic documentation
-include("docs/helpdb.jl")
-include("docs/basedocs.jl")
+BUILD_FULL && include("deprecated.jl")
 
 # Documentation -- should always be included last in sysimg.
-include("markdown/Markdown.jl")
-include("docs/Docs.jl")
-using .Docs, .Markdown
-Docs.loaddocs(Core.Inference.CoreDocs.DOCS)
+
+if BUILD_DOCS
+    include("markdown/Markdown.jl")
+    include("docs/Docs.jl")
+    using .Docs
+    using .Markdown
+    Docs.loaddocs(Core.Inference.CoreDocs.DOCS)
+end
 
 function __init__()
     # Base library init
@@ -348,11 +391,15 @@ function __init__()
     early_init()
     init_load_path()
     init_parallel()
-    init_threadcall()
+    BUILD_THREADS && init_threadcall()
 end
 
 include = include_from_node1
 include("precompile.jl")
+
+if BUILD_DOCS
+include("precompiledocs.jl")
+end
 
 end # baremodule Base
 
@@ -360,3 +407,4 @@ using Base
 importall Base.Operators
 
 Base.isfile("userimg.jl") && Base.include("userimg.jl")
+

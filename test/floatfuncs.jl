@@ -6,16 +6,24 @@ using Base.Test
 
 # flipsign
 
+if Base.BUILD_BIGFLT
 for elty in (Float32,Float64)
     x = convert(elty,-2.0)
     x = flipsign(x,-1.0)
     @test flipsign(x,big(-1.0)) == convert(elty,-2.0)
 end
+end
 
 #maxintfloat
 
-@test maxintfloat(Float16) == Float16(2048f0)
-for elty in (Float16,Float32,Float64)
+if Base.BUILD_FLOAT16
+    floattypes = (Float16,Float32,Float64)
+    @test maxintfloat(Float16) == Float16(2048f0)
+else
+    floattypes = (Float32,Float64)
+end
+
+for elty in floattypes
     @test maxintfloat(rand(elty)) == maxintfloat(elty)
 end
 @test maxintfloat() == maxintfloat(Float64)
@@ -36,7 +44,7 @@ for elty in (Float16,Float32,Float64)
 end
 
 #num2hex
-for elty in (Float16,Float32,Float64)
+for elty in floattypes
     x = rand(elty)
     @test_approx_eq hex2num(num2hex(x)) x
 end

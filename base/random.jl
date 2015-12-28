@@ -3,7 +3,9 @@
 module Random
 
 using Base.dSFMT
-using Base.GMP: GMP_VERSION, Limb
+if Base.BUILD_BIGINT || Base.BUILD_BIGFLT
+    using Base.GMP: GMP_VERSION, Limb
+end
 import Base.copymutable
 
 export srand,
@@ -262,7 +264,9 @@ rand(r::MersenneTwister, ::Type{Int128})  = reinterpret(Int128, rand(r, UInt128)
 
 ## random Complex values
 
-rand{T<:Real}(r::AbstractRNG, ::Type{Complex{T}}) = complex(rand(r, T), rand(r, T))
+if Base.BUILD_COMPLEX
+    rand{T<:Real}(r::AbstractRNG, ::Type{Complex{T}}) = complex(rand(r, T), rand(r, T))
+end
 
 # random Char values
 # returns a random valid Unicode scalar value (i.e. 0 - 0xd7ff, 0xe000 - # 0x10ffff)
@@ -470,6 +474,7 @@ for (T, U) in [(UInt8, UInt32), (UInt16, UInt32),
     end
 end
 
+if Base.BUILD_BIGINT
 if GMP_VERSION.major >= 6
     immutable RangeGeneratorBigInt <: RangeGenerator
         a::BigInt             # first
@@ -489,7 +494,6 @@ else
     end
 end
 
-
 function RangeGenerator(r::UnitRange{BigInt})
     m = last(r) - first(r)
     m < 0 && throw(ArgumentError("range must be non-empty"))
@@ -499,7 +503,7 @@ function RangeGenerator(r::UnitRange{BigInt})
     mask = highbits == 0 ? ~zero(Limb) : one(Limb)<<highbits - one(Limb)
     return RangeGeneratorBigInt(first(r), m, nlimbs, mask)
 end
-
+end
 
 # this function uses 32 bit entropy for small ranges of length <= typemax(UInt32) + 1
 # RangeGeneratorInt is responsible for providing the right value of k
@@ -527,6 +531,7 @@ function rand{T<:Integer, U<:Unsigned}(rng::AbstractRNG, g::RangeGeneratorInt{T,
     (unsigned(g.a) + rem_knuth(x, g.k)) % T
 end
 
+if Base.BUILD_BIGINT
 if GMP_VERSION.major >= 6
     # mpz_limbs_write and mpz_limbs_finish are available only in GMP version 6
     function rand(rng::AbstractRNG, g::RangeGeneratorBigInt)
@@ -558,9 +563,18 @@ else
         return x
     end
 end
+end
 
-rand{T<:Union{Signed,Unsigned,BigInt,Bool}}(rng::AbstractRNG, r::UnitRange{T}) = rand(rng, RangeGenerator(r))
+if Base.BUILD_BIGINT
+    const _RandTypes = Union{Bool,Signed,Unsigned,BigInt}
+    const _RandTypesC = Union{Bool,Char,Signed,Unsigned,BigInt}
+else
+    const _RandTypes = Union{Bool,Signed,Unsigned}
+    const _RandTypesC = Union{Bool,Char,Signed,Unsigned}
+end
 
+rand{T<:_RandTypes}(rng::AbstractRNG, r::UnitRange{T}) =
+    rand(rng, RangeGenerator(r))
 
 # Randomly draw a sample from an AbstractArray r
 # (e.g. r is a range 0:2:8 or a vector [2, 3, 5, 7])
@@ -573,7 +587,8 @@ function rand!(rng::AbstractRNG, A::AbstractArray, g::RangeGenerator)
     return A
 end
 
-rand!{T<:Union{Signed,Unsigned,BigInt,Bool,Char}}(rng::AbstractRNG, A::AbstractArray, r::UnitRange{T}) = rand!(rng, A, RangeGenerator(r))
+rand!{T<:_RandTypesC}(rng::AbstractRNG, A::AbstractArray, r::UnitRange{T}) =
+    rand!(rng, A, RangeGenerator(r))
 
 function rand!(rng::AbstractRNG, A::AbstractArray, r::AbstractArray)
     g = RangeGenerator(1:(length(r)))

@@ -129,7 +129,11 @@ reducedim_init(f, op::typeof(|), A::AbstractArray, region) = reducedim_initarray
 # specialize to make initialization more efficient for common cases
 
 for (IT, RT) in ((CommonReduceResult, :(eltype(A))), (SmallSigned, :Int), (SmallUnsigned, :UInt))
-    T = Union{[AbstractArray{t} for t in IT.types]..., [AbstractArray{Complex{t}} for t in IT.types]...}
+    if Base.BUILD_COMPLEX
+        T = Union{[AbstractArray{t} for t in IT.types]..., [AbstractArray{Complex{t}} for t in IT.types]...}
+    else
+        T = Union{[AbstractArray{t} for t in IT.types]...}
+    end
     @eval begin
         reducedim_init(f::typeof(identity), op::typeof(+), A::$T, region) =
             reducedim_initarray(A, region, zero($RT))

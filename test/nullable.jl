@@ -2,7 +2,6 @@
 
 types = [
     Bool,
-    Float16,
     Float32,
     Float64,
     Int128,
@@ -15,6 +14,7 @@ types = [
     UInt64,
     UInt8,
 ]
+Base.BUILD_FLOAT16 && push!(types, Float16)
 
 # Nullable{T}() = new(true)
 for T in types
@@ -74,6 +74,57 @@ for T in types
     @test isa(x.value, T)
     @test x.value === v
 end
+
+p1s = [
+    "Nullable{Bool}()",
+    "Nullable{Char}()",
+    "Nullable{Float32}()",
+    "Nullable{Float64}()",
+    "Nullable{Int128}()",
+    "Nullable{Int16}()",
+    "Nullable{Int32}()",
+    "Nullable{Int64}()",
+    "Nullable{Int8}()",
+    "Nullable{UInt16}()",
+    "Nullable{UInt32}()",
+    "Nullable{UInt64}()",
+    "Nullable{UInt8}()",
+]
+Base.BUILD_FLOAT16 && push!(p1s, "Nullable{Float16}()")
+
+p2s = [
+    "Nullable{Bool}(false)",
+    "Nullable{Char}('\0')",
+    "Nullable{Float32}(0.0f0)",
+    "Nullable{Float64}(0.0)",
+    "Nullable{Int128}(0)",
+    "Nullable{Int16}(0)",
+    "Nullable{Int32}(0)",
+    "Nullable{Int64}(0)",
+    "Nullable{Int8}(0)",
+    "Nullable{UInt16}(0x0000)",
+    "Nullable{UInt32}(0x00000000)",
+    "Nullable{UInt64}(0x0000000000000000)",
+    "Nullable{UInt8}(0x00)",
+]
+Base.BUILD_FLOAT16 && push!(p2s, "Nullable{Float16}(Float16(0.0))")
+
+p3s = [
+    "Nullable{Bool}(true)",
+    "Nullable{Char}('\x01')",
+    "Nullable{Float32}(1.0f0)",
+    "Nullable{Float64}(1.0)",
+    "Nullable{Int128}(1)",
+    "Nullable{Int16}(1)",
+    "Nullable{Int32}(1)",
+    "Nullable{Int64}(1)",
+    "Nullable{Int8}(1)",
+    "Nullable{UInt16}(0x0001)",
+    "Nullable{UInt32}(0x00000001)",
+    "Nullable{UInt64}(0x0000000000000001)",
+    "Nullable{UInt8}(0x01)",
+]
+Base.BUILD_FLOAT16 && push!(p3s, "Nullable{Float16}(Float16(1.0))")
 
 # show{T}(io::IO, x::Nullable{T})
 io1 = IOBuffer()

@@ -1,5 +1,20 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
+@test big"2"^100 == BigInt(2)^100
+@test isa(big"2", BigInt)
+@test typeof(widen(UInt128(3))) == BigInt
+@test typeof(widen(Int128(-3))) == BigInt
+@test widen(UInt128(3)) == 3
+@test widen(Int128(-3)) == -3
+
+for b = 2:62, _ = 1:10
+    n = BigInt(rand(Int128))
+    @test parse(BigInt,base(b,n),b) == n
+end
+
+@test get(tryparse(BigInt, "1234567890")) == BigInt(1234567890)
+@test isnull(tryparse(BigInt, "1234567890-"))
+
 a = parse(BigInt,"123456789012345678901234567890")
 b = parse(BigInt,"123456789012345678901234567891")
 

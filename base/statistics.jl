@@ -27,19 +27,25 @@ mean(iterable) = mean(identity, iterable)
 mean(f::Callable, A::AbstractArray) = sum(f, A) / length(A)
 mean(A::AbstractArray) = sum(A) / length(A)
 
+momenttype{T}(::Type{T}) = typeof((zero(T) + zero(T)) / 2)
+momenttype(::Type{Float32}) = Float32
+momenttype{T<:Union{Float64,Int32,Int64,UInt32,UInt64}}(::Type{T}) = Float64
+
+if Base.BUILD_LINALG
+mean{T}(A::AbstractArray{T}, region) =
+    mean!(reducedim_initarray(A, region, 0, momenttype(T)), A)
+
+"""
+    mean!(r, v)
+
+Compute the mean of `v` over the singleton dimensions of `r`, and write results to `r`.
+"""
 function mean!{T}(R::AbstractArray{T}, A::AbstractArray)
     sum!(R, A; init=true)
     scale!(R, length(R) / length(A))
     return R
 end
-
-momenttype{T}(::Type{T}) = typeof((zero(T) + zero(T)) / 2)
-momenttype(::Type{Float32}) = Float32
-momenttype{T<:Union{Float64,Int32,Int64,UInt32,UInt64}}(::Type{T}) = Float64
-
-mean{T}(A::AbstractArray{T}, region) =
-    mean!(reducedim_initarray(A, region, 0, momenttype(T)), A)
-
+end
 
 ##### variances #####
 
@@ -193,6 +199,9 @@ end
 stdm(A::AbstractArray, m::Number; corrected::Bool=true) =
     sqrt(varm(A, m; corrected=corrected))
 
+stdm(iterable, m::Number; corrected::Bool=true) =
+    std(iterable, corrected=corrected, mean=m)
+
 std(A::AbstractArray; corrected::Bool=true, mean=nothing) =
     sqrt(var(A; corrected=corrected, mean=mean))
 
@@ -201,9 +210,6 @@ std(A::AbstractArray, region; corrected::Bool=true, mean=nothing) =
 
 std(iterable; corrected::Bool=true, mean=nothing) =
     sqrt(var(iterable, corrected=corrected, mean=mean))
-
-stdm(iterable, m::Number; corrected::Bool=true) =
-    std(iterable, corrected=corrected, mean=m)
 
 
 ###### covariance ######
@@ -491,6 +497,10 @@ median!{T}(v::AbstractArray{T}) = median!(vec(v))
 
 median{T}(v::AbstractArray{T}) = median!(copy!(Array(T, length(v)), v))
 median{T}(v::AbstractArray{T}, region) = mapslices(median!, v, region)
+
+## midpoints of intervals
+midpoints(r::Range) = r[1:length(r)-1] + 0.5*step(r)
+midpoints(v::AbstractVector) = [0.5*(v[i] + v[i+1]) for i in 1:length(v)-1]
 
 # for now, use the R/S definition of quantile; may want variants later
 # see ?quantile in R -- this is type 7

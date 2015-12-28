@@ -387,6 +387,7 @@ let
     @test foo() === convert(Int8,100)
 end
 
+if Base.BUILD_COMPLEX
 function bar{T}(x::T)
     local z::Complex{T}
     z = x
@@ -396,6 +397,7 @@ end
 
 z = convert(Complex{Float64},2)
 @test z == Complex(2.0,0.0)
+end
 
 # misc
 fib(n) = n < 2 ? n : fib(n-1) + fib(n-2)
@@ -851,29 +853,33 @@ let
     @test b == 3
     @test e == 4
 
-    a = complex(1,2)
-    b = 3
-    b, a = a.re, b
-    @test b == 1
-    @test a == 3
-    a = complex(1,2)
-    b = 3
-    a, b = b, a.re
-    @test a == 3
-    @test b == 1
+    if Base.BUILD_COMPLEX
+        a = complex(1,2)
+        b = 3
+        b, a = a.re, b
+        @test b == 1
+        @test a == 3
+        a = complex(1,2)
+        b = 3
+        a, b = b, a.re
+        @test a == 3
+        @test b == 1
+    end
 end
 
 # accessing fields by index
 let
-    local z = complex(3, 4)
-    v = Int[0,0]
-    for i=1:2
-        v[i] = getfield(z, i)
+    if Base.BUILD_COMPLEX
+        local z = complex(3, 4)
+        v = Int[0,0]
+        for i=1:2
+            v[i] = getfield(z, i)
+        end
+        @test v == [3,4]
+        @test_throws BoundsError getfield(z, -1)
+        @test_throws BoundsError getfield(z, 0)
+        @test_throws BoundsError getfield(z, 3)
     end
-    @test v == [3,4]
-    @test_throws BoundsError getfield(z, -1)
-    @test_throws BoundsError getfield(z, 0)
-    @test_throws BoundsError getfield(z, 3)
 
     strct = LoadError("", 0, "")
     setfield!(strct, 2, 8)
@@ -1417,8 +1423,10 @@ end
 # issue #4526
 f4526(x) = isa(x.a, Void)
 @test_throws ErrorException f4526(1)
-@test_throws ErrorException f4526(im)
-@test_throws ErrorException f4526(1+2im)
+if Base.BUILD_COMPLEX
+    @test_throws ErrorException f4526(im)
+    @test_throws ErrorException f4526(1+2im)
+end
 
 # issue #4528
 function f4528(A, B)
@@ -1666,14 +1674,16 @@ h5142b(1)
 @test_throws TypeError h5142b(2)
 
 # accessing bits tuples of structs
-function test_bits_tuples()
-    a = (complex(1,2),complex(1,3));s=0
-    for i=1:10
-        s += a[rand(1:2)]
+if Base.BUILD_COMPLEX
+    function test_bits_tuples()
+        a = (complex(1,2),complex(1,3));s=0
+        for i=1:10
+            s += a[rand(1:2)]
+        end
+        s
     end
-    s
+    @test real(test_bits_tuples()) == 10
 end
-@test real(test_bits_tuples()) == 10
 
 # issue #5374
 type FileObj5374
@@ -1802,10 +1812,12 @@ test5536(a::Union{Real, AbstractArray}) = "Non-splatting"
 # issue #6142
 import Base: +
 type A6142 <: AbstractMatrix{Float64}; end
+if Base.BUILD_LINALG
 +{TJ}(x::A6142, y::UniformScaling{TJ}) = "UniformScaling method called"
 +(x::A6142, y::AbstractArray) = "AbstractArray method called"
 @test A6142() + I == "UniformScaling method called"
 +(x::A6142, y::Range) = "Range method called" #16324 ambiguity
+end
 
 # issue #6175
 function g6175(); print(""); (); end
@@ -1987,6 +1999,7 @@ end
 @test ttt7049(init="a") == "init=a"
 
 # issue #7074
+Base.BUILD_COMPLEX &&
 let z{T<:Union{Float64,Complex{Float64},Float32,Complex{Float32}}}(A::StridedMatrix{T}) = T,
     S = zeros(Complex,2,2)
     @test_throws MethodError z(S)
@@ -2216,7 +2229,8 @@ call_lambda7() = ((x...)->x)(1,2)
 # jl_new_bits testing
 let x = [1,2,3]
     @test ccall(:jl_new_bits, Any, (Any,Ptr{Void},), Int, x) === 1
-    @test ccall(:jl_new_bits, Any, (Any,Ptr{Void},), Complex{Int}, x) === 1+2im
+    Base.BUILD_COMPLEX &&
+        @test ccall(:jl_new_bits, Any, (Any,Ptr{Void},), Complex{Int}, x) === 1+2im
     @test ccall(:jl_new_bits, Any, (Any,Ptr{Void},), NTuple{3,Int}, x) === (1,2,3)
     @test ccall(:jl_new_bits, Any, (Any,Ptr{Void},), Tuple{Int,Int,Int}, x) === (1,2,3)
     @test (ccall(:jl_new_bits, Any, (Any,Ptr{Void},), Tuple{Int16,Tuple{Void},Int8,Tuple{},Int,Void,Int}, x)::Tuple)[[2,4,5,6,7]] === ((nothing,),(),2,nothing,3)
@@ -2250,10 +2264,12 @@ end
 @test try; [][]; catch ex; isempty((ex::BoundsError).a::Array{Any,1}) && ex.i == (1,); end
 @test try; [][1,2]; catch ex; isempty((ex::BoundsError).a::Array{Any,1}) && ex.i == (1,2); end
 @test try; [][10]; catch ex; isempty((ex::BoundsError).a::Array{Any,1}) && ex.i == (10,); end
-f9534a() = (a=1+2im; getfield(a, -100))
-f9534a(x) = (a=1+2im; getfield(a, x))
-@test try; f9534a() catch ex; (ex::BoundsError).a === 1+2im && ex.i == -100; end
-@test try; f9534a(3) catch ex; (ex::BoundsError).a === 1+2im && ex.i == 3; end
+if Base.BUILD_COMPLEX
+    f9534a() = (a=1+2im; getfield(a, -100))
+    f9534a(x) = (a=1+2im; getfield(a, x))
+    @test try; f9534a() catch ex; (ex::BoundsError).a === 1+2im && ex.i == -100; end
+    @test try; f9534a(3) catch ex; (ex::BoundsError).a === 1+2im && ex.i == 3; end
+end
 f9534b() = (a=(1,2.,""); a[5])
 f9534b(x) = (a=(1,2.,""); a[x])
 @test try; f9534b() catch ex; (ex::BoundsError).a == (1,2.,"") && ex.i == 5; end
@@ -2273,7 +2289,9 @@ f9534f(x) = (a=IOBuffer(); getfield(a, x))
 @test try; f9534f() catch ex; isa((ex::BoundsError).a,Base.IOBuffer) && ex.i == -2; end
 @test try; f9534f(typemin(Int)+2) catch ex; isa((ex::BoundsError).a,Base.IOBuffer) && ex.i == typemin(Int)+2; end
 x9634 = 3
-@test try; getfield(1+2im, x9634); catch ex; (ex::BoundsError).a === 1+2im && ex.i == 3; end
+if Base.BUILD_COMPLEX
+    @test try; getfield(1+2im, x9634); catch ex; (ex::BoundsError).a === 1+2im && ex.i == 3; end
+end
 @test try; throw(BoundsError()) catch ex; !isdefined((ex::BoundsError), :a) && !isdefined((ex::BoundsError), :i); end
 @test try; throw(BoundsError(Int)) catch ex; (ex::BoundsError).a == Int && !isdefined((ex::BoundsError), :i); end
 @test try; throw(BoundsError(Int, typemin(Int))) catch ex; (ex::BoundsError).a == Int && (ex::BoundsError).i == typemin(Int); end
@@ -2980,9 +2998,11 @@ let T = TypeVar(:T, true), TB = TypeVar(:T, B11136, true)
 end
 
 # issue #11367
+if Base.BUILD_BIGINT # SPJ!!! Could this be rewritten to not use BigInt for the test?
 abstract Foo11367
 let T1 = TypeVar(:T1, true), T2 = TypeVar(:T2, Foo11367, true)
     @testintersect(Tuple{T1, T1}, Tuple{Type{BigInt}, T2}, Bottom)
+end
 end
 
 # issue #11355
@@ -3185,9 +3205,11 @@ end
 @test Tuple{Int} === Tuple{Int, Vararg{Integer, 0}}
 
 # issue #12003
+if Base.BUILD_DATES
 const DATE12003 = DateTime(1917,1,1)
 failure12003(dt=DATE12003) = Dates.year(dt)
 @test isa(failure12003(), Integer)
+end
 
 # issue #12023 Test error checking in bitstype
 @test_throws ErrorException (@eval bitstype 0 SPJa12023)
@@ -3219,11 +3241,13 @@ let N = TypeVar(:N,true)
 end
 
 # issue #12063
+if Base.BUILD_LINALG
 # NOTE: should have > MAX_TUPLETYPE_LEN arguments
 f12063{T}(tt, g, p, c, b, v, cu::T, d::AbstractArray{T, 2}, ve) = 1
 f12063(args...) = 2
 g12063() = f12063(0, 0, 0, 0, 0, 0, 0.0, spzeros(0,0), Int[])
 @test g12063() == 1
+end
 
 # issue #11587
 type Sampler11587{N}

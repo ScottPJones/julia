@@ -32,8 +32,12 @@ end
 @test sum(randperm(6)) == 21
 
 numTypes = [ Int8,  Int16,  Int32,  Int64,  Int128,
-            UInt8, UInt16, UInt32, UInt64, UInt128,
-            Float16, Float32, Float64, BigInt, BigFloat]
+             UInt8, UInt16, UInt32, UInt64, UInt128,
+             Float32, Float64 ]
+
+Base.BUILD_BIGINT && push!(numTypes, BigInt)
+Base.BUILD_BIGFLT && push!(numTypes, BigFloat)
+Base.BUILD_FLOAT16 && push!(numTypes, Float16)
 
 @test searchsorted([1:10;], 1, by=(x -> x >= 5)) == 1:4
 @test searchsorted([1:10;], 10, by=(x -> x >= 5)) == 5:10
@@ -225,7 +229,7 @@ srand(0xdeadbeef)
 for n in [0:10; 100; 101; 1000; 1001]
     r = -5:5
     v = rand(r,n)
-    h = [sum(v .== x) for x in r]
+    Base.BUILD_STATS && (h = [sum(v .== x) for x in r])
 
     for rev in [false,true]
         # insertion sort (stable) as reference
@@ -233,7 +237,7 @@ for n in [0:10; 100; 101; 1000; 1001]
         @test pi == sortperm(float(v), alg=InsertionSort, rev=rev)
         @test isperm(pi)
         si = v[pi]
-        @test [sum(si .== x) for x in r] == h
+        Base.BUILD_STATS && @test [sum(si .== x) for x in r] == h
         @test issorted(si, rev=rev)
         @test all(issorted,[pi[si.==x] for x in r])
         c = copy(v)

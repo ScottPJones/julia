@@ -60,20 +60,23 @@ a = sum(sin, z)
 z = [-4, -3, 2, 5]
 fz = float(z)
 a = randn(32) # need >16 elements to trigger BLAS code path
-b = complex(randn(32), randn(32))
 @test sumabs(Float64[]) === 0.0
 @test sumabs([Int8(-2)]) === Int32(2)
 @test sumabs(z) === 14
 @test sumabs(fz) === 14.0
 @test_approx_eq sumabs(a) sum(abs(a))
-@test_approx_eq sumabs(b) sum(abs(b))
 
 @test sumabs2(Float64[]) === 0.0
 @test sumabs2([Int8(-2)]) === Int32(4)
 @test sumabs2(z) === 54
 @test sumabs2(fz) === 54.0
 @test_approx_eq sumabs2(a) sum(abs2(a))
-@test_approx_eq sumabs2(b) sum(abs2(b))
+
+if Base.BUILD_COMPLEX
+    b = complex(randn(32), randn(32))
+    @test_approx_eq sumabs(b) sum(abs(b))
+    @test_approx_eq sumabs2(b) sum(abs2(b))
+end
 
 # check variants of summation for type-stability and other issues (#6069)
 sum2(itr) = invoke(sum, Tuple{Any}, itr)
@@ -115,8 +118,10 @@ end
 @test prod(z) === 120
 @test prod(fz) === 120.0
 
-@test prod(1:big(16)) == big(20922789888000)
-@test prod(big(typemax(Int64)):big(typemax(Int64))+16) == parse(BigInt,"25300281663413827620486300433089141956148633919452440329174083959168114253708467653081909888307573358090001734956158476311046124934597861626299416732205795533726326734482449215730132757595422510465791525610410023802664753402501982524443370512346073948799084936298007821432734720004795146875180123558814648586972474376192000")
+if Base.BUILD_BIGINT
+    @test prod(1:big(16)) == big(20922789888000)
+    @test prod(big(typemax(Int64)):big(typemax(Int64))+16) == parse(BigInt,"25300281663413827620486300433089141956148633919452440329174083959168114253708467653081909888307573358090001734956158476311046124934597861626299416732205795533726326734482449215730132757595422510465791525610410023802664753402501982524443370512346073948799084936298007821432734720004795146875180123558814648586972474376192000")
+end
 
 @test typeof(prod(Array(trues(10)))) == Bool
 

@@ -290,8 +290,10 @@ function modf(x::Float64)
     f, _modf_temp[1]
 end
 
-^(x::Float64, y::Float64) = nan_dom_err(ccall((:pow,libm),  Float64, (Float64,Float64), x, y), x+y)
-^(x::Float32, y::Float32) = nan_dom_err(ccall((:powf,libm), Float32, (Float32,Float32), x, y), x+y)
+^(x::Float64, y::Float64) =
+    nan_dom_err(ccall((:pow,libm),  Float64, (Float64,Float64), x, y), x+y)
+^(x::Float32, y::Float32) =
+    nan_dom_err(ccall((:powf,libm), Float32, (Float32,Float32), x, y), x+y)
 
 ^(x::Float64, y::Integer) =
     box(Float64, powi_llvm(unbox(Float64,x), unbox(Int32,Int32(y))))
@@ -409,9 +411,35 @@ end
 # generic fallback; for number types, promotion.jl does promotion
 muladd(x,y,z) = x*y+z
 
+# Add generic function definitions
+function besselj end
+function bessely0 end
+function besselkx end
+function bessely end
+function besseli end
+function besselyx end
+function bessely1 end
+function besseljx end
+function besselj1 end
+function besselix end
+function besselj0 end
+function besselh end
+function besselk end
+function hankelh1 end
+function hankelh1x end
+function hankelh2 end
+function hankelh2x end
+function airy end
+function airybi end
+function airybiprime end
+function airyprime end
+function airyaiprime end
+function airyai end
+function airyx end
+
 # More special functions
 include("special/trig.jl")
-include("special/bessel.jl")
+Base.BUILD_COMPLEX && include("special/bessel.jl")
 include("special/erf.jl")
 include("special/gamma.jl")
 

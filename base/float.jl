@@ -2,8 +2,6 @@
 
 ## floating point traits ##
 
-const Inf16 = box(Float16,unbox(UInt16,0x7c00))
-const NaN16 = box(Float16,unbox(UInt16,0x7e00))
 const Inf32 = box(Float32,unbox(UInt32,0x7f800000))
 const NaN32 = box(Float32,unbox(UInt32,0x7fc00000))
 const Inf64 = box(Float64,unbox(UInt64,0x7ff0000000000000))
@@ -12,11 +10,6 @@ const Inf = Inf64
 const NaN = NaN64
 
 ## conversions to floating-point ##
-convert(::Type{Float16}, x::Integer) = convert(Float16, convert(Float32,x))
-for t in (Int8,Int16,Int32,Int64,Int128,UInt8,UInt16,UInt32,UInt64,UInt128)
-    @eval promote_rule(::Type{Float16}, ::Type{$t}) = Float32
-end
-promote_rule(::Type{Float16}, ::Type{Bool}) = Float16
 
 for t1 in (Float32,Float64)
     for st in (Int8,Int16,Int32,Int64)
@@ -98,12 +91,8 @@ function convert(::Type{Float32}, x::Int128)
     reinterpret(Float32, s | d + y)
 end
 
-#convert(::Type{Float16}, x::Float32) = box(Float16,fptrunc(Float16,x))
-convert(::Type{Float16}, x::Float64) = convert(Float16, convert(Float32,x))
 convert(::Type{Float32}, x::Float64) = box(Float32,fptrunc(Float32,unbox(Float64,x)))
 
-#convert(::Type{Float32}, x::Float16) = box(Float32,fpext(Float32,x))
-convert(::Type{Float64}, x::Float16) = convert(Float64, convert(Float32,x))
 convert(::Type{Float64}, x::Float32) = box(Float64,fpext(Float64,unbox(Float32,x)))
 
 convert(::Type{AbstractFloat}, x::Bool)    = convert(Float64, x)
@@ -191,12 +180,8 @@ ceil(x::Float32) = box(Float32,ceil_llvm(unbox(Float32,x)))
 round(x::Float64) = box(Float64,rint_llvm(unbox(Float64,x)))
 round(x::Float32) = box(Float32,rint_llvm(unbox(Float32,x)))
 
-## floating point promotions ##
-promote_rule(::Type{Float32}, ::Type{Float16}) = Float32
-promote_rule(::Type{Float64}, ::Type{Float16}) = Float64
 promote_rule(::Type{Float64}, ::Type{Float32}) = Float64
 
-widen(::Type{Float16}) = Float32
 widen(::Type{Float32}) = Float64
 
 ## floating point arithmetic ##
@@ -341,7 +326,6 @@ hash(x::Union{Bool,Int8,UInt8,Int16,UInt16,Int32,UInt32}, h::UInt) = hash(Int64(
 hash(x::Float32, h::UInt) = hash(Float64(x), h)
 
 ## precision, as defined by the effective number of bits in the mantissa ##
-precision(::Type{Float16}) = 11
 precision(::Type{Float32}) = 24
 precision(::Type{Float64}) = 53
 precision{T<:AbstractFloat}(::T) = precision(T)
@@ -402,6 +386,10 @@ function nextfloat(f::Union{Float16,Float32,Float64}, d::Integer)
     reinterpret(F, fu)
 end
 
+nextfloat(x::Float32, i::Integer) =
+    (isinf(x)&&sign(x)==sign(i)) ? x : reinterpret(Float32,float_lex_order(reinterpret(Int32,x), i))
+nextfloat(x::Float64, i::Integer) =
+    (isinf(x)&&sign(x)==sign(i)) ? x : reinterpret(Float64,float_lex_order(reinterpret(Int64,x), i))
 """
     nextfloat(x::AbstractFloat)
 
@@ -439,8 +427,6 @@ end
     issubnormal(x::Float32) = (abs(x) < $(box(Float32,unbox(UInt32,0x00800000)))) & (x!=0)
     issubnormal(x::Float64) = (abs(x) < $(box(Float64,unbox(UInt64,0x0010000000000000)))) & (x!=0)
 
-    typemin(::Type{Float16}) = $(box(Float16,unbox(UInt16,0xfc00)))
-    typemax(::Type{Float16}) = $(Inf16)
     typemin(::Type{Float32}) = $(-Inf32)
     typemax(::Type{Float32}) = $(Inf32)
     typemin(::Type{Float64}) = $(-Inf64)
@@ -448,10 +434,8 @@ end
     typemin{T<:Real}(x::T) = typemin(T)
     typemax{T<:Real}(x::T) = typemax(T)
 
-    realmin(::Type{Float16}) = $(box(Float16,unbox(UInt16,0x0400)))
     realmin(::Type{Float32}) = $(box(Float32,unbox(UInt32,0x00800000)))
     realmin(::Type{Float64}) = $(box(Float64,unbox(UInt64,0x0010000000000000)))
-    realmax(::Type{Float16}) = $(box(Float16,unbox(UInt16,0x7bff)))
     realmax(::Type{Float32}) = $(box(Float32,unbox(UInt32,0x7f7fffff)))
     realmax(::Type{Float64}) = $(box(Float64,unbox(UInt64,0x7fefffffffffffff)))
     realmin{T<:AbstractFloat}(x::T) = realmin(T)
@@ -460,7 +444,6 @@ end
     realmax() = realmax(Float64)
 
     eps(x::AbstractFloat) = isfinite(x) ? abs(x) >= realmin(x) ? ldexp(eps(typeof(x)),exponent(x)) : nextfloat(zero(x)) : oftype(x,NaN)
-    eps(::Type{Float16}) = $(box(Float16,unbox(UInt16,0x1400)))
     eps(::Type{Float32}) = $(box(Float32,unbox(UInt32,0x34000000)))
     eps(::Type{Float64}) = $(box(Float64,unbox(UInt64,0x3cb0000000000000)))
     eps() = eps(Float64)

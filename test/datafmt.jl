@@ -239,9 +239,11 @@ end
 # fix #13179 parsing unicode lines with default delmiters
 @test isequaldlm(readdlm(IOBuffer("# Should ignore this π\n1\tα\n2\tβ\n")), Any[1 "α"; 2 "β"], Any)
 
+if Base.BUILD_BIGINT
 # BigInt parser
 let data = "1 2 3"
     readdlm(IOBuffer(data), ' ', BigInt) == BigInt[1 2 3]
+end
 end
 
 # test show with MIME types

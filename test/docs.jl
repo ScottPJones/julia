@@ -604,8 +604,10 @@ f12593_2() = 1
 @test (@doc f12593_1) !== nothing
 @test (@doc f12593_2) !== nothing
 
+if Base.BUILD_LINALG
 # @test Docs.doc(svdvals, Tuple{Vector{Float64}}) === nothing
 @test Docs.doc(svdvals, Tuple{Float64}) !== nothing
+end
 
 # crude test to make sure we sort docstring output by method specificity
 @test !docstrings_equal(Docs.doc(getindex, Tuple{Dict{Int,Int},Int}),
@@ -625,9 +627,9 @@ end
 @test (Docs.@repl :@r_str) !== nothing
 
 # Simple tests for apropos:
-@test contains(sprint(apropos, "pearson"), "cor")
+Base.BUILD_STATS && @test contains(sprint(apropos, "pearson"), "cor")
 @test contains(sprint(apropos, r"ind(exes|ices)"), "eachindex")
-@test contains(sprint(apropos, "print"), "Profile.print")
+Base.BUILD_PROFILER && @test contains(sprint(apropos, "print"), "Profile.print")
 
 # Issue #13068.
 
@@ -821,15 +823,20 @@ let x = Binding(Base, Symbol("@time"))
     @test defined(x) == true
     @test @var(@time) == x
     @test @var(Base.@time) == x
-    @test @var(Base.Pkg.@time) == x
+    Base.BUILD_PKG && @test @var(Base.Pkg.@time) == x
 end
 
+<<<<<<< HEAD
 let x = Binding(Base.LinAlg, :norm)
     @test defined(x) == true
+=======
+Base.BUILD_LINALG && let x = Binding(Base.LinAlg, :norm)
+    @test x.defined == true
+>>>>>>> Make J-Lite version of Julia
     @test @var(norm) == x
     @test @var(Base.norm) == x
     @test @var(Base.LinAlg.norm) == x
-    @test @var(Base.Pkg.Dir.norm) == x
+    Base.BUILD_PKG && @test @var(Base.Pkg.Dir.norm) == x
 end
 
 let x = Binding(Core, :Int)
@@ -837,9 +844,10 @@ let x = Binding(Core, :Int)
     @test @var(Int) == x
     @test @var(Base.Int) == x
     @test @var(Core.Int) == x
-    @test @var(Base.Pkg.Resolve.Int) == x
+    Base.BUILD_PKG && @test @var(Base.Pkg.Resolve.Int) == x
 end
 
+Base.BUILD_PKG &&
 let x = Binding(Base, :Pkg)
     @test defined(x) == true
     @test @var(Pkg) == x

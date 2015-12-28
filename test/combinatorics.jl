@@ -9,9 +9,11 @@
 @test binomial(2,-1) == 0
 
 #Issue 6154
+if Base.BUILD_BIGINT
 @test binomial(Int32(34), Int32(15)) == binomial(BigInt(34), BigInt(15)) == 1855967520
 @test binomial(Int64(67), Int64(29)) == binomial(BigInt(67), BigInt(29)) == 7886597962249166160
 @test binomial(Int128(131), Int128(62)) == binomial(BigInt(131), BigInt(62)) == 157311720980559117816198361912717812000
+end
 @test_throws InexactError binomial(Int64(67), Int64(30))
 
 p = shuffle([1:1000;])

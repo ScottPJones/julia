@@ -37,6 +37,7 @@ let
         counter += 1
     end
 
+<<<<<<< HEAD
     #tests ASCII 65 - 90
     counter = 65
     for x in upperchars
@@ -68,7 +69,7 @@ let
     #convert(::Type{Char}, x::Float16) = char(convert(UInt32, x))
     #convert(::Type{Char}, x::Float32) = char(convert(UInt32, x))
     #convert(::Type{Char}, x::Float64) = char(convert(UInt32, x))
-    for x = 1:9
+    Base.BUILD_FLOAT16 && for x = 1:9
         @test convert(Char, Float16(x)) == convert(Char, Float32(x)) == convert(Char, Float64(x)) == Char(x)
     end
 

@@ -46,7 +46,7 @@ readdlm_auto(input::IO, dlm::Char, T::Type, eol::Char, auto::Bool; opts...) =
     readdlm_string(readstring(input), dlm, T, eol, auto, val_opts(opts))
 function readdlm_auto(input::AbstractString, dlm::Char, T::Type, eol::Char, auto::Bool; opts...)
     optsd = val_opts(opts)
-    use_mmap = get(optsd, :use_mmap, is_windows() ? false : true)
+    use_mmap = Base.BUILD_MMAP && get(optsd, :use_mmap, is_windows() ? false : true)
     fsz = filesize(input)
     if use_mmap && fsz > 0 && fsz < typemax(Int)
         a = Mmap.mmap(input, Vector{UInt8}, (Int(fsz),))

@@ -1,9 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-immutable Complex{T<:Real} <: Number
-    re::T
-    im::T
-end
 Complex(x::Real, y::Real) = Complex(promote(x,y)...)
 Complex(x::Real) = Complex(x, zero(x))
 
@@ -41,19 +37,14 @@ widen{T}(::Type{Complex{T}}) = Complex{widen(T)}
 
 real(z::Complex) = z.re
 imag(z::Complex) = z.im
-real(x::Real) = x
-imag(x::Real) = zero(x)
 reim(z) = (real(z), imag(z))
 
-real{T<:Real}(::Type{T}) = T
 real{T<:Real}(::Type{Complex{T}}) = T
 
 complex{T<:Real}(::Type{T}) = Complex{T}
 complex{T<:Real}(::Type{Complex{T}}) = Complex{T}
 
-isreal(x::Real) = true
 isreal(z::Complex) = imag(z) == 0
-isimag(z::Number) = real(z) == 0
 isinteger(z::Complex) = isreal(z) & isinteger(real(z))
 isfinite(z::Complex) = isfinite(real(z)) & isfinite(imag(z))
 isnan(z::Complex) = isnan(real(z)) | isnan(imag(z))
@@ -778,8 +769,12 @@ float{T<:AbstractFloat}(z::Complex{T}) = z
 float(z::Complex) = Complex(float(real(z)), float(imag(z)))
 @vectorize_1arg Complex float
 
-big{T<:AbstractFloat}(z::Complex{T}) = Complex{BigFloat}(z)
-big{T<:Integer}(z::Complex{T}) = Complex{BigInt}(z)
+if BUILD_BIGFLT
+    big{T<:AbstractFloat}(z::Complex{T}) = Complex{BigFloat}(z)
+end
+if BUILD_BIGINT
+    big{T<:Integer}(z::Complex{T}) = Complex{BigInt}(z)
+end
 
 ## Array operations on complex numbers ##
 
@@ -792,8 +787,14 @@ function complex{T}(A::AbstractArray{T})
     convert(AbstractArray{typeof(complex(zero(T)))}, A)
 end
 
-big{T<:Integer,N}(A::AbstractArray{Complex{T},N}) = convert(AbstractArray{Complex{BigInt},N}, A)
-big{T<:AbstractFloat,N}(A::AbstractArray{Complex{T},N}) = convert(AbstractArray{Complex{BigFloat},N}, A)
+if BUILD_BIGINT
+    big{T<:Integer,N}(A::AbstractArray{Complex{T},N}) =
+        convert(AbstractArray{Complex{BigInt},N}, A)
+end
+if BUILD_BIGFLT
+    big{T<:AbstractFloat,N}(A::AbstractArray{Complex{T},N}) =
+        convert(AbstractArray{Complex{BigFloat},N}, A)
+end
 
 ## promotion to complex ##
 

@@ -137,9 +137,13 @@ precompile(Base.REPL.start_repl_backend, (Channel{Any}, Channel{Any}))
 precompile(Base.REPLCompletions.complete_methods, (String,))
 precompile(Base.REPLCompletions.complete_symbol, (String, Function))
 precompile(Base.REPLCompletions.completions, (String, Int))
+
+if BUILD_FULL
 precompile(Base.Random.srand, ())
 precompile(Base.Random.srand, (String, Int))
 precompile(Base.Random.srand, (UInt,))
+end
+
 precompile(Base.RemoteChannel, (Int, Int, Int))
 precompile(Base.RemoteValue, ())
 precompile(Base.Set, ())
@@ -374,7 +378,11 @@ precompile(Base.splice!, (Array{UInt8, 1}, Base.UnitRange{Int}, Array{UInt8, 1})
 precompile(Base.split, (String, String))
 precompile(Base.split, (String, Regex))
 precompile(Base.split, (String,))
+
+if BUILD_FULL
 precompile(Base.srand, (Array{UInt32,1},))
+end
+
 precompile(Base.start, (Array{Base.LineEdit.TextInterface, 1},))
 precompile(Base.start, (Dict{Any,Any},))
 precompile(Base.start, (Dict{Symbol,Any},))
@@ -410,6 +418,7 @@ precompile(Base.write, (Base.Terminals.TerminalBuffer, String))
 precompile(Base.write, (IOBuffer, Vector{UInt8}))
 precompile(Base.show, (Base.Terminals.TTYTerminal, Base.Multimedia.MIME{Symbol("text/plain")}, Int))
 
+if BUILD_FULL
 # The following are intended to help speed Pkg.update()
 precompile(Base.Pkg.Entry.update, (String,))
 precompile(Base.Pkg.Query.prune_dependencies, (Dict{String, Base.Pkg.Types.VersionSet}, Dict{String, Dict{VersionNumber, Base.Pkg.Types.Available}}))
@@ -425,6 +434,7 @@ precompile(Base.isempty, (Array{Void, 1},))
 precompile(Base.setindex!, (Dict{String, VersionNumber}, VersionNumber, String))
 precompile(Base.spawn, (Cmd, Tuple{Base.TTY, Base.TTY, Base.TTY}, Bool, Bool))
 precompile(Base.spawn, (Cmd,))
+end
 
 # For repl startup
 precompile(Base.yieldto, (Task, Int))

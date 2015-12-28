@@ -13,10 +13,14 @@ end
 @test sprint(io -> showcompact(io,complex(1,0))) == "1+0im"
 @test sprint(io -> show(io,complex(true,true))) == "Complex(true,true)"
 
+flttypes = [Float32, Float64]
+Base.BUILD_FLOAT16 && push!(flttypes, Float16)
+Base.BUILD_BIGFLT && push!(flttypes, BigFloat)
+
 # Basic arithmetic
-for T in (Float16, Float32, Float64, BigFloat)
-    t = true
-    f = false
+for T in flttypes
+    const t = true
+    const f = false
 
     # Add and subtract
     @test isequal(T(+0.0) + im, Complex(T(+0.0), T(+1.0)))
@@ -69,6 +73,7 @@ for T in (Float32, Float64)
     y = Complex{T}(1//2 + 1//5*im)
     yi = 4
     # Test random values
+    if Base.BUILD_BIGFLT # SPJ!!! Can this be changed to not be dependent on BigFloat?
     @test_approx_eq x^y big(x)^big(y)
     @test_approx_eq x^yi big(x)^yi
     @test_approx_eq x^true big(x)^true
@@ -100,6 +105,7 @@ for T in (Float32, Float64)
     @test_approx_eq sqrt(x) sqrt(big(x))
     @test_approx_eq tan(x) tan(big(x))
     @test_approx_eq tanh(x) tanh(big(x))
+    end
     # Test inverses
     @test_approx_eq acos(cos(x)) x
     @test_approx_eq acosh(cosh(x)) x
@@ -801,6 +807,7 @@ harddivs = ((1.0+im*1.0, 1.0+im*2^1023.0, 2^-1023.0-im*2^-1023.0), #1
       (2^-622.0+im*2^-1071., 2^-343.0+im*2^-798.0, z10)#10
       )
 
+if Base.BUILD_BIGFLT # SPJ!!! Can this be done without depending on BigFloat?
 # calculate "accurate bits" in range 0:53 by algorithm given in arxiv.1210.4539
 function sb_accuracy(x,expected)
   min(logacc(real(x),real(expected)),
@@ -826,6 +833,7 @@ function cdiv_test(a,b)
 end
 @test cdiv_test(complex(1//2, 3//4), complex(17//13, 4//5))
 @test cdiv_test(complex(1,2), complex(8997,2432))
+end
 
 # inv
 @test inv(1e300+0im) == 1e-300 - 0.0im
@@ -892,11 +900,13 @@ end
 @test round(float(Complex(π, e)),3) == Complex(3.142, 2.718)
 
 # Complex32 arithmetic #10003
-@test Float16(1)+Float16(1)im === Complex32(1, 1)
-@test Float16(1)-Float16(1)im === Float16(1)+Float16(-1)im === Complex32(1, -1)
-@test Float16(1)*im === Complex32(im)
-@test Float16(1)/im === 1.0f0/im === Complex(0.0, -1.0)
-@test Float16(1)^im === Complex32(1) === Float16(1)+Float16(0)im
+if Base.BUILD_FLOAT16
+    @test Float16(1)+Float16(1)im === Complex32(1, 1)
+    @test Float16(1)-Float16(1)im === Float16(1)+Float16(-1)im === Complex32(1, -1)
+    @test Float16(1)*im === Complex32(im)
+    @test Float16(1)/im === 1.0f0/im === Complex(0.0, -1.0)
+    @test Float16(1)^im === Complex32(1) === Float16(1)+Float16(0)im
+end
 
 # issue/PR #10148
 @test typeof(Int8(1) - im) == Complex{Int8}

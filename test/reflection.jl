@@ -135,7 +135,7 @@ i10165{T,n}(::Type{AbstractArray{T,n}}) = 1
 
 # fullname
 @test fullname(Base) == (:Base,)
-@test fullname(Base.Pkg) == (:Base, :Pkg)
+@test fullname(Base.Order) == (:Base, :Order)
 
 const a_const = 1
 not_const = 1

@@ -2,6 +2,27 @@
 
 using Base.Test
 
+# mean
+@test_throws ArgumentError mean(())
+@test mean((1,2,3)) === 2.
+@test mean([0]) === 0.
+@test mean([1.]) === 1.
+@test mean([1.,3]) == 2.
+@test mean([1,2,3]) == 2.
+
+@test isnan(mean([NaN]))
+@test isnan(mean([0.0,NaN]))
+@test isnan(mean([NaN,0.0]))
+
+@test isnan(mean([0.,Inf,-Inf]))
+@test isnan(mean([1.,-1.,Inf,-Inf]))
+@test isnan(mean([-Inf,Inf]))
+
+if Base.BUILD_STATS
+@test mean([0 1 2; 4 5 6], 1) == [2.  3.  4.]
+@test mean([1 2 3; 4 5 6], 1) == [2.5 3.5 4.5]
+@test isequal(mean([NaN 0.0; 1.2 4.5], 2), reshape([NaN; 2.85], 2, 1))
+
 # middle
 
 @test middle(3) === 3.0
@@ -16,7 +37,6 @@ end
 for T in [Bool,Int8,Int16,Int32,Int64,Int128,UInt8,UInt16,UInt32,UInt64,UInt128,Float16,Float32,Float64]
     @test middle(one(T)) === middle(one(T), one(T))
 end
-
 
 # median
 @test median([1.]) === 1.
@@ -337,4 +357,5 @@ end
 let v = varm([1.0+2.0im], 0; corrected = false)
     @test v ≈ 5
     @test isa(v, Float64)
+end
 end

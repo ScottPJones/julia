@@ -15,30 +15,41 @@ Upon return, `tests` is a vector of fully-expanded test names, and
 """ ->
 function choosetests(choices = [])
     testnames = [
-        "linalg", "subarray", "core", "inference", "keywordargs", "numbers",
+        "subarray", "core", "inference", "keywordargs", "numbers",
         "printf", "char", "string", "triplequote", "unicode",
-        "dates", "dict", "hashing", "iobuffer", "staged",
-        "arrayops", "tuple", "reduce", "reducedim", "random", "abstractarray",
-        "intfuncs", "simdloop", "vecelement", "blas", "sparse",
-        "bitarray", "copy", "math", "fastmath", "functional",
-        "operators", "path", "ccall", "parse", "loading", "bigint",
-        "bigfloat", "sorting", "statistics", "spawn", "backtrace",
-        "priorityqueue", "file", "read", "mmap", "version", "resolve",
-        "pollfd", "mpfr", "broadcast", "complex", "socket",
-        "floatapprox", "datafmt", "reflection", "regex", "float16",
+        "dict", "hashing", "iobuffer", "staged",
+        "arrayops", "tuple", "reduce", "reducedim", "random",
+        "abstractarray", "intfuncs", "simdloop", "vecelement",
+        "bitarray", "copy", "math", "functional",
+        "operators", "path", "ccall", "parse", "loading",
+        "sorting", "statistics", "spawn", "backtrace",
+        "priorityqueue", "file", "read", "version",
+        "pollfd", "broadcast", "socket",
+        "floatapprox", "datafmt", "reflection", "regex",
         "combinatorics", "sysinfo", "rounding", "ranges", "mod2pi",
-        "euler", "show", "lineedit", "replcompletions", "repl",
-        "replutil", "sets", "test", "goto", "llvmcall", "grisu",
-        "nullable", "meta", "stacktraces", "profile", "libgit2", "docs",
-        "markdown", "base64", "serialize", "misc", "threads",
+        "euler", "show", "replutil", "sets", "test", "goto", "llvmcall", "grisu",
+        "nullable", "meta", "stacktraces", "base64", "serialize", "misc",
         "enums", "cmdlineargs", "i18n", "workspace", "libdl", "int",
-        "checked", "intset", "floatfuncs", "compile", "parallel", "inline",
-        "boundscheck", "error", "ambiguous"
+        "checked", "intset", "floatfuncs", "compile", "inline",
+        "boundscheck", "vecelement", "error", "ambiguous"
     ]
 
-    if Base.USE_GPL_LIBS
-        testnames = [testnames, "fft", "dsp"; ]
-    end
+    Base.BUILD_DSP    && push!(testnames, "fft", "dsp")
+    Base.BUILD_LINALG && push!(testnames, "linalg", "blas")
+    Base.BUILD_SPARSE && push!(testnames, "sparse")
+    Base.BUILD_BIGINT && push!(testnames, "bigint", "bignumbers")
+    Base.BUILD_BIGFLT && push!(testnames, "mpfr")
+    Base.BUILD_DATES  && push!(testnames, "dates")
+    Base.BUILD_PKG    && push!(testnames, "libgit2", "resolve")
+    Base.BUILD_REPL   && push!(testnames, "lineedit", "replcompletions", "repl")
+    Base.BUILD_MMAP   && push!(testnames, "mmap")
+    Base.BUILD_DOCS   && push!(testnames, "docs", "markdown")
+    Base.BUILD_FULL   && push!(testnames, "fastmath")
+    Base.BUILD_FLOAT16  && push!(testnames, "float16")
+    Base.BUILD_PROFILER && push!(testnames, "profile")
+    Base.BUILD_COMPLEX  && push!(testnames, "complex")
+    Base.BUILD_THREADS  && push!(testnames, "threads")
+    Base.BUILD_PARALLEL && push!(testnames, "parallel")
 
     if isdir(joinpath(JULIA_HOME, Base.DOCDIR, "examples"))
         push!(testnames, "examples")

@@ -39,9 +39,9 @@ str = "s\u2200"
 # issue #3597
 @test string(utf32(['T', 'e', 's', 't'])[1:1], "X") == "TX"
 
-for T = (UInt8,Int8,UInt16,Int16,UInt32,Int32,UInt64,Int64,UInt128,Int128,BigInt),
+for T = (UInt8,Int8,UInt16,Int16,UInt32,Int32,UInt64,Int64,UInt128,Int128),
     b = 2:62, _ = 1:10
-    n = T != BigInt ? rand(T) : BigInt(rand(Int128))
+    n = rand(T)
     @test parse(T,base(b,n),b) == n
 end
 
@@ -227,19 +227,21 @@ sp = pointer(s)
 @test unsafe_string(sp,5) == "abcde"
 @test typeof(unsafe_string(sp)) == String
 
-@test get(tryparse(BigInt, "1234567890")) == BigInt(1234567890)
-@test isnull(tryparse(BigInt, "1234567890-"))
-
 @test get(tryparse(Float64, "64")) == 64.0
 @test isnull(tryparse(Float64, "64o"))
 @test get(tryparse(Float32, "32")) == 32.0f0
 @test isnull(tryparse(Float32, "32o"))
 
+numtypes = [Int8, UInt8, Int16, UInt16, Int32, UInt32, Int64, UInt64, Int128, UInt128]
+Base.BUILD_BIGINT && push!(numtypes, BigInt)
+
 # issue #10994: handle embedded NUL chars for string parsing
-for T in [BigInt, Int8, UInt8, Int16, UInt16, Int32, UInt32, Int64, UInt64, Int128, UInt128]
+for T in numtypes
     @test_throws ArgumentError parse(T, "1\0")
 end
-for T in [BigInt, Int8, UInt8, Int16, UInt16, Int32, UInt32, Int64, UInt64, Int128, UInt128, Float64, Float32]
+
+push!(numtypes, Float64, Float32)
+for T in numtypes
     @test isnull(tryparse(T, "1\0"))
 end
 let s = normalize_string("tést",:NFKC)

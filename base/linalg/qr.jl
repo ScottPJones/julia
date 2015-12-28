@@ -251,7 +251,21 @@ size(A::Union{QR,QRCompactWY,QRPivoted}) = size(A.factors)
 size(A::Union{QRPackedQ,QRCompactWYQ}, dim::Integer) = 0 < dim ? (dim <= 2 ? size(A.factors, 1) : 1) : throw(BoundsError())
 size(A::Union{QRPackedQ,QRCompactWYQ}) = size(A, 1), size(A, 2)
 
-full{T}(A::Union{QRPackedQ{T},QRCompactWYQ{T}}; thin::Bool=true) = A_mul_B!(A, thin ? eye(T, size(A.factors,1), minimum(size(A.factors))) : eye(T, size(A.factors,1)))
+"""
+    full(QRCompactWYQ[, thin=true]) -> Matrix
+
+Converts an orthogonal or unitary matrix stored as a `QRCompactWYQ` object, i.e. in the
+compact WY format [^Bischof1987], to a dense matrix.
+
+Optionally takes a `thin` Boolean argument, which if `true` omits the columns that span the
+rows of `R` in the QR factorization that are zero. The resulting matrix is the `Q` in a thin
+QR factorization (sometimes called the reduced QR factorization). If `false`, returns a `Q`
+that spans all rows of `R` in its corresponding QR factorization.
+"""
+full{T}(A::Union{QRPackedQ{T},QRCompactWYQ{T}}; thin::Bool=true) =
+    A_mul_B!(A, (thin
+                 ? eye(T, size(A.factors,1), minimum(size(A.factors)))
+                 : eye(T, size(A.factors,1))))
 
 function getindex(A::Union{QRPackedQ,QRCompactWYQ}, i::Integer, j::Integer)
     x = zeros(eltype(A), size(A, 1))
@@ -263,8 +277,10 @@ end
 
 ## Multiplication by Q
 ### QB
-A_mul_B!{T<:BlasFloat}(A::QRCompactWYQ{T}, B::StridedVecOrMat{T}) = LAPACK.gemqrt!('L','N',A.factors,A.T,B)
-A_mul_B!{T<:BlasFloat}(A::QRPackedQ{T}, B::StridedVecOrMat{T}) = LAPACK.ormqr!('L','N',A.factors,A.τ,B)
+A_mul_B!{T<:BlasFloat}(A::QRCompactWYQ{T}, B::StridedVecOrMat{T}) =
+    LAPACK.gemqrt!('L','N',A.factors,A.T,B)
+A_mul_B!{T<:BlasFloat}(A::QRPackedQ{T}, B::StridedVecOrMat{T}) =
+    LAPACK.ormqr!('L','N',A.factors,A.τ,B)
 function A_mul_B!(A::QRPackedQ, B::AbstractVecOrMat)
     mA, nA = size(A.factors)
     mB, nB = size(B,1), size(B,2)

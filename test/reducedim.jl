@@ -92,6 +92,7 @@ A = reshape(1:6, 3, 2)
 @test @inferred(sum(UInt8[1], 1)) == [1]
 
 # Complex types
+if Base.BUILD_COMPLEX
 @test typeof(@inferred(sum([1.0+1.0im], 1))) == Vector{Complex128}
 @test typeof(@inferred(Base.sumabs([1.0+1.0im], 1))) == Vector{Float64}
 @test typeof(@inferred(Base.sumabs2([1.0+1.0im], 1))) == Vector{Float64}
@@ -102,6 +103,7 @@ A = reshape(1:6, 3, 2)
 # min/max
 @test reducedim(max, A, 1) == [3 6]
 @test reducedim(min, A, 2) == reshape([1,2,3], 3, 1)
+end
 
 # Heterogeneously typed arrays
 @test sum(Union{Float32, Float64}[1.0], 1) == [1.0]
@@ -136,8 +138,8 @@ for (tup, rval, rind) in [((1,), [5.0 3.0 6.0], [2 3 5]),
 end
 
 # issue #6672
-@test sum(Real[1 2 3; 4 5.3 7.1], 2) == reshape([6, 16.4], 2, 1)
-@test std(AbstractFloat[1,2,3], 1) == [1.0]
+Base.BUILD_COMPLEX && @test sum(Real[1 2 3; 4 5.3 7.1], 2) == reshape([6, 16.4], 2, 1)
+Base.BUILD_STATS && @test std(AbstractFloat[1,2,3], 1) == [1.0]
 @test sum(Any[1 2;3 4],1) == [4 6]
 @test sum(Vector{Int}[[1,2],[4,3]], 1)[1] == [5,5]
 

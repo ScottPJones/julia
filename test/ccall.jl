@@ -44,6 +44,7 @@ end
 @test ccall_echo_load(Ref([144,172],2), Ptr{Int}, Ref{Int}) === 172
 # @test ccall_echo_load(Ref([8],1,1), Ptr{Int}, Ref{Int}) === 8
 
+if Base.BUILD_COMPLEX
 
 ## Tests for passing and returning structs
 
@@ -103,7 +104,7 @@ let
     @test_throws MethodError ccall((:cptest, libccalltest), Ptr{Complex{Int}}, (Ptr{Complex{Int}},), a)
     @test_throws MethodError ccall((:cptest, libccalltest), Ptr{Complex{Int}}, (Complex{Int},), &a)
 end
-
+end
 
 ## Tests for various sized data types (ByVal)
 
@@ -127,6 +128,7 @@ let
     @test_approx_eq x.y a.y - 2*b
 end
 
+Base.BUILD_COMPLEX &&
 let
     a = Complex{Int32}(Int32(10),Int32(31))
     b = Int32(42)
@@ -140,6 +142,7 @@ let
     @test x == a + b*1 - b*2im
 end
 
+Base.BUILD_COMPLEX &&
 let
     a = Complex{Int64}(Int64(20),Int64(51))
     b = Int64(42)
@@ -477,6 +480,7 @@ end
 
 ## cfunction roundtrip
 
+if Base.BUILD_COMPLEX
 verbose && Libc.flush_cstdio()
 verbose && println("Testing cfunction roundtrip: ")
 
@@ -559,6 +563,7 @@ for (t,v) in ((Complex{Int32},:ci32),(Complex{Int64},:ci64),
         @test_throws TypeError ccall(cfunction($fname,Ref{AbstractString},(Ref{Any},)),Any,(Ref{Any},),$v)
         @test_throws TypeError ccall(cfunction($fname,AbstractString,(Ref{Any},)),Any,(Ref{Any},),$v)
     end
+end
 end
 
 # issue 13031

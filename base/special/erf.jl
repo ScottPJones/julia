@@ -1,5 +1,6 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
+Base.BUILD_COMPLEX &&
 for f in (:erf, :erfc, :erfcx, :erfi, :Dawson)
     fname = (f === :Dawson) ? :dawson : f
     @eval begin

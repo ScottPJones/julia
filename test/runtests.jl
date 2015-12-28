@@ -28,7 +28,7 @@ cd(dirname(@__FILE__)) do
     if net_on
         n = min(8, Sys.CPU_CORES, length(tests))
         n > 1 && addprocs(n; exeflags=`--check-bounds=yes --depwarn=error`)
-        BLAS.set_num_threads(1)
+        Base.BUILD_LINALG && BLAS.set_num_threads(1)
     end
 
     @everywhere include("testdefs.jl")

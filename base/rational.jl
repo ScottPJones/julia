@@ -1,15 +1,5 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-immutable Rational{T<:Integer} <: Real
-    num::T
-    den::T
-
-    function Rational(num::Integer, den::Integer)
-        num == den == zero(T) && throw(ArgumentError("invalid rational: zero($T)//zero($T)"))
-        g = den < 0 ? -gcd(den, num) : gcd(den, num)
-        new(div(num, g), div(den, g))
-    end
-end
 Rational{T<:Integer}(n::T, d::T) = Rational{T}(n,d)
 Rational(n::Integer, d::Integer) = Rational(promote(n,d)...)
 Rational(n::Integer) = Rational(n,one(n))

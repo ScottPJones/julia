@@ -1,6 +1,11 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
 import Base.MPFR
+
+@test big"1.0" == BigFloat(1.0)
+@test_throws ArgumentError big"1.0.3"
+@test_throws ArgumentError big"pi"
+
 # constructors
 setprecision(53) do
     x = BigFloat()

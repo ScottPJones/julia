@@ -278,15 +278,19 @@ parsehex(s) = parse(Int,s,16)
 for T in (Int8, Int16, Int32, Int64)
     @test parse(T,string(typemin(T))) == typemin(T)
     @test parse(T,string(typemax(T))) == typemax(T)
-    @test_throws OverflowError parse(T,string(big(typemin(T))-1))
-    @test_throws OverflowError parse(T,string(big(typemax(T))+1))
+    if Base.BUILD_BIGINT # SPJ!!! Can these be done without relying on big()?
+        @test_throws OverflowError parse(T,string(big(typemin(T))-1))
+        @test_throws OverflowError parse(T,string(big(typemax(T))+1))
+    end
 end
 
 for T in (UInt8,UInt16,UInt32,UInt64)
     @test parse(T,string(typemin(T))) == typemin(T)
     @test parse(T,string(typemax(T))) == typemax(T)
-    @test_throws ArgumentError parse(T,string(big(typemin(T))-1))
-    @test_throws OverflowError parse(T,string(big(typemax(T))+1))
+    if Base.BUILD_BIGINT # SPJ!!! Can these be done without relying on big()?
+        @test_throws ArgumentError parse(T,string(big(typemin(T))-1))
+        @test_throws OverflowError parse(T,string(big(typemax(T))+1))
+    end
 end
 
 @test parse("1 == 2|>3") == Expr(:call, :(==), 1, Expr(:call, :(|>), 2, 3))

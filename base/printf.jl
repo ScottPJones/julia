@@ -859,6 +859,7 @@ const HEX_symbols = "0123456789ABCDEF".data
 decode_hex(x::Integer) = decode_hex(x,hex_symbols)
 decode_HEX(x::Integer) = decode_hex(x,HEX_symbols)
 
+if Base.BUILD_BIGINT
 function decode(b::Int, x::BigInt)
     neg = x.size < 0
     pt = Base.ndigits(x, abs(b))
@@ -869,6 +870,7 @@ function decode(b::Int, x::BigInt)
     neg && (x.size = -x.size)
     return Int32(pt), Int32(pt), neg
 end
+
 decode_oct(x::BigInt) = decode(8, x)
 decode_dec(x::BigInt) = decode(10, x)
 decode_hex(x::BigInt) = decode(16, x)
@@ -888,6 +890,7 @@ function decode_0ct(x::BigInt)
           (Ptr{UInt8}, Cint, Ptr{BigInt}), p, 8, &x)
     neg && (x.size = -x.size)
     return neg, Int32(pt), Int32(pt)
+end
 end
 
 ### decoding functions directly used by printf generated code ###
@@ -994,6 +997,7 @@ function ini_dec(x::SmallFloatingPoint, n::Int)
     return Int32(len), Int32(pt), neg
 end
 
+if Base.BUILD_BIGINT
 function ini_dec(x::BigInt, n::Int)
     if x.size == 0
         ccall(:memset, Ptr{Void}, (Ptr{Void}, Cint, Csize_t), DIGITS, '0', n)
@@ -1009,7 +1013,7 @@ function ini_dec(x::BigInt, n::Int)
     end
     return (n, d, decode_dec(round(BigInt,x/big(10)^(d-n)))[3])
 end
-
+end
 
 ini_hex(x::Real, n::Int) = ini_hex(x,n,hex_symbols)
 ini_HEX(x::Real, n::Int) = ini_hex(x,n,HEX_symbols)
@@ -1081,6 +1085,7 @@ end
 ini_hex(x::Integer,ndigits::Int) = throw(MethodError(ini_hex,(x,ndigits)))
 
 #BigFloat
+if Base.BUILD_BIGFLT
 fix_dec(out, d::BigFloat, flags::String, width::Int, precision::Int, c::Char) = bigfloat_printf(out, d, flags, width, precision, c)
 ini_dec(out, d::BigFloat, ndigits::Int, flags::String, width::Int, precision::Int, c::Char) = bigfloat_printf(out, d, flags, width, precision, c)
 ini_hex(out, d::BigFloat, ndigits::Int, flags::String, width::Int, precision::Int, c::Char) = bigfloat_printf(out, d, flags, width, precision, c)
@@ -1118,6 +1123,7 @@ function bigfloat_printf(out, d, flags::String, width::Int, precision::Int, c::C
     lng > 0 || error("invalid printf formatting for BigFloat")
     unsafe_write(out, pointer(DIGITS), min(lng,bufsiz))
     return (false, ())
+end
 end
 
 ### external printf interface ###

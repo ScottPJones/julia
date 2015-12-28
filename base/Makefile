@@ -56,6 +56,106 @@ ifeq ($(USE_GPL_LIBS), 1)
 else
 	@echo "const USE_GPL_LIBS = false" >> $@
 endif
+ifeq ($(BUILD_FULL), 1)
+	@echo "const BUILD_FULL   = true" >> $@
+else
+	@echo "const BUILD_FULL   = false" >> $@
+endif
+ifeq ($(BUILD_BIGINT), 1)
+	@echo "const BUILD_BIGINT = true" >> $@
+else
+	@echo "const BUILD_BIGINT = false" >> $@
+endif
+ifeq ($(BUILD_BIGFLT), 1)
+	@echo "const BUILD_BIGFLT = true" >> $@
+else
+	@echo "const BUILD_BIGFLT = false" >> $@
+endif
+ifeq ($(BUILD_DSP), 1)
+	@echo "const BUILD_DSP    = true" >> $@
+else
+	@echo "const BUILD_DSP    = false" >> $@
+endif
+ifeq ($(BUILD_DATES), 1)
+	@echo "const BUILD_DATES  = true" >> $@
+else
+	@echo "const BUILD_DATES  = false" >> $@
+endif
+ifeq ($(BUILD_STATS), 1)
+	@echo "const BUILD_STATS  = true" >> $@
+else
+	@echo "const BUILD_STATS  = false" >> $@
+endif
+ifeq ($(BUILD_COMPLEX), 1)
+	@echo "const BUILD_COMPLEX = true" >> $@
+else
+	@echo "const BUILD_COMPLEX = false" >> $@
+endif
+ifeq ($(BUILD_RATIONAL), 1)
+	@echo "const BUILD_RATIONAL = true" >> $@
+else
+	@echo "const BUILD_RATIONAL = false" >> $@
+endif
+ifeq ($(BUILD_PARALLEL), 1)
+	@echo "const BUILD_PARALLEL = true" >> $@
+else
+	@echo "const BUILD_PARALLEL = false" >> $@
+endif
+ifeq ($(BUILD_THREADS), 1)
+	@echo "const BUILD_THREADS = true" >> $@
+else
+	@echo "const BUILD_THREADS = false" >> $@
+endif
+ifeq ($(BUILD_PROFILER), 1)
+	@echo "const BUILD_PROFILER = true" >> $@
+else
+	@echo "const BUILD_PROFILER = false" >> $@
+endif
+ifeq ($(BUILD_MMAP), 1)
+	@echo "const BUILD_MMAP = true" >> $@
+else
+	@echo "const BUILD_MMAP = false" >> $@
+endif
+ifeq ($(BUILD_PKG), 1)
+	@echo "const BUILD_PKG = true" >> $@
+else
+	@echo "const BUILD_PKG = false" >> $@
+endif
+ifeq ($(BUILD_SPARSE), 1)
+	@echo "const BUILD_SPARSE = true" >> $@
+else
+	@echo "const BUILD_SPARSE = false" >> $@
+endif
+ifeq ($(BUILD_DOCS), 1)
+	@echo "const BUILD_DOCS = true" >> $@
+else
+	@echo "const BUILD_DOCS = false" >> $@
+endif
+ifeq ($(BUILD_HELP), 1)
+	@echo "const BUILD_HELP = true" >> $@
+else
+	@echo "const BUILD_HELP = false" >> $@
+endif
+ifeq ($(BUILD_TEST), 1)
+	@echo "const BUILD_TEST = true" >> $@
+else
+	@echo "const BUILD_TEST = false" >> $@
+endif
+ifeq ($(BUILD_FLOAT16), 1)
+	@echo "const BUILD_FLOAT16 = true" >> $@
+else
+	@echo "const BUILD_FLOAT16 = false" >> $@
+endif
+ifeq ($(BUILD_LINALG), 1)
+	@echo "const BUILD_LINALG = true" >> $@
+else
+	@echo "const BUILD_LINALG = false" >> $@
+endif
+ifeq ($(BUILD_REPL), 1)
+	@echo "const BUILD_REPL = true" >> $@
+else
+	@echo "const BUILD_REPL = false" >> $@
+endif
 	@echo "const libfftw_name = \"$(LIBFFTWNAME)\"" >> $@
 	@echo "const libfftwf_name = \"$(LIBFFTWFNAME)\"" >> $@
 	@echo "const libllvm_version = \"$$($(LLVM_CONFIG_HOST) --version)\"" >> $@

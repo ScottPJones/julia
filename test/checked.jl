@@ -229,10 +229,12 @@ end
 @test_throws DivideError checked_cld(true, false)
 
 # BigInt
+if Base.BUILD_BIGINT
 @test checked_abs(BigInt(-1)) == BigInt(1)
 @test checked_abs(BigInt(1)) == BigInt(1)
 @test checked_neg(BigInt(-1)) == BigInt(1)
 @test checked_neg(BigInt(1)) == BigInt(-1)
+end
 
 # Additional tests
 

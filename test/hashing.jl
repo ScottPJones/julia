@@ -1,11 +1,11 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-types = Any[
-    Bool,
-    Int8, UInt8, Int16, UInt16, Int32, UInt32, Int64, UInt64, Float32, Float64,
-    Rational{Int8}, Rational{UInt8}, Rational{Int16}, Rational{UInt16},
-    Rational{Int32}, Rational{UInt32}, Rational{Int64}, Rational{UInt64}
-]
+types = Any[ Bool, Int8, UInt8, Int16, UInt16, Int32, UInt32, Int64, UInt64, Float32, Float64 ]
+
+if Base.BUILD_RATIONAL
+    push!(types, Rational{Int8}, Rational{UInt8}, Rational{Int16}, Rational{UInt16},
+                 Rational{Int32}, Rational{UInt32}, Rational{Int64}, Rational{UInt64})
+end
 vals = vcat(
     typemin(Int64),
     -Int64(maxintfloat(Float64))+Int64[-4:1;],
@@ -52,9 +52,11 @@ end
 @test hash(prevfloat(2.0^64)) == hash(UInt64(prevfloat(2.0^64)))
 
 # issue #9264
-@test hash(1//6,zero(UInt)) == invoke(hash, Tuple{Real, UInt}, 1//6, zero(UInt))
-@test hash(1//6) == hash(big(1)//big(6))
-@test hash(1//6) == hash(0x01//0x06)
+if Base.BUILD_RATIONAL
+    @test hash(1//6,zero(UInt)) == invoke(hash, Tuple{Real, UInt}, 1//6, zero(UInt))
+    Base.BUILD_BIGINT && @test hash(1//6) == hash(big(1)//big(6))
+    @test hash(1//6) == hash(0x01//0x06)
+end
 
 # hashing collections (e.g. issue #6870)
 vals = Any[
@@ -70,10 +72,12 @@ vals = Any[
     Dict(x => x for x in 1:10),
     Dict(7=>7,9=>9,4=>4,10=>10,2=>2,3=>3,8=>8,5=>5,6=>6,1=>1),
     [], [1], [2], [1, 1], [1, 2], [1, 3], [2, 2], [1, 2, 2], [1, 3, 3],
-    zeros(2, 2), spzeros(2, 2), eye(2, 2), speye(2, 2),
-    sparse(ones(2, 2)), ones(2, 2), sparse([0 0; 1 0]), [0 0; 1 0],
-    [-0. 0; -0. 0.], SparseMatrixCSC(2, 2, [1, 3, 3], [1, 2], [-0., -0.])
+    zeros(2, 2), eye(2, 2), ones(2, 2)
 ]
+Base.BUILD_LINALG &&
+    push!(vals, spzeros(2, 2), speye(2, 2), sparse(ones(2, 2)), sparse([0 0; 1 0]),
+          SparseMatrixCSC(2, 2, [1, 3, 3], [1, 2], [-0., -0.]),
+          [0 0; 1 0], [-0. 0; -0. 0.])
 
 for a in vals, b in vals
     @test isequal(a,b) == (hash(a)==hash(b))
@@ -86,10 +90,12 @@ end
 @test hash([1,2]) == hash(sub([1,2,3,4],1:2))
 
 # test explicit zeros in SparseMatrixCSC
+if Base.BUILD_LINALG
 x = sprand(10, 10, 0.5)
 x[1] = 1
 x.nzval[1] = 0
 @test hash(x) == hash(full(x))
+end
 
 let a = QuoteNode(1), b = QuoteNode(1.0)
     @test (hash(a)==hash(b)) == (a==b)

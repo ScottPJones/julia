@@ -80,7 +80,7 @@ for arr in (identity, as_sub)
     @test A == fill(7, 2, 2)
     A = arr(zeros(3,3))
     broadcast_setindex!(A, 10:12, 1:3, 1:3)
-    @test A == diagm(10:12)
+    Base.BUILD_LINALG && @test A == diagm(10:12)
     @test_throws BoundsError broadcast_setindex!(A, 7, [1,-1], [1 2])
 
     for (f, ewf) in (((==), (.==)),

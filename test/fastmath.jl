@@ -47,7 +47,9 @@ let eps = 1.0/2^30, one_eps = 1+eps
                    2147483649/1152921504606846976)
 end
 
-for T in (Float32, Float64, BigFloat)
+flttypes = (Base.BUILD_BIGFLT ? (Float32, Float64, BigFloat) : (Float32, Float64))
+
+for T in flttypes
     zero = convert(T, 0)
     one = convert(T, 1) + eps(T)
     two = convert(T, 2) + 1//10
@@ -76,7 +78,10 @@ for T in (Float32, Float64, BigFloat)
     end
 end
 
-for T in (Complex64, Complex128, Complex{BigFloat})
+const complextypes =
+    (Base.BUILD_BIGFLT ? (Complex64, Complex128, Complex{BigFloat}):(Complex64, Complex128))
+
+for T in complextypes
     zero = convert(T, 0)
     one = convert(T, 1) + im*eps(real(convert(T,1)))
     two = convert(T, 2) + im//10
@@ -106,7 +111,7 @@ end
 # math functions
 
 # real arithmetic
-for T in (Float32, Float64, BigFloat)
+for T in flttypes
     half = 1/convert(T, 2)
     third = 1/convert(T, 3)
 
@@ -141,7 +146,7 @@ for T in (Float32, Float64, BigFloat)
 end
 
 # complex arithmetic
-for T in (Complex64, Complex128, Complex{BigFloat})
+for T in complextypes
     half = (1+1im)/T(2)
     third = (1-1im)/T(3)
 
@@ -165,7 +170,7 @@ for T in (Complex64, Complex128, Complex{BigFloat})
 end
 
 # mixed real/complex arithmetic
-for T in (Float32, Float64, BigFloat)
+for T in flttypes
     CT = Complex{T}
     half = 1/T(2)
     third = 1/T(3)

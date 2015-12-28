@@ -38,7 +38,7 @@ A = zeros(UInt128, 2, 2)
 @test_throws BoundsError rand!(MersenneTwister(0), A, 5)
 
 # rand from AbstractArray
-let mt = MersenneTwister()
+Base.BUILD_BIGINT && let mt = MersenneTwister()
     srand(mt)
     @test rand(mt, 0:3:1000) in 0:3:1000
     @test issubset(rand!(mt, Array{Int}(100), 0:3:1000), 0:3:1000)
@@ -60,8 +60,15 @@ randn!(MersenneTwister(42), A)
 @test A == [-0.5560268761463861  0.027155338009193845;
             -0.444383357109696  -0.29948409035891055]
 
-for T in (Int8, UInt8, Int16, UInt16, Int32, UInt32, Int64, UInt64, Int128, UInt128, BigInt,
-          Float16, Float32, Float64, Rational{Int})
+flttypes = [Float32, Float64]
+Base.BUILD_FLOAT16  && push!(flttypes, Float16)
+
+inttypes = [Int8, UInt8, Int16, UInt16, Int32, UInt32, Int64, UInt64, Int128, UInt128]
+numtypes = vcat(inttypes, flttypes)
+Base.BUILD_BIGINT   && push!(numtypes, BigInt)
+Base.BUILD_RATIONAL && push!(numtypes, Rational{Int})
+
+for T in numtypes
     r = rand(convert(T, 97):convert(T, 122))
     @test typeof(r) == T
     @test 97 <= r <= 122
@@ -70,7 +77,7 @@ for T in (Int8, UInt8, Int16, UInt16, Int32, UInt32, Int64, UInt64, Int128, UInt
     @test 97 <= r <= 122
     @test mod(r,2)==1
 
-    if T<:Integer && !(T===BigInt)
+    if T<:Integer && (Base.BUILD_BIGINT && !(T===BigInt))
         x = rand(typemin(T):typemax(T))
         @test isa(x,T)
         @test typemin(T) <= x <= typemax(T)
@@ -96,7 +103,7 @@ if sizeof(Int32) < sizeof(Int)
 end
 
 # BigInt specific
-for T in [UInt32, UInt64, UInt128, Int128]
+Base.BUILD_BIGINT && for T in [UInt32, UInt64, UInt128, Int128]
     s = big(typemax(T)-1000) : big(typemax(T)) + 10000
     @test rand(s) != rand(s)
     @test big(typemax(T)-1000) <= rand(s) <= big(typemax(T)) + 10000
@@ -110,6 +117,7 @@ for T in [UInt32, UInt64, UInt128, Int128]
     @test rand(s) == r
 end
 
+if Base.BUILD_BIGFLT
 # Test ziggurat tables
 ziggurat_table_size = 256
 nmantissa           = Int64(2)^51 # one bit for the sign
@@ -192,6 +200,7 @@ randmtzig_fill_ziggurat_tables()
 @test all(ke == Base.Random.ke)
 @test all(we == Base.Random.we)
 @test all(fe == Base.Random.fe)
+end
 
 #same random numbers on for small ranges on all systems
 
@@ -250,18 +259,26 @@ let mt = MersenneTwister(0)
     end
 
     srand(mt,0)
-    for (i,T) in enumerate([Int8, UInt8, Int16, UInt16, Int32, UInt32, Int64, UInt64, Int128, Float16, Float32])
-        A = Array{T}(16)
-        B = Array{T}(31)
+    for (i,T) in enumerate([Int8, UInt8, Int16, UInt16, Int32, UInt32, Int64, UInt64, Int128, Float32])
+        A = Array(T, 16)
+        B = Array(T, 31)
         rand!(mt, A)
         rand!(mt, B)
         @test A[end] == Any[21,0x7b,17385,0x3086,-1574090021,0xadcb4460,6797283068698303107,0x4e91c9c4d4f5f759,
-                            -3482609696641744459568613291754091152,Float16(0.03125),0.68733835f0][i]
+                            -3482609696641744459568613291754091152,0.037582517f0][i]
 
         @test B[end] == Any[49,0x65,-3725,0x719d,814246081,0xdf61843a,-3010919637398300844,0x61b367cf8810985d,
-                            -33032345278809823492812856023466859769,Float16(0.95),0.51829386f0][i]
+                            -33032345278809823492812856023466859769,0.20707f0][i]
     end
-
+    if Base.BUILD_FLOAT16
+        A = Array(Float16, 16)
+        B = Array(Float16, 31)
+        rand!(mt, A)
+        rand!(mt, B)
+        @test A[end] == Float16(0.4639)
+        @test B[end] == Float16(0.8633)
+    end
+    
     srand(mt,0)
     AF64 = Array{Float64}(Base.Random.dsfmt_get_min_array_size()-1)
     @test rand!(mt, AF64)[end] == 0.957735065345398
@@ -315,7 +332,7 @@ for rng in ([], [MersenneTwister()], [RandomDevice()])
     rand!(rng..., BitArray(5))     ::BitArray{1}
     rand!(rng..., BitArray(2, 3))  ::BitArray{2}
 
-    for T in [Base.BitInteger_types..., Bool, Float16, Float32, Float64]
+    for T in [Base.BitInteger_types..., Bool, Char, flttypes...]
         a0 = rand(rng..., T)       ::T
         a1 = rand(rng..., T, 5)    ::Vector{T}
         a2 = rand(rng..., T, 2, 3) ::Array{T, 2}
@@ -328,8 +345,10 @@ for rng in ([], [MersenneTwister()], [RandomDevice()])
             X = T == Bool ? T[0,1] : T[0,1,2]
             rand!(rng..., A)            ::typeof(A)
             rand!(rng..., A, X)  ::typeof(A)
-            rand!(rng..., sparse(A))            ::typeof(sparse(A))
-            rand!(rng..., sparse(A), X)  ::typeof(sparse(A))
+            if Base.BUILD_LINALG
+                rand!(rng..., sparse(A))            ::typeof(sparse(A))
+                rand!(rng..., sparse(A), X)  ::typeof(sparse(A))
+            end
         end
     end
 end
@@ -343,8 +362,8 @@ function hist(X,n)
 end
 
 # test uniform distribution of floats
-for rng in [srand(MersenneTwister()), RandomDevice()]
-    for T in [Float16,Float32,Float64]
+Base.BUILD_STATS && for rng in [srand(MersenneTwister()), RandomDevice()]
+    for T in flttypes
         # array version
         counts = hist(rand(rng, T, 2000), 4)
         @test minimum(counts) > 300 # should fail with proba < 1e-26
@@ -386,8 +405,10 @@ let mta = MersenneTwister(42), mtb = MersenneTwister(42)
 
     @test randcycle(mta,10) == randcycle(mtb,10)
 
-    @test sprand(mta,1,1,0.9) == sprand(mtb,1,1,0.9)
-    @test sprand(mta,10,10,0.3) == sprand(mtb,10,10,0.3)
+    if Base.BUILD_LINALG
+        @test sprand(mta,1,1,0.9) == sprand(mtb,1,1,0.9)
+        @test sprand(mta,10,10,0.3) == sprand(mtb,10,10,0.3)
+    end
 end
 
 # test PRNG jump

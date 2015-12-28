@@ -448,7 +448,7 @@ function test_map(::Type{TestAbstractArray})
 
         @test map!(f, A, B, C, D) == Int[ 3 * i for i in 1:10 ]
         @test mapf(f, B, C, D) == Float64[ 3 * i for i in 1:10 ]
-        @test mapf(f, Int[], Int[], Complex{Int}[]) == Union{}[]
+        Base.BUILD_COMPLEX && @test mapf(f, Int[], Int[], Complex{Int}[]) == Union{}[]
     end
 
     # In-place map

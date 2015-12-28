@@ -22,6 +22,7 @@ lgamma_r(x::Number) = lgamma(x), 1 # lgamma does not take abs for non-real x
 lfact(x::Real) = (x<=1 ? zero(float(x)) : lgamma(x+one(x)))
 @vectorize_1arg Number lfact
 
+if Base.BUILD_COMPLEX
 const clg_coeff = [76.18009172947146,
                    -86.50532032941677,
                    24.01409824083091,
@@ -122,6 +123,8 @@ function trigamma(z::Union{Float64,Complex{Float64}})
 end
 
 signflip(m::Number, z) = (-1+0im)^m * z
+end
+
 signflip(m::Integer, z) = iseven(m) ? z : -z
 
 # (-1)^m d^m/dz^m cot(z) = p_m(cot z), where p_m is a polynomial
@@ -220,6 +223,7 @@ macro pg_horner(x, m, p...)
     :(($me + 1) * ($(p[1]) + $xe * $ex))
 end
 
+if Base.BUILD_COMPLEX
 # compute oftype(x, y)^p efficiently, choosing the correct branch cut
 pow_oftype(x, y, p) = oftype(x, y)^p
 pow_oftype(x::Complex, y::Real, p::Complex) = oftype(x, y^p)
@@ -233,6 +237,8 @@ function pow_oftype(x::Complex, y::Real, p::Real)
         return oftype(x, Complex(yp, -zero(yp))) # get correct sign of zero!
     end
 end
+
+# SPJ!!! This needs a bit of extra work, to work if BUILD_COMPLEX is not on
 
 # Generalized zeta function, which is related to polygamma
 # (at least for integer m > 0 and real(z) > 0) by:
@@ -385,13 +391,15 @@ function polygamma(m::Integer, z::Union{Float64,Complex{Float64}})
         signflip(m, zeta(s,z) * (-gamma(s)))
     end
 end
+end
 
 # TODO: better way to do this
 f64(x::Real) = Float64(x)
-f64(z::Complex) = Complex128(z)
 f32(x::Real) = Float32(x)
-f32(z::Complex) = Complex64(z)
 f16(x::Real) = Float16(x)
+if Base.BUILD_COMPLEX
+f64(z::Complex) = Complex128(z)
+f32(z::Complex) = Complex64(z)
 f16(z::Complex) = Complex32(z)
 
 # If we really cared about single precision, we could make a faster
@@ -405,6 +413,7 @@ for (f,T) in ((:f32,Float32),(:f16,Float16))
         digamma(z::Union{$T,Complex{$T}}) = $f(digamma(f64(z)))
         trigamma(z::Union{$T,Complex{$T}}) = $f(trigamma(f64(z)))
     end
+end
 end
 
 zeta(s::Integer, z::Number) = zeta(Int(s), f64(z))
@@ -460,6 +469,7 @@ lbeta(x::Number, w::Number) = lgamma(x)+lgamma(w)-lgamma(x+w)
 
 # Riemann zeta function; algorithm is based on specializing the Hurwitz
 # zeta function above for z==1.
+Base.BUILD_COMPLEX &&
 function zeta(s::Union{Float64,Complex{Float64}})
     # blows up to ±Inf, but get correct sign of imaginary zero
     s == 1 && return NaN + zero(s) * imag(s)
@@ -507,9 +517,10 @@ end
 
 zeta(x::Integer) = zeta(Float64(x))
 zeta(x::Real)    = oftype(float(x),zeta(Float64(x)))
-zeta(z::Complex) = oftype(float(z),zeta(Complex128(z)))
+Base.BUILD_COMPLEX && (zeta(z::Complex) = oftype(float(z),zeta(Complex128(z))))
 @vectorize_1arg Number zeta
 
+Base.BUILD_COMPLEX &&
 function eta(z::Union{Float64,Complex{Float64}})
     δz = 1 - z
     if abs(real(δz)) + abs(imag(δz)) < 7e-3 # Taylor expand around z==1
@@ -526,5 +537,5 @@ function eta(z::Union{Float64,Complex{Float64}})
 end
 eta(x::Integer) = eta(Float64(x))
 eta(x::Real)    = oftype(float(x),eta(Float64(x)))
-eta(z::Complex) = oftype(float(z),eta(Complex128(z)))
+Base.BUILD_COMPLEX && (eta(z::Complex) = oftype(float(z),eta(Complex128(z))))
 @vectorize_1arg Number eta

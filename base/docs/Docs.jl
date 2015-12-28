@@ -363,15 +363,17 @@ function summarize(io::IO, T::DataType, binding)
     end
 end
 
+if Base.BUILD_PKG
 function summarize(io::IO, m::Module, binding)
-    readme = Pkg.dir(string(m), "README.md")
-    if isfile(readme)
-        println(io, "Displaying the `README.md` for the module instead.\n")
-        println(io, "---\n")
-        println(io, readstring(readme))
-    else
-        println(io, "No `README.md` found for module `", m, "`.\n")
-    end
+        readme = Pkg.dir(string(m), "README.md")
+        if isfile(readme)
+            println(io, "Displaying the `README.md` for the module instead.\n")
+            println(io, "---\n")
+            println(io, readstring(readme))
+        else
+            println(io, "No `README.md` found for module `", m, "`.\n")
+        end
+end
 end
 
 function summarize{T}(io::IO, ::T, binding)

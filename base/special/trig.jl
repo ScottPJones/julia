@@ -95,8 +95,8 @@ function mulpi_ext(x::Float64)
     DoubleFloat64(y_hi,y_lo)
 end
 mulpi_ext(x::Float32) = DoubleFloat32(pi*Float64(x))
-mulpi_ext(x::Rational) = mulpi_ext(float(x))
 mulpi_ext(x::Real) = pi*x # Fallback
+Base.BUILD_RATIONAL && (mulpi_ext(x::Rational) = mulpi_ext(float(x)))
 
 
 function sinpi{T<:AbstractFloat}(x::T)
@@ -209,6 +209,7 @@ end
 sinpi(x::Integer) = x >= 0 ? zero(float(x)) : -zero(float(x))
 cospi(x::Integer) = isodd(x) ? -one(float(x)) : one(float(x))
 
+if Base.BUILD_COMPLEX
 function sinpi{T}(z::Complex{T})
     F = float(T)
     zr, zi = reim(z)
@@ -275,19 +276,20 @@ function cospi{T}(z::Complex{T})
         Complex(cospi(zr)*cosh(pizi), -sinpi(zr)*sinh(pizi))
     end
 end
+end
 @vectorize_1arg Number sinpi
 @vectorize_1arg Number cospi
 
 
 sinc(x::Number) = x==0 ? one(x)  : oftype(x,sinpi(x)/(pi*x))
 sinc(x::Integer) = x==0 ? one(x) : zero(x)
-sinc{T<:Integer}(x::Complex{T}) = sinc(float(x))
+Base.BUILD_COMPLEX && (sinc{T<:Integer}(x::Complex{T}) = sinc(float(x)))
 sinc(x::Real) = x==0 ? one(x) : isinf(x) ? zero(x) : sinpi(x)/(pi*x)
 @vectorize_1arg Number sinc
 
 cosc(x::Number) = x==0 ? zero(x) : oftype(x,(cospi(x)-sinpi(x)/(pi*x))/x)
 cosc(x::Integer) = cosc(float(x))
-cosc{T<:Integer}(x::Complex{T}) = cosc(float(x))
+Base.BUILD_COMPLEX && (cosc{T<:Integer}(x::Complex{T}) = cosc(float(x)))
 cosc(x::Real) = x==0 || isinf(x) ? zero(x) : (cospi(x)-sinpi(x)/(pi*x))/x
 @vectorize_1arg Number cosc
 

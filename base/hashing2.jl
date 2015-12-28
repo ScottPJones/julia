@@ -13,6 +13,7 @@ function hash_integer(n::Integer, h::UInt)
     return h
 end
 
+BUILD_BIGINT &&
 function hash_integer(n::BigInt, h::UInt)
     s = n.size
     s == 0 && return hash_integer(0, h)
@@ -94,7 +95,9 @@ Special values:
 =#
 
 decompose(x::Integer) = x, 0, 1
-decompose(x::Rational) = num(x), 0, den(x)
+if BUILD_RATIONAL
+    decompose(x::Rational) = num(x), 0, den(x)
+end
 
 function decompose(x::Float16)
     isnan(x) && return 0, 0, 0
@@ -129,6 +132,7 @@ function decompose(x::Float64)
     s, Int(e - 1075 + (e == 0)), d
 end
 
+BUILD_BIGFLT && BUILD_BIGINT &&
 function decompose(x::BigFloat)
     isnan(x) && return big(0), 0, 0
     isinf(x) && return big(x.sign), 0, 0
@@ -143,6 +147,7 @@ end
 
 ## streamlined hashing for smallish rational types ##
 
+BUILD_RATIONAL &&
 function hash{T<:BitInteger64}(x::Rational{T}, h::UInt)
     num, den = Base.num(x), Base.den(x)
     den == 1 && return hash(num, h)
@@ -166,7 +171,7 @@ end
 
 ## hashing Float16s ##
 
-hash(x::Float16, h::UInt) = hash(Float64(x), h)
+BUILD_FLOAT16 && (hash(x::Float16, h::UInt) = hash(Float64(x), h))
 
 ## hashing strings ##
 

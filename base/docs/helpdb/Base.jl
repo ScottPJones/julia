@@ -326,14 +326,6 @@ efficient Goertzel-like algorithm.
 :@evalpoly
 
 """
-    eigfact!(A, [B])
-
-Same as [`eigfact`](:func:`eigfact`), but saves space by overwriting the input `A` (and
-`B`), instead of creating a copy.
-"""
-eigfact!
-
-"""
     cosh(x)
 
 Compute hyperbolic cosine of `x`.
@@ -395,13 +387,6 @@ Call the function `body` with a modified task-local storage, in which `value` is
 for emulating dynamic scoping.
 """
 task_local_storage(body, symbol, value)
-
-"""
-    diff(A, [dim])
-
-Finite difference operator of matrix or vector.
-"""
-diff
 
 """
     precision(num::AbstractFloat)
@@ -661,7 +646,7 @@ mapfoldr(f, op, itr)
 Broadcasts the `X` and `inds` arrays to a common size and stores the value from each
 position in `X` at the indices given by the same positions in `inds`.
 """
-broadcast_setindex!
+    broadcast_setindex!
 
 """
     Nullable(x)
@@ -791,13 +776,6 @@ Compute the logarithmic factorial of `x`
 lfact
 
 """
-    deconv(b,a)
-
-Construct vector `c` such that `b = conv(a,c) + r`. Equivalent to polynomial division.
-"""
-deconv
-
-"""
     insert!(collection, index, item)
 
 Insert an `item` into `collection` at the given `index`. `index` is the index of `item` in
@@ -870,13 +848,6 @@ that N is inbounds on either array. Incorrect usage may corrupt or segfault your
 the same manner as C.
 """
 unsafe_copy!(dest::Array, d, src::Array, so, N)
-
-"""
-    diag(M[, k])
-
-The `k`th diagonal of a matrix, as a vector. Use `diagm` to construct a diagonal matrix.
-"""
-diag
 
 """
     .^(x, y)
@@ -1009,79 +980,6 @@ issticky
 Performs a left rotation operation.
 """
 rol
-
-"""
-    Mmap.mmap(io::Union{IOStream,AbstractString,Mmap.AnonymousMmap}[, type::Type{Array{T,N}}, dims, offset]; grow::Bool=true, shared::Bool=true)
-           Mmap.mmap(type::Type{Array{T,N}}, dims)
-
-Create an `Array` whose values are linked to a file, using memory-mapping. This provides a
-convenient way of working with data too large to fit in the computer's memory.
-
-The type is an `Array{T,N}` with a bits-type element of `T` and dimension `N` that
-determines how the bytes of the array are interpreted. Note that the file must be stored in
-binary format, and no format conversions are possible (this is a limitation of operating
-systems, not Julia).
-
-`dims` is a tuple or single `Integer` specifying the size or length of the array.
-
-The file is passed via the stream argument, either as an open `IOStream` or filename string.
-When you initialize the stream, use `"r"` for a "read-only" array, and `"w+"` to create a
-new array used to write values to disk.
-
-If no `type` argument is specified, the default is `Vector{UInt8}`.
-
-Optionally, you can specify an offset (in bytes) if, for example, you want to skip over a
-header in the file. The default value for the offset is the current stream position for an
-`IOStream`.
-
-The `grow` keyword argument specifies whether the disk file should be grown to accommodate
-the requested size of array (if the total file size is < requested array size). Write
-privileges are required to grow the file.
-
-The `shared` keyword argument specifies whether the resulting `Array` and changes made to it
-will be visible to other processes mapping the same file.
-
-For example, the following code
-
-```julia
-# Create a file for mmapping
-# (you could alternatively use mmap to do this step, too)
-A = rand(1:20, 5, 30)
-s = open("/tmp/mmap.bin", "w+")
-# We'll write the dimensions of the array as the first two Ints in the file
-write(s, size(A,1))
-write(s, size(A,2))
-# Now write the data
-write(s, A)
-close(s)
-
-# Test by reading it back in
-s = open("/tmp/mmap.bin")   # default is read-only
-m = read(s, Int)
-n = read(s, Int)
-A2 = Mmap.mmap(s, Matrix{Int}, (m,n))
-```
-
-creates a `m`-by-`n` `Matrix{Int}`, linked to the file associated with stream `s`.
-
-A more portable file would need to encode the word size -- 32 bit or 64 bit -- and endianness
-information in the header. In practice, consider encoding binary data using standard formats
-like HDF5 (which can be used with memory-mapping).
-"""
-Mmap.mmap(io, ::Type, dims, offset)
-
-"""
-    Mmap.mmap(io, BitArray, [dims, offset])
-
-Create a `BitArray` whose values are linked to a file, using memory-mapping; it has the same
-purpose, works in the same way, and has the same arguments, as [`mmap`](:func:`mmap`), but
-the byte representation is different.
-
-**Example**: `B = Mmap.mmap(s, BitArray, (25,30000))`
-
-This would create a 25-by-30000 `BitArray`, linked to the file associated with stream `s`.
-"""
-Mmap.mmap(io, ::BitArray, dims = ?, offset = ?)
 
 """
     airyprime(x)
@@ -1235,13 +1133,6 @@ Returns `true` if `path` is a symbolic link, `false` otherwise.
 islink
 
 """
-    istril(A) -> Bool
-
-Test whether a matrix is lower triangular.
-"""
-istril
-
-"""
     lgamma(x)
 
 Compute the logarithm of the absolute value of [`gamma`](:func:`gamma`) for
@@ -1354,13 +1245,6 @@ Compute the maximum absolute values over the singleton dimensions of `r`, and wr
 maxabs!
 
 """
-    nullspace(M)
-
-Basis for nullspace of `M`.
-"""
-nullspace
-
-"""
     isfinite(f) -> Bool
 
 Test whether a number is finite
@@ -1451,14 +1335,6 @@ Bessel function of the second kind of order `nu`, ``Y_\\nu(x)``.
 bessely
 
 """
-    gradient(F, [h])
-
-Compute differences along vector `F`, using `h` as the spacing between points. The default
-spacing is one.
-"""
-gradient
-
-"""
     tan(x)
 
 Compute tangent of `x`, where `x` is in radians.
@@ -1521,7 +1397,7 @@ the worker processors. The flop rate of the entire parallel computer is returned
 running in parallel, only 1 BLAS thread is used. The argument `n` still refers to the size
 of the problem that is solved on each processor.
 """
-peakflops
+function peakflops end
 
 """
     ones(type, dims)
@@ -1636,15 +1512,6 @@ ensure that messages are delivered and received completely and in order.
 workers.
 """
 connect(manager, pid::Int, config::WorkerConfig)
-
-"""
-    mean(v[, region])
-
-Compute the mean of whole array `v`, or optionally along the dimensions in `region`. Note:
-Julia does not ignore `NaN` values in the computation. For applications requiring the
-handling of missing data, the `DataArray` package is recommended.
-"""
-mean
 
 """
     split(string, [chars]; limit=0, keep=true)
@@ -2062,13 +1929,6 @@ second variant.
 displayable
 
 """
-    sdata(S::SharedArray)
-
-Returns the actual `Array` object backing `S`.
-"""
-sdata
-
-"""
     truncate(file,n)
 
 Resize the file or buffer given by the first argument to exactly `n` bytes, filling
@@ -2123,13 +1983,6 @@ Scaled Bessel function of the second kind of order `nu`,
 besselyx
 
 """
-    eigmax(A)
-
-Returns the largest eigenvalue of `A`.
-"""
-eigmax
-
-"""
     PipeBuffer()
 
 An IOBuffer that allows reading and performs writes by appending. Seeking and truncating are
@@ -2167,14 +2020,6 @@ Cumulative sum of `A` along a dimension, storing the result in `B`. The dimensio
 to 1.
 """
 cumsum!
-
-"""
-    logdet(M)
-
-Log of matrix determinant. Equivalent to `log(det(M))`, but may provide increased accuracy
-and/or speed.
-"""
-logdet
 
 """
     hcat(A...)
@@ -2239,21 +2084,6 @@ creating a new stream.
 accept
 
 """
-    triu!(M)
-
-Upper triangle of a matrix, overwriting `M` in the process.
-"""
-triu!(M)
-
-"""
-    triu!(M, k)
-
-Returns the upper triangle of `M` starting from the `k`th superdiagonal, overwriting `M` in
-the process.
-"""
-triu!(M, k)
-
-"""
     readstring(stream::IO)
     readstring(filename::AbstractString)
 
@@ -2287,13 +2117,6 @@ The text is assumed to be encoded in UTF-8.
 eachline
 
 """
-    isposdef!(A) -> Bool
-
-Test whether a matrix is positive definite, overwriting `A` in the processes.
-"""
-isposdef!
-
-"""
     complex(r, [i])
 
 Convert real numbers or arrays to complex. `i` defaults to zero.
@@ -2309,14 +2132,6 @@ if socket will be used for broadcast messages, or else the UDP system will retur
 error (default: `false`). `ttl`: Time-to-live of packets sent on the socket.
 """
 setopt
-
-"""
-    Mmap.Anonymous(name, readonly, create)
-
-Create an `IO`-like object for creating zeroed-out mmapped-memory that is not tied to a file
-for use in `Mmap.mmap`. Used by `SharedArray` for creating shared memory arrays.
-"""
-Mmap.Anonymous
 
 """
     A_rdiv_Bc(A, B)
@@ -2472,14 +2287,6 @@ Element-wise greater-than-or-equals comparison operator.
 Base.:(.>=)
 
 """
-    stdm(v, m)
-
-Compute the sample standard deviation of a vector `v` with known mean `m`. Note: Julia does
-not ignore `NaN` values in the computation.
-"""
-stdm
-
-"""
     mv(src::AbstractString,dst::AbstractString; remove_destination::Bool=false)
 
 Move the file, link, or directory from `src` to `dst`. `remove_destination=true` will first
@@ -2506,21 +2313,6 @@ not representable.
 `digits` and `base` work as for [`round`](:func:`round`).
 """
 floor
-
-"""
-    tril!(M)
-
-Lower triangle of a matrix, overwriting `M` in the process.
-"""
-tril!(M)
-
-"""
-    tril!(M, k)
-
-Returns the lower triangle of `M` starting from the `k`th superdiagonal, overwriting `M` in
-the process.
-"""
-tril!(M, k)
 
 """
     divrem(x, y)
@@ -2745,13 +2537,6 @@ ctranspose
 Seek a stream relative to the current position.
 """
 skip
-
-"""
-    lu(A) -> L, U, p
-
-Compute the LU factorization of `A`, such that `A[p,:] = L*U`.
-"""
-lu
 
 """
     @task
@@ -3347,19 +3132,12 @@ directory upon completion.
 mktempdir(f::Function)
 
 """
-    tril(M)
+    @edit
 
-Lower triangle of a matrix.
+Evaluates the arguments to the function call, determines their types, and calls the `edit`
+function on the resulting expression.
 """
-tril(M)
-
-"""
-    tril(M, k)
-
-Returns the lower triangle of `M` starting from the `k`th superdiagonal.
-"""
-tril(M,k)
-
+:@edit
 
 """
     subtypes(T::DataType)
@@ -3393,34 +3171,6 @@ Releases ownership of the lock by the current task. If the lock had been acquire
 just decrements an internal counter and returns immediately.
 """
 unlock
-
-"""
-    BigFloat(x)
-
-Create an arbitrary precision floating point number. `x` may be an `Integer`, a `Float64` or
-a `BigInt`. The usual mathematical operators are defined for this type, and results are
-promoted to a `BigFloat`.
-
-Note that because decimal literals are converted to floating point numbers when parsed,
-`BigFloat(2.1)` may not yield what you expect. You may instead prefer to initialize
-constants from strings via [`parse`](:func:`parse`), or using the `big` string literal.
-
-```jldoctest
-julia> BigFloat(2.1)
-2.100000000000000088817841970012523233890533447265625000000000000000000000000000
-
-julia> big"2.1"
-2.099999999999999999999999999999999999999999999999999999999999999999999999999986
-```
-"""
-BigFloat
-
-"""
-    xcorr(u,v)
-
-Compute the cross-correlation of two vectors.
-"""
-xcorr
 
 """
     typeof(x)
@@ -3552,20 +3302,6 @@ seek
 Compute the inverse cosine of `x`, where the output is in degrees.
 """
 acosd
-
-"""
-    triu(M)
-
-Upper triangle of a matrix.
-"""
-triu(M)
-
-"""
-    triu(M, k)
-
-Returns the upper triangle of `M` starting from the `k`th superdiagonal.
-"""
-triu(M, k)
 
 """
     instances(T::Type)
@@ -3909,15 +3645,6 @@ Compute the logarithm of `x` to base 2. Throws `DomainError` for negative `Real`
 log2
 
 """
-    SymTridiagonal(d, du)
-
-Construct a real symmetric tridiagonal matrix from the diagonal and upper diagonal,
-respectively. The result is of type `SymTridiagonal` and provides efficient specialized
-eigensolvers, but may be converted into a regular matrix with [`full`](:func:`full`).
-"""
-SymTridiagonal
-
-"""
     colon(start, [step], stop)
 
 Called by `:` syntax for constructing ranges.
@@ -4090,13 +3817,6 @@ Compute the inverse secant of `x`, where the output is in radians.
 asec
 
 """
-    rank(M)
-
-Compute the rank of a matrix.
-"""
-rank
-
-"""
     max(x, y, ...)
 
 Return the maximum of the arguments. Operates elementwise over arrays.
@@ -4164,29 +3884,13 @@ executes a remote `exit()` on `pid`
 kill(manager, pid::Int, config::WorkerConfig)
 
 """
-    sylvester(A, B, C)
-
-Computes the solution `X` to the Sylvester equation `AX + XB + C = 0`, where `A`, `B` and
-`C` have compatible dimensions and `A` and `-B` have no eigenvalues with equal real part.
-"""
-sylvester
-
-"""
     broadcast!(f, dest, As...)
 
 Like `broadcast`, but store the result of `broadcast(f, As...)` in the `dest` array. Note
 that `dest` is only used to store the result, and does not supply arguments to `f` unless it
 is also listed in the `As`, as in `broadcast!(f, A, A, B)` to perform `A[:] = broadcast(f, A, B)`.
 """
-broadcast!
-
-"""
-    cross(x, y)
-    ×(x,y)
-
-Compute the cross product of two 3-vectors.
-"""
-cross
+    broadcast!
 
 """
     strides(A)
@@ -4284,21 +3988,6 @@ Return the module in which the binding for the variable referenced by `symbol` w
 which(symbol)
 
 """
-    conv2(u,v,A)
-
-2-D convolution of the matrix `A` with the 2-D separable kernel generated by the vectors `u`
-and `v`. Uses 2-D FFT algorithm.
-"""
-conv2(u, v, A)
-
-"""
-    conv2(B,A)
-
-2-D convolution of the matrix `B` with the matrix `A`. Uses 2-D FFT algorithm.
-"""
-conv2(B, A)
-
-"""
     broadcast_getindex(A, inds...)
 
 Broadcasts the `inds` arrays to a common size like `broadcast`, and returns an array of the
@@ -4363,14 +4052,6 @@ parse(T::Type, str, base=Int)
 Update the last-modified timestamp on a file to the current time.
 """
 touch
-
-"""
-    bkfact!(A) -> BunchKaufman
-
-`bkfact!` is the same as [`bkfact`](:func:`bkfact`), but saves space by overwriting the
-input `A`, instead of creating a copy.
-"""
-bkfact!
 
 """
     ^(x, y)
@@ -4527,13 +4208,6 @@ rotl90(A, k)
 Display an informational message. Argument `msg` is a string describing the information to be displayed.
 """
 info
-
-"""
-    eigmin(A)
-
-Returns the smallest eigenvalue of `A`.
-"""
-eigmin
 
 """
     acscd(x)
@@ -4854,18 +4528,6 @@ pressing Ctrl-C on the local machine. If no arguments are given, all workers are
 interrupt
 
 """
-    std(v[, region])
-
-Compute the sample standard deviation of a vector or array `v`, optionally along dimensions
-in `region`. The algorithm returns an estimator of the generative distribution's standard
-deviation under the assumption that each entry of `v` is an IID drawn from that generative
-distribution. This computation is equivalent to calculating `sqrt(sum((v - mean(v)).^2) /
-(length(v) - 1))`. Note: Julia does not ignore `NaN` values in the computation. For
-applications requiring the handling of missing data, the `DataArray` package is recommended.
-"""
-std
-
-"""
     chr2ind(string, i)
 
 Convert a character index to a byte index.
@@ -4893,7 +4555,7 @@ isreadable
 The distance between 1.0 and the next larger representable floating-point value of
 `DataType` `T`. Only floating-point types are sensible arguments.
 """
-eps(::Union{Type{BigFloat},Type{Float64},Type{Float32},Type{Float16}})
+    eps(::AbstractFloat)
 
 """
     eps()
@@ -4943,6 +4605,7 @@ specified order. Returns `length(a)+1` if `x` is greater than all values in `a`.
 """
 searchsortedfirst
 
+if BUILD_BIGINT || BUILD_BIGFLT
 """
     big(x)
 
@@ -4950,6 +4613,7 @@ Convert a number to a maximum precision representation (typically `BigInt` or `B
 See `BigFloat` for information about some pitfalls with floating-point numbers.
 """
 big
+end
 
 """
     names(x::Module[, all=false[, imported=false]])
@@ -5072,13 +4736,6 @@ Constructs an identity matrix of the same dimensions and type as `A`.
 eye(A)
 
 """
-    diagind(M[, k])
-
-A `Range` giving the indices of the `k`th diagonal of the matrix `M`.
-"""
-diagind
-
-"""
     include_string(code::AbstractString, [filename])
 
 Like `include`, except reads code from the given string rather than from a file. Since there
@@ -5155,24 +4812,6 @@ code_lowered
 Return an iterator over all values in a collection. `collect(values(d))` returns an array of values.
 """
 values
-
-"""
-    A_mul_B!(Y, A, B) -> Y
-
-Calculates the matrix-matrix or matrix-vector product ``A⋅B`` and stores the result in `Y`,
-overwriting the existing value of `Y`. Note that `Y` must not be aliased with either `A` or
-`B`.
-
-```jldoctest
-julia> A=[1.0 2.0; 3.0 4.0]; B=[1.0 1.0; 1.0 1.0]; Y = similar(B); A_mul_B!(Y, A, B);
-
-julia> Y
-2×2 Array{Float64,2}:
- 3.0  3.0
- 7.0  7.0
-```
-"""
-A_mul_B!
 
 """
     ntuple(f::Function, n)
@@ -5316,18 +4955,6 @@ Compute the minimum value of an array over the given dimensions.
 minimum(A,dims)
 
 """
-    var(v[, region])
-
-Compute the sample variance of a vector or array `v`, optionally along dimensions in
-`region`. The algorithm will return an estimator of the generative distribution's variance
-under the assumption that each entry of `v` is an IID drawn from that generative
-distribution. This computation is equivalent to calculating `sumabs2(v - mean(v)) /
-(length(v) - 1)`. Note: Julia does not ignore `NaN` values in the computation. For
-applications requiring the handling of missing data, the `DataArray` package is recommended.
-"""
-var
-
-"""
     lcfirst(string)
 
 Returns `string` with the first character converted to lowercase.
@@ -5413,16 +5040,6 @@ function and type signature to [`STDOUT`](:const:`STDOUT`).
 All metadata and dbg.* calls are removed from the printed bitcode. Use code_llvm_raw for the full IR.
 """
 code_llvm
-
-"""
-    Bidiagonal(dv, ev, isupper)
-
-Constructs an upper (`isupper=true`) or lower (`isupper=false`) bidiagonal matrix using the
-given diagonal (`dv`) and off-diagonal (`ev`) vectors.  The result is of type `Bidiagonal`
-and provides efficient specialized linear solvers, but may be converted into a regular
-matrix with [`full`](:func:`full`).
-"""
-Bidiagonal
 
 """
     notify(condition, val=nothing; all=true, error=false)
@@ -5512,16 +5129,6 @@ get
 Element-wise not-equals comparison operator.
 """
 Base.:(.!=)
-
-"""
-    lufact!(A) -> LU
-
-`lufact!` is the same as [`lufact`](:func:`lufact`), but saves space by overwriting the
-input `A`, instead of creating a copy. An `InexactError` exception is thrown if the
-factorisation produces a number not representable by the element type of `A`, e.g. for
-integer types.
-"""
-lufact!
 
 """
     IOBuffer() -> IOBuffer
@@ -5811,13 +5418,6 @@ Run a command object asynchronously, returning the resulting `Process` object.
 spawn
 
 """
-    isposdef(A) -> Bool
-
-Test whether a matrix is positive definite.
-"""
-isposdef
-
-"""
     nextind(str, i)
 
 Get the next valid string index after `i`. Returns a value greater than `endof(str)` at or
@@ -5972,34 +5572,6 @@ Read the entirety of `x` as a string and remove a single trailing newline. Equiv
 readchomp
 
 """
-    pinv(M[, tol])
-
-Computes the Moore-Penrose pseudoinverse.
-
-For matrices `M` with floating point elements, it is convenient to compute
-the pseudoinverse by inverting only singular values above a given threshold,
-`tol`.
-
-The optimal choice of `tol` varies both with the value of `M` and the intended application
-of the pseudoinverse. The default value of `tol` is
-`eps(real(float(one(eltype(M)))))*maximum(size(A))`, which is essentially machine epsilon
-for the real part of a matrix element multiplied by the larger matrix dimension. For
-inverting dense ill-conditioned matrices in a least-squares sense,
-`tol = sqrt(eps(real(float(one(eltype(M))))))` is recommended.
-
-For more information, see [^issue8859], [^B96], [^S84], [^KY88].
-
-[^issue8859]: Issue 8859, "Fix least squares", https://github.com/JuliaLang/julia/pull/8859
-
-[^B96]: Åke Björck, "Numerical Methods for Least Squares Problems",  SIAM Press, Philadelphia, 1996, "Other Titles in Applied Mathematics", Vol. 51. [doi:10.1137/1.9781611971484](http://epubs.siam.org/doi/book/10.1137/1.9781611971484)
-
-[^S84]: G. W. Stewart, "Rank Degeneracy", SIAM Journal on Scientific and Statistical Computing, 5(2), 1984, 403-413. [doi:10.1137/0905030](http://epubs.siam.org/doi/abs/10.1137/0905030)
-
-[^KY88]: Konstantinos Konstantinides and Kung Yao, "Statistical analysis of effective singular values in matrix rank determination", IEEE Transactions on Acoustics, Speech and Signal Processing, 36(5), 1988, 757-763. [doi:10.1109/29.1585](http://dx.doi.org/10.1109/29.1585)
-"""
-pinv
-
-"""
     asecd(x)
 
 Compute the inverse secant of `x`, where the output is in degrees.
@@ -6046,13 +5618,6 @@ An indexing operation into an `Associative` (`Dict`) or `Set` like object tried 
 delete a non-existent element.
 """
 KeyError
-
-"""
-    isdiag(A) -> Bool
-
-Test whether a matrix is diagonal.
-"""
-isdiag
 
 """
     !==(x, y)
@@ -6373,13 +5938,7 @@ The arguments to a function or constructor are outside the valid domain.
 """
 DomainError
 
-"""
-    issymmetric(A) -> Bool
-
-Test whether a matrix is symmetric.
-"""
-issymmetric
-
+if BUILD_LINALG
 """
     acosh(x)
 
@@ -6479,6 +6038,7 @@ Determine whether a process is currently running.
 """
 process_running
 
+if BUILD_BIGINT
 """
     BigInt(x)
 
@@ -6490,6 +6050,7 @@ Instances can be constructed from strings via [`parse`](:func:`parse`), or using
 string literal.
 """
 BigInt
+end
 
 """
     rsearch(string, chars, [start])
@@ -6604,13 +6165,6 @@ of any given type.
 show(stream, mime, x)
 
 """
-    mean!(r, v)
-
-Compute the mean of `v` over the singleton dimensions of `r`, and write results to `r`.
-"""
-mean!
-
-"""
     join(strings, delim, [last])
 
 Join an array of `strings` into a single string, inserting the given delimiter between
@@ -6697,30 +6251,6 @@ types to indicate which method to see.
 less(func, ?)
 
 """
-    sqrtm(A)
-
-If `A` has no negative real eigenvalues, compute the principal matrix square root of `A`,
-that is the unique matrix ``X`` with eigenvalues having positive real part such that
-``X^2 = A``. Otherwise, a nonprincipal square root is returned.
-
-If `A` is symmetric or Hermitian, its eigendecomposition ([`eigfact`](:func:`eigfact`)) is
-used to compute the square root. Otherwise, the square root is determined by means of the
-Björck-Hammarling method, which computes the complex Schur form ([`schur`](:func:`schur`))
-and then the complex square root of the triangular factor.
-
-[^BH83]: Åke Björck and Sven Hammarling, "A Schur method for the square root of a matrix", Linear Algebra and its Applications, 52-53, 1983, 127-140. [doi:10.1016/0024-3795(83)80010-X](http://dx.doi.org/10.1016/0024-3795(83)80010-X)
-
-"""
-sqrtm
-
-"""
-    conv(u,v)
-
-Convolution of two vectors. Uses FFT algorithm.
-"""
-conv
-
-"""
     unsafe_store!(p::Ptr{T},x,i::Integer)
 
 Store a value of type `T` to the address of the ith element (1-indexed) starting at `p`.
@@ -6731,31 +6261,6 @@ pointer `p` to ensure that it is valid. Incorrect usage may corrupt or segfault 
 program, in the same manner as C.
 """
 unsafe_store!
-
-"""
-    expm(A)
-
-Compute the matrix exponential of `A`, defined by
-
-```math
-e^A = \\sum_{n=0}^{\\infty} \\frac{A^n}{n!}.
-```
-
-For symmetric or Hermitian `A`, an eigendecomposition ([`eigfact`](:func:`eigfact`)) is
-used, otherwise the scaling and squaring algorithm (see [^H05]) is chosen.
-
-[^H05]: Nicholas J. Higham, "The squaring and scaling method for the matrix exponential revisited", SIAM Journal on Matrix Analysis and Applications, 26(4), 2005, 1179-1193. [doi:10.1137/090768539](http://dx.doi.org/10.1137/090768539)
-
-"""
-expm
-
-"""
-    hessfact!(A)
-
-`hessfact!` is the same as [`hessfact`](:func:`hessfact`), but saves space by overwriting
-the input `A`, instead of creating a copy.
-"""
-hessfact!
 
 """
     Sys.get_process_title()
@@ -6815,13 +6320,6 @@ iscntrl
 Compute the minimum value of `A` over the singleton dimensions of `r`, and write results to `r`.
 """
 minimum!
-
-"""
-    diagm(v[, k])
-
-Construct a diagonal matrix and place `v` on the `k`th diagonal.
-"""
-diagm
 
 """
     .-(x, y)
@@ -6940,27 +6438,12 @@ Compute the inverse tangent of `x`, where the output is in radians.
 atan
 
 """
-    logabsdet(M)
-
-Log of absolute value of determinant of real matrix. Equivalent to `(log(abs(det(M))), sign(det(M)))`,
-but may provide increased accuracy and/or speed.
-"""
-logabsdet
-
-"""
     joinpath(parts...) -> AbstractString
 
 Join path components into a full path. If some argument is an absolute path, then prior
 components are dropped.
 """
 joinpath
-
-"""
-    precision(BigFloat)
-
-Get the precision (in bits) currently used for `BigFloat` arithmetic.
-"""
-precision(::Type{BigFloat})
 
 """
     homedir() -> AbstractString
@@ -7003,14 +6486,6 @@ Compute the secant of `x`, where `x` is in degrees.
 secd
 
 """
-    varm(v, m)
-
-Compute the sample variance of a vector `v` with known mean `m`. Note: Julia does not ignore
-`NaN` values in the computation.
-"""
-varm
-
-"""
     OverflowError()
 
 The result of an expression is too large for the specified type and will cause a wraparound.
@@ -7042,20 +6517,6 @@ Get a unique integer id for `x`. `object_id(x)==object_id(y)` if and only if `is
 object_id
 
 """
-    norm(A, [p])
-
-Compute the `p`-norm of a vector or the operator norm of a matrix `A`, defaulting to the `p=2`-norm.
-
-For vectors, `p` can assume any numeric value (even though not all values produce a
-mathematically valid vector norm). In particular, `norm(A, Inf)` returns the largest value
-in `abs(A)`, whereas `norm(A, -Inf)` returns the smallest.
-
-For matrices, the matrix norm induced by the vector `p`-norm is used, where valid values of
-`p` are `1`, `2`, or `Inf`. (Note that for sparse matrices, `p=2` is currently not
-implemented.) Use [`vecnorm`](:func:`vecnorm`) to compute the Frobenius norm.
-"""
-norm
-
 """
     unescape_string(io, s::AbstractString)
 
@@ -7156,6 +6617,7 @@ lexicographically comparable types, and `lexless` will call `lexcmp` by default.
 """
 lexcmp
 
+if BUILD_FULL # deprecated.jl
 """
     isupper(c::Union{Char,AbstractString}) -> Bool
 
@@ -7257,32 +6719,6 @@ provided as a generic fallback (based on `isnan`, `signbit`, and `==`).
 isequal
 
 """
-    lyap(A, C)
-
-Computes the solution `X` to the continuous Lyapunov equation `AX + XA' + C = 0`, where no
-eigenvalue of `A` has a zero real part and no two eigenvalues are negative complex
-conjugates of each other.
-"""
-lyap
-
-"""
-    condskeel(M, [x, p])
-
-```math
-\\kappa_S(M, p) & = \\left\\Vert \\left\\vert M \\right\\vert \\left\\vert M^{-1} \\right\\vert  \\right\\Vert_p \\\\
-\\kappa_S(M, x, p) & = \\left\\Vert \\left\\vert M \\right\\vert \\left\\vert M^{-1} \\right\\vert \\left\\vert x \\right\\vert \\right\\Vert_p
-```
-
-Skeel condition number ``\\kappa_S`` of the matrix `M`, optionally with respect to the
-vector `x`, as computed using the operator `p`-norm. `p` is `Inf` by default, if not
-provided. Valid values for `p` are `1`, `2`, or `Inf`.
-
-This quantity is also known in the literature as the Bauer condition number, relative
-condition number, or componentwise relative condition number.
-"""
-condskeel
-
-"""
     sec(x)
 
 Compute the secant of `x`, where `x` is in radians.
@@ -7304,25 +6740,11 @@ Compute the inverse hyperbolic cotangent of `x`.
 acoth
 
 """
-    det(M)
-
-Matrix determinant.
-"""
-det
-
-"""
     TypeError(func::Symbol, context::AbstractString, expected::Type, got)
 
 A type assertion failure, or calling an intrinsic function with an incorrect argument type.
 """
 TypeError
-
-"""
-    A_rdiv_Bt(A, B)
-
-For matrices or vectors ``A`` and ``B``, calculates ``A / Bᵀ``.
-"""
-A_rdiv_Bt
 
 """
     pwd() -> AbstractString
@@ -7512,6 +6934,7 @@ julia> "Hello " * "world"
 """
 Base.:(*)(s::AbstractString, t::AbstractString)
 
+if BUILD_FULL # deprecated.jl
 """
     slice(A, inds...)
 
@@ -7535,20 +6958,11 @@ Returns a list of all process identifiers.
 procs
 
 """
-    procs(S::SharedArray)
+    trues(dims)
 
-Get the vector of processes that have mapped the shared array.
+Create a `BitArray` with all values set to `true`.
 """
-procs(::SharedArray)
-
-"""
-    qr(A [,pivot=Val{false}][;thin=true]) -> Q, R, [p]
-
-Compute the (pivoted) QR factorization of `A` such that either `A = Q*R` or `A[:,p] = Q*R`.
-Also see `qrfact`. The default is to compute a thin factorization. Note that `R` is not
-extended with zeros when the full `Q` is requested.
-"""
-qr
+trues
 
 """
     invmod(x,m)
@@ -7608,15 +7022,6 @@ getpid
 Return ``x^{1/3}``.  The prefix operator `∛` is equivalent to `cbrt`.
 """
 cbrt
-
-"""
-    Tridiagonal(dl, d, du)
-
-Construct a tridiagonal matrix from the lower diagonal, diagonal, and upper diagonal,
-respectively.  The result is of type `Tridiagonal` and provides efficient specialized linear
-solvers, but may be converted into a regular matrix with [`full`](:func:`full`).
-"""
-Tridiagonal
 
 """
     findprev(A, i)
@@ -7951,18 +7356,6 @@ or `copy!(A, rand(rng, eltype(A), size(A)))` but without allocating a new array.
 rand!
 
 """
-    bkfact(A) -> BunchKaufman
-
-Compute the Bunch-Kaufman [^Bunch1977] factorization of a real symmetric or complex Hermitian
-matrix `A` and return a `BunchKaufman` object. The following functions are available for
-`BunchKaufman` objects: `size`, `\\`, `inv`, `issymmetric`, `ishermitian`.
-
-[^Bunch1977]: J R Bunch and L Kaufman, Some stable methods for calculating inertia and solving symmetric linear systems, Mathematics of Computation 31:137 (1977), 163-179. [url](http://www.ams.org/journals/mcom/1977-31-137/S0025-5718-1977-0428694-0).
-
-"""
-bkfact
-
-"""
     searchsortedlast(a, x, [by=<transform>,] [lt=<comparison>,] [rev=false])
 
 Returns the index of the last value in `a` less than or equal to `x`, according to the
@@ -8087,15 +7480,6 @@ Return the index of the first element of `A` for which `predicate` returns `true
 findfirst
 
 """
-    factorize(A)
-
-Compute a convenient factorization (including LU, Cholesky, Bunch-Kaufman, LowerTriangular,
-UpperTriangular) of `A`, based upon the type of the input matrix. The return value can then
-be reused for efficient solving of multiple systems. For example: `A=factorize(A); x=A\\b; y=A\\C`.
-"""
-factorize
-
-"""
     promote_rule(type1, type2)
 
 Specifies what type should be used by `promote` when given values of types `type1` and
@@ -8212,30 +7596,6 @@ match
 Get the number of available processes.
 """
 nprocs
-
-"""
-    Ac_mul_B(A, B)
-
-For matrices or vectors ``A`` and ``B``, calculates ``Aᴴ⋅B``.
-"""
-Ac_mul_B
-
-"""
-    qrfact!(A [,pivot=Val{false}])
-
-`qrfact!` is the same as [`qrfact`](:func:`qrfact`) when `A` is a subtype of
-`StridedMatrix`, but saves space by overwriting the input `A`, instead of creating a copy.
-An `InexactError` exception is thrown if the factorisation produces a number not
-representable by the element type of `A`, e.g. for integer types.
-"""
-qrfact!
-
-"""
-    At_rdiv_B(A, B)
-
-For matrices or vectors ``A`` and ``B``, calculates ``Aᵀ / B``.
-"""
-At_rdiv_B
 
 """
     coth(x)
@@ -8397,14 +7757,6 @@ used for level-triggered events.
 Condition
 
 """
-    filt!(out, b, a, x, [si])
-
-Same as [`filt`](:func:`filt`) but writes the result into the `out` argument, which may
-alias the input `x` to modify it in-place.
-"""
-filt!
-
-"""
     ascii(s::AbstractString)
 
 Convert a string to `String` type and check that it contains only ASCII data, otherwise
@@ -8471,13 +7823,6 @@ julia> convert(Rational{Int64}, x)
 convert
 
 """
-    A_ldiv_Bt(A, B)
-
-For matrices or vectors ``A`` and ``B``, calculates ``A`` \\ ``Bᵀ``.
-"""
-A_ldiv_Bt
-
-"""
     applicable(f, args...) -> Bool
 
 Determine whether the given generic function has a method applicable to the given arguments.
@@ -8522,30 +7867,6 @@ significantly more expensive than `x*y+z`. `fma` is used to improve accuracy in 
 algorithms. See `muladd`.
 """
 fma
-
-"""
-
-    eigvals(A,[irange,][vl,][vu]) -> values
-
-Returns the eigenvalues of `A`. If `A` is `Symmetric`, `Hermitian` or `SymTridiagonal`,
-it is possible to calculate only a subset of the eigenvalues by specifying either a
-`UnitRange` `irange` covering indices of the sorted eigenvalues, or a pair `vl` and `vu`
-for the lower and upper boundaries of the eigenvalues.
-
-For general non-symmetric matrices it is possible to specify how the matrix is balanced
-before the eigenvector calculation. The option `permute=true` permutes the matrix to
-become closer to upper triangular, and `scale=true` scales the matrix by its diagonal
-elements to make rows and columns moreequal in norm. The default is `true` for both
-options.
-"""
-eigvals
-
-"""
-    A_ldiv_Bc(A, B)
-
-For matrices or vectors ``A`` and ``B``, calculates ``A`` \\ ``Bᴴ``.
-"""
-A_ldiv_Bc
 
 """
     escape_string(str::AbstractString) -> AbstractString
@@ -8755,99 +8076,11 @@ an array of the results `f(as...)` for each position.
 broadcast
 
 """
-    eigvecs(A, [eigvals,][permute=true,][scale=true]) -> Matrix
-
-Returns a matrix `M` whose columns are the eigenvectors of `A`. (The `k`th eigenvector can
-be obtained from the slice `M[:, k]`.) The `permute` and `scale` keywords are the same as
-for [`eigfact`](:func:`eigfact`).
-
-For [`SymTridiagonal`](:class:`SymTridiagonal`) matrices, if the optional vector of
-eigenvalues `eigvals` is specified, returns the specific corresponding eigenvectors.
-"""
-eigvecs
-
-"""
     ntoh(x)
 
 Converts the endianness of a value from Network byte order (big-endian) to that used by the Host.
 """
 ntoh
-
-"""
-    qrfact(A [,pivot=Val{false}]) -> F
-
-Computes the QR factorization of `A`. The return type of `F` depends on the element type of
-`A` and whether pivoting is specified (with `pivot==Val{true}`).
-
-| Return type   | `eltype(A)`     | `pivot`      | Relationship between `F` and `A` |
-|:--------------|:----------------|:-------------|:---------------------------------|
-| `QR`          | not `BlasFloat` | either       | `A==F[:Q]*F[:R]`                 |
-| `QRCompactWY` | `BlasFloat`     | `Val{false}` | `A==F[:Q]*F[:R]`                 |
-| `QRPivoted`   | `BlasFloat`     | `Val{true}`  | `A[:,F[:p]]==F[:Q]*F[:R]`        |
-
-`BlasFloat` refers to any of: `Float32`, `Float64`, `Complex64` or `Complex128`.
-
-The individual components of the factorization `F` can be accessed by indexing:
-
-| Component | Description                               | `QR`            | `QRCompactWY`      | `QRPivoted`     |
-|:----------|:------------------------------------------|:----------------|:-------------------|:----------------|
-| `F[:Q]`   | `Q` (orthogonal/unitary) part of `QR`     | ✓ (`QRPackedQ`) | ✓ (`QRCompactWYQ`) | ✓ (`QRPackedQ`) |
-| `F[:R]`   | `R` (upper right triangular) part of `QR` | ✓               | ✓                  | ✓               |
-| `F[:p]`   | pivot `Vector`                            |                 |                    | ✓               |
-| `F[:P]`   | (pivot) permutation `Matrix`              |                 |                    | ✓               |
-
-The following functions are available for the `QR` objects: `size`, `\\`. When `A` is
-rectangular, `\\` will return a least squares solution and if the solution is not unique,
-the one with smallest norm is returned.
-
-Multiplication with respect to either thin or full `Q` is allowed, i.e. both `F[:Q]*F[:R]`
-and `F[:Q]*A` are supported. A `Q` matrix can be converted into a regular matrix with
-[`full`](:func:`full`) which has a named argument `thin`.
-
-**note**
-
-`qrfact` returns multiple types because LAPACK uses several representations that minimize
-the memory storage requirements of products of Householder elementary reflectors, so that
-the `Q` and `R` matrices can be stored compactly rather as two separate dense matrices.
-
-The data contained in `QR` or `QRPivoted` can be used to construct the `QRPackedQ` type,
-which is a compact representation of the rotation matrix:
-
-```math
-Q = \\prod_{i=1}^{\\min(m,n)} (I - \\tau_i v_i v_i^T)
-```
-
-where ``\\tau_i`` is the scale factor and ``v_i`` is the projection vector associated with
-the ``i^{th}`` Householder elementary reflector.
-
-The data contained in `QRCompactWY` can be used to construct the `QRCompactWYQ` type,
-which is a compact representation of the rotation matrix
-
-```math
-Q = I + Y T Y^T
-```
-
-where `Y` is ``m \\times r`` lower trapezoidal and `T` is ``r \\times r`` upper
-triangular. The *compact WY* representation [^Schreiber1989] is not to be confused with the
-older, *WY* representation [^Bischof1987]. (The LAPACK documentation uses `V` in lieu of `Y`.)
-
-[^Bischof1987]: C Bischof and C Van Loan, "The WY representation for products of Householder matrices", SIAM J Sci Stat Comput 8 (1987), s2-s13. [doi:10.1137/0908009](http://dx.doi.org/10.1137/0908009)
-
-[^Schreiber1989]: R Schreiber and C Van Loan, "A storage-efficient WY representation for products of Householder transformations", SIAM J Sci Stat Comput 10 (1989), 53-57. [doi:10.1137/0910005](http://dx.doi.org/10.1137/0910005)
-
-"""
-qrfact(A,?)
-
-
-"""
-    qrfact(A) -> SPQR.Factorization
-
-Compute the QR factorization of a sparse matrix `A`. A fill-reducing permutation is used.
-The main application of this type is to solve least squares problems with `\\`. The function
-calls the C library SPQR and a few additional functions from the library are wrapped but not
-exported.
-"""
-qrfact(A)
 
 """
     +(x, y...)
@@ -8916,19 +8149,6 @@ nextpow2
 Reconstruct the matrix `A` from the factorization `F=factorize(A)`.
 """
 full(F)
-
-"""
-    full(QRCompactWYQ[, thin=true]) -> Matrix
-
-Converts an orthogonal or unitary matrix stored as a `QRCompactWYQ` object, i.e. in the
-compact WY format [^Bischof1987], to a dense matrix.
-
-Optionally takes a `thin` Boolean argument, which if `true` omits the columns that span the
-rows of `R` in the QR factorization that are zero. The resulting matrix is the `Q` in a thin
-QR factorization (sometimes called the reduced QR factorization). If `false`, returns a `Q`
-that spans all rows of `R` in its corresponding QR factorization.
-"""
-full(::LinAlg.QRCompactWYQ, ?)
 
 """
     map(f, c...) -> collection
@@ -9031,13 +8251,6 @@ issubset(a,b)
 Return `true` if `A` is a subset of or equal to `S`.
 """
 issubset
-
-"""
-    istriu(A) -> Bool
-
-Test whether a matrix is upper triangular.
-"""
-istriu
 
 """
     map!(function, collection)
@@ -9197,13 +8410,6 @@ Riemann zeta function ``\\zeta(s)``.
 zeta(s)
 
 """
-    A_mul_Bt(A, B)
-
-For matrices or vectors ``A`` and ``B``, calculates ``A⋅Bᵀ``.
-"""
-A_mul_Bt
-
-"""
     vecnorm(A, [p])
 
 For any iterable container `A` (including arrays of any dimension) of numbers (or any
@@ -9351,38 +8557,6 @@ unsigned without checking for negative values.
 unsigned
 
 """
-    eigfact(A,[irange,][vl,][vu,][permute=true,][scale=true]) -> Eigen
-
-Computes the eigenvalue decomposition of `A`, returning an `Eigen` factorization object `F`
-which contains the eigenvalues in `F[:values]` and the eigenvectors in the columns of the
-matrix `F[:vectors]`. (The `k`th eigenvector can be obtained from the slice `F[:vectors][:, k]`.)
-
-The following functions are available for `Eigen` objects: `inv`, `det`.
-
-If `A` is [`Symmetric`](:class:`Symmetric`), [`Hermitian`](:class:`Hermitian`) or
-[`SymTridiagonal`](:class:`SymTridiagonal`), it is possible to calculate only a subset of
-the eigenvalues by specifying either a [`UnitRange`](:class:`UnitRange`) `irange` covering
-indices of the sorted eigenvalues or a pair `vl` and `vu` for the lower and upper boundaries
-of the eigenvalues.
-
-For general nonsymmetric matrices it is possible to specify how the matrix is balanced
-before the eigenvector calculation. The option `permute=true` permutes the matrix to become
-closer to upper triangular, and `scale=true` scales the matrix by its diagonal elements to
-make rows and columns more equal in norm. The default is `true` for both options.
-"""
-eigfact(A,?,?,?,?)
-
-"""
-    eigfact(A, B) -> GeneralizedEigen
-
-Computes the generalized eigenvalue decomposition of `A` and `B`, returning a
-`GeneralizedEigen` factorization object `F` which contains the generalized eigenvalues in
-`F[:values]` and the generalized eigenvectors in the columns of the matrix `F[:vectors]`.
-(The `k`th generalized eigenvector can be obtained from the slice `F[:vectors][:, k]`.)
-"""
-eigfact(A,B)
-
-"""
     mkdir(path, [mode])
 
 Make a new directory with name `path` and permissions `mode`. `mode` defaults to `0o777`,
@@ -9450,6 +8624,7 @@ Compute ``x \\times 2^n``.
 """
 ldexp
 
+if BUILD_FULL
 """
     quadgk(f, a,b,c...; reltol=sqrt(eps), abstol=0, maxevals=10^7, order=7, norm=vecnorm)
 
@@ -9501,6 +8676,7 @@ For real-valued endpoints, the starting and/or ending points may be infinite. (A
 transformation is performed internally to map the infinite interval to a finite one.)
 """
 quadgk
+end
 
 """
     islower(c::Union{Char,AbstractString}) -> Bool
@@ -9522,36 +8698,6 @@ requested bytes, until an error or end-of-file occurs. If `all` is `false`, at m
 all stream types support the `all` option.
 """
 read
-
-"""
-    eig(A,[irange,][vl,][vu,][permute=true,][scale=true]) -> D, V
-
-Computes eigenvalues and eigenvectors of `A`. See [`eigfact`](:func:`eigfact`) for details
-on the `permute` and `scale` keyword arguments. The eigenvectors are returned columnwise.
-
-```jldoctest
-julia> eig([1.0 0.0 0.0; 0.0 3.0 0.0; 0.0 0.0 18.0])
-([1.0,3.0,18.0],
-3×3 Array{Float64,2}:
- 1.0  0.0  0.0
- 0.0  1.0  0.0
- 0.0  0.0  1.0)
-```
-
-`eig` is a wrapper around [`eigfact`](:func:`eigfact`), extracting all parts of the
-factorization to a tuple; where possible, using [`eigfact`](:func:`eigfact`) is recommended.
-"""
-eig(A,?,?,?)
-
-"""
-    eig(A, B) -> D, V
-
-Computes generalized eigenvalues and vectors of `A` with respect to `B`.
-
-`eig` is a wrapper around [`eigfact`](:func:`eigfact`), extracting all parts of the
-factorization to a tuple; where possible, using [`eigfact`](:func:`eigfact`) is recommended.
-"""
-eig(A,B)
 
 """
     exp2(x)
@@ -9670,29 +8816,6 @@ realmin
 Union each element of `iterable` into set `s` in-place.
 """
 union!
-
-"""
-    At_ldiv_B(A, B)
-
-For matrices or vectors ``A`` and ``B``, calculates ``Aᵀ`` \\ ``B``.
-"""
-At_ldiv_B
-
-"""
-    dot(x, y)
-    ⋅(x,y)
-
-Compute the dot product. For complex vectors, the first vector is conjugated.
-"""
-dot
-
-"""
-    cond(M, [p])
-
-Condition number of the matrix `M`, computed using the operator `p`-norm. Valid values for
-`p` are `1`, `2` (default), or `Inf`.
-"""
-cond
 
 """
     deepcopy(x)

@@ -226,7 +226,7 @@ test_indexing(RemoteChannel(id_other))
 
 dims = (20,20,20)
 
-if is_linux()
+if is_linux() && Base.BUILD_MMAP
     S = SharedArray(Int64, dims)
     @test startswith(S.segname, "/jl")
     @test !ispath("/dev/shm" * S.segname)
@@ -429,10 +429,12 @@ a = d[1,1,1:3:end]
 d[2:4] = 7
 d[5,1:2:4,8] = 19
 
+if Base.BUILD_LINALG
 AA = rand(4,2)
 A = convert(SharedArray, AA)
 B = convert(SharedArray, AA')
 @test B*A == ctranspose(AA)*AA
+end
 
 d=SharedArray(Int64, (10,10); init = D->fill!(D.loc_subarr_1d, myid()), pids=[id_me, id_other])
 d2 = map(x->1, d)
@@ -451,6 +453,7 @@ map!(x->1, d)
 # Boundary cases where length(S) <= length(pids)
 @test 2.0 == remotecall_fetch(D->D[2], id_other, Base.shmem_fill(2.0, 2; pids=[id_me, id_other]))
 @test 3.0 == remotecall_fetch(D->D[1], id_other, Base.shmem_fill(3.0, 1; pids=[id_me, id_other]))
+end # SharedArray tests (BUILD_MMAP)
 
 # Issue #14664
 d = SharedArray(Int,10)
@@ -479,12 +482,13 @@ d = SharedArray(Int,10)
 finalize(d)
 @test_throws BoundsError d[1]
 
-
+if Base.BUILD_STATS
 # Test @parallel load balancing - all processors should get either M or M+1
 # iterations out of the loop range for some M.
 ids = @parallel((a,b)->[a;b], for i=1:7; myid(); end)
 workloads = Int[sum(ids .== i) for i in 2:nprocs()]
 @test maximum(workloads) - minimum(workloads) <= 1
+end
 
 # @parallel reduction should work even with very short ranges
 @test @parallel(+, for i=1:2; i; end) == 3
@@ -927,6 +931,7 @@ let A = Any[]
 end
 
 # issue #13168
+if Base.BUILD_LINALG
 function f13168(n)
     val = 0
     for i=1:n val+=sum(rand(n,n)^2) end
@@ -939,6 +944,7 @@ let t = schedule(@task f13168(100))
     @test t.state == :done
     @test_throws ErrorException schedule(t)
     @test isa(wait(t),Float64)
+end
 end
 
 # issue #13122

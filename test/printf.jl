@@ -41,18 +41,14 @@ else
     @test false
 end
 
-# float / BigFloat
+# float
 for (fmt, val) in (("%7.2f", "   1.23"),
                    ("%-7.2f", "1.23   "),
                    ("%07.2f", "0001.23"),
                    ("%.0f", "1"),
                    ("%#.0f", "1."),
-                   ("%.4e", "1.2345e+00"),
-                   ("%.4E", "1.2345E+00"),
-                   ("%.2a", "0x1.3cp+0"),
-                   ("%.2A", "0X1.3CP+0")),
-      num in (1.2345, big"1.2345")
-    @test @eval(@sprintf($fmt, $num) == $val)
+                   ("%.4e", "1.2345e+00"))
+    @test( @eval(@sprintf($fmt, 1.2345) == $val))
 end
 
 # numeric spacing and various flag tests
@@ -112,14 +108,10 @@ end
 # Inf / NaN handling
 @test (@sprintf "%f" Inf) == "Inf"
 @test (@sprintf "%f" NaN) == "NaN"
-@test (@sprintf "%f" big"Inf") == "Inf"
-@test (@sprintf "%f" big"NaN") == "NaN"
 
 # scientific notation
 @test (@sprintf "%.0e" 3e142) == "3e+142"
 @test (@sprintf "%#.0e" 3e142) == "3.e+142"
-@test (@sprintf "%.0e" big"3e142") == "3e+142"
-@test (@sprintf "%#.0e" big"3e142") == "3.e+142"
 
 @test (@sprintf "%.0e" big"3e1042") == "3e+1042"
 
@@ -140,30 +132,19 @@ for (val, res) in ((12345678., "1.23457e+07"),
                    (12340000.0, "1.234e+07"))
     @test (@sprintf("%.6g", val) == res)
 end
-for (val, res) in ((big"12345678.", "1.23457e+07"),
-                   (big"1234567.8", "1.23457e+06"),
-                   (big"123456.78", "123457"),
-                   (big"12345.678", "12345.7"))
-    @test (@sprintf("%.6g", val) == res)
-end
 for (fmt, val) in (("%10.5g", "     123.4"),
                    ("%+10.5g", "    +123.4"),
                    ("% 10.5g","     123.4"),
                    ("%#10.5g", "    123.40"),
                    ("%-10.5g", "123.4     "),
                    ("%-+10.5g", "+123.4    "),
-                   ("%010.5g", "00000123.4")),
-      num in (123.4, big"123.4")
-    @test @eval(@sprintf($fmt, $num) == $val)
+                   ("%010.5g", "00000123.4"))
+    @test( @eval(@sprintf($fmt, 123.4) == $val))
 end
 @test( @sprintf( "%10.5g", -123.4 ) == "    -123.4")
 @test( @sprintf( "%010.5g", -123.4 ) == "-0000123.4")
 @test( @sprintf( "%.6g", 12340000.0 ) == "1.234e+07")
 @test( @sprintf( "%#.6g", 12340000.0 ) == "1.23400e+07")
-@test( @sprintf( "%10.5g", big"-123.4" ) == "    -123.4")
-@test( @sprintf( "%010.5g", big"-123.4" ) == "-0000123.4")
-@test( @sprintf( "%.6g", big"12340000.0" ) == "1.234e+07")
-@test( @sprintf( "%#.6g", big"12340000.0") == "1.23400e+07")
 
 # %g regression gh #14331
 @test( @sprintf( "%.5g", 42) == "42")
@@ -246,3 +227,5 @@ end
 
 # @printf
 @test_throws ArgumentError eval(:(@printf 1))
+
+Base.BUILD_BIGFLT && include("bigprintf.jl")
