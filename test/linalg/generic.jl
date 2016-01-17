@@ -281,4 +281,11 @@ end
 # Issue 14657
 @test det([true false; false true]) == det(eye(Int, 2))
 
-@test_throws ArgumentError Base.LinAlg.char_uplo(:Z)
+# checksquare
+function test_checksquare()
+    @test LinAlg.checksquare(zeros(2,2)) == 2
+    @test LinAlg.checksquare(zeros(2,2),zeros(3,3)) == [2,3]
+    @test_throws DimensionMismatch LinAlg.checksquare(zeros(2,3))
+end
+
+test_checksquare()
