@@ -29,7 +29,7 @@ end
 @test maxintfloat() == maxintfloat(Float64)
 
 # isinteger
-for elty in (Float16,Float32,Float64)
+for elty in floattypes
     @test !isinteger(elty(1.2))
     @test isinteger(elty(12))
     @test isinteger(zero(elty))
