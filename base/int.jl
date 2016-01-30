@@ -403,23 +403,21 @@ if Core.sizeof(Int) == 4
         (lolo&0xffffffffffffffff) + UInt128(w1)<<64
     end
 
-    function div(x::Int128, y::Int128)
-        (x == typemin(Int128)) & (y == -1) && throw(DivideError())
-        Int128(div(BigInt(x),BigInt(y)))
-    end
-    function div(x::UInt128, y::UInt128)
-        UInt128(div(BigInt(x),BigInt(y)))
-    end
-
-    function rem(x::Int128, y::Int128)
-        Int128(rem(BigInt(x),BigInt(y)))
-    end
-    function rem(x::UInt128, y::UInt128)
-        UInt128(rem(BigInt(x),BigInt(y)))
-    end
-
-    function mod(x::Int128, y::Int128)
-        Int128(mod(BigInt(x),BigInt(y)))
+    if isdefined(:BigInt)
+        function div(x::Int128, y::Int128)
+            (x == typemin(Int128)) & (y == -1) && throw(DivideError())
+            Int128(div(BigInt(x),BigInt(y)))
+        end
+        div(x::UInt128, y::UInt128) = UInt128(div(BigInt(x),BigInt(y)))
+        rem(x::Int128,  y::Int128)  = Int128(rem(BigInt(x),BigInt(y)))
+        rem(x::UInt128, y::UInt128) = UInt128(rem(BigInt(x),BigInt(y)))
+        mod(x::Int128,  y::Int128)  = Int128(mod(BigInt(x),BigInt(y)))
+    else
+        div(x::Int128,  y::Int128)  = error("BigInt needed for div(::Int128, ::Int128)")
+        div(x::UInt128, y::UInt128) = error("BigInt needed for div(::UInt128, ::UInt128)")
+        rem(x::Int128,  y::Int128)  = error("BigInt needed for rem(::Int128, ::Int128)")
+        rem(x::UInt128, y::UInt128) = error("BigInt needed for rem(::UInt128, ::UInt128)")
+        mod(x::Int128,  y::Int128)  = error("BigInt needed for mod(::Int128, ::Int128)")
     end
 else
     *{T<:Union{Int128,UInt128}}(x::T, y::T)  = box(T,mul_int(unbox(T,x),unbox(T,y)))

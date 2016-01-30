@@ -351,8 +351,13 @@ function rand!{I<:FloatInterval}(r::MersenneTwister, A::Array{Float64}, n::Int=l
     A
 end
 
-@inline mask128(u::UInt128, ::Type{Float16}) = (u & 0x03ff03ff03ff03ff03ff03ff03ff03ff) | 0x3c003c003c003c003c003c003c003c00
-@inline mask128(u::UInt128, ::Type{Float32}) = (u & 0x007fffff007fffff007fffff007fffff) | 0x3f8000003f8000003f8000003f800000
+# Break up parsing of UInt128 constants to avoid using BigInt
+@inline _rep32_128(v::UInt32) = UInt128(v)<<96 | UInt128(v)<<64 | UInt128(v)<<32 | v
+
+@inline mask128(u::UInt128, ::Type{Float16}) =
+    (u & _rep32_128(0x03ff03ff)) | _rep32_128(0x3c003c00)
+@inline mask128(u::UInt128, ::Type{Float32}) =
+    (u & _rep32_128(0x007fffff)) | _rep32_128(0x3f800000)
 
 function rand!{T<:Union{Float16, Float32}}(r::MersenneTwister, A::Array{T}, ::Type{Close1Open2})
     n = length(A)
@@ -1204,10 +1209,10 @@ function uuid1(rng::AbstractRNG=GLOBAL_RNG)
     u = rand(rng, UInt128)
 
     # mask off clock sequence and node
-    u &= 0x00000000000000003fffffffffffffff
+    u &= UInt128(0x3fffffffffffffff)
 
     # set the unicast/multicast bit and version
-    u |= 0x00000000000010000000010000000000
+    u |= UInt128(1)<<76 | UInt128(1)<<40
 
     # 0x01b21dd213814000 is the number of 100 nanosecond intervals
     # between the UUID epoch and Unix epoch
@@ -1231,8 +1236,8 @@ as specified by RFC 4122.
 """
 function uuid4(rng::AbstractRNG=GLOBAL_RNG)
     u = rand(rng, UInt128)
-    u &= 0xffffffffffff0fff3fffffffffffffff
-    u |= 0x00000000000040008000000000000000
+    u &= ~(UInt128(0xf)<<76 | UInt128(0xc)<<60)
+    u |= UInt128(4)<<76 | UInt128(8)<<60
     UUID(u)
 end
 
