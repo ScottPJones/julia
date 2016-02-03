@@ -13,6 +13,9 @@ end
 
 cmd = `$(Base.julia_cmd()) $inline_flag $cov_flag --check-bounds=yes --depwarn=error parallel_exec.jl`
 
-if !success(pipeline(cmd; stdout=STDOUT, stderr=STDERR)) && ccall(:jl_running_on_valgrind,Cint,()) == 0
-    error("Parallel test failed, cmd : $cmd")
+@static if Base.BUILD_THREADS
+    if !success(pipeline(cmd; stdout=STDOUT, stderr=STDERR)) &&
+        ccall(:jl_running_on_valgrind,Cint,()) == 0
+        error("Parallel test failed, cmd : $cmd")
+    end
 end

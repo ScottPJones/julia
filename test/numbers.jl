@@ -39,12 +39,12 @@
 @test Bool(1.0) == true
 @test_throws InexactError Bool(0.1)
 @test_throws InexactError Bool(-1.0)
-if Base.BUILD_COMPLEX
+@static if Base.BUILD_COMPLEX
     @test Bool(Complex(0,0)) == false
     @test Bool(Complex(1,0)) == true
     @test_throws InexactError Bool(Complex(0,1))
 end
-if Base.BUILD_RATIONAL
+@static if Base.BUILD_RATIONAL
     @test Bool(0//1) == false
     @test Bool(1//1) == true
     @test_throws InexactError Bool(1//2)
@@ -360,7 +360,7 @@ end
 @test sign(-Inf) == -1
 @test isequal(sign(NaN), NaN)
 @test isequal(sign(-NaN), NaN)
-if Base.BUILD_RATIONAL
+@static if Base.BUILD_RATIONAL
     @test sign(2//3) == 1
     @test sign(-2//3) == -1
     @test sign(0//1) == 0
@@ -387,7 +387,7 @@ end
 @test signbit(-Inf) == 1
 @test signbit(NaN) == 0
 @test signbit(-NaN) == 1
-if Base.BUILD_RATIONAL
+@static if Base.BUILD_RATIONAL
     @test signbit(2//3) == 0
     @test signbit(-2//3) == 1
     @test signbit(0//1) == 0
@@ -411,7 +411,7 @@ Base.BUILD_BIGFLT && @test copysign(big(1.0),big(-2.0)) == big(-1.0)
 @test copysign(1.0,-1.0) == -1.0
 @test copysign(-1.0,1.0) == 1.0
 
-if Base.BUILD_RATIONAL
+@static if Base.BUILD_RATIONAL
     @test copysign(-1,1//2) == 1
     @test copysign(1,-1//2) == -1
 
@@ -428,7 +428,7 @@ if Base.BUILD_RATIONAL
     @test copysign(-1//2,1.0) == 1//2
 end
 
-if Base.BUILD_RATIONAL
+@static if Base.BUILD_RATIONAL
     testy = (1, 1.0, -1, -1.0, 1//2, -1//2)
 else
     testy = (1, 1.0, -1, -1.0)
@@ -443,7 +443,7 @@ for y in testy
     @test eltype(copysign(-1.0, y)) <: Real
     # Verify type stability with real (x is positive)
     @test eltype(copysign(1.0, y)) <: Real
-    if Base.BUILD_RATIONAL
+    @static if Base.BUILD_RATIONAL
         # Verify type stability with rational (x is negative)
         @test eltype(copysign(-1//2, y)) <: Rational
         # SPJ!!! This was incorrect before, had negative again
@@ -467,7 +467,7 @@ end
 @test isnan(-Inf)  == false
 @test isnan(NaN)   == true
 
-if Base.BUILD_RATIONAL
+@static if Base.BUILD_RATIONAL
     @test isnan(1//2)  == false
     @test isnan(-2//3) == false
     @test isnan(5//0)  == false
@@ -862,7 +862,7 @@ f9085() = typemax(UInt64) != 2.0^64
 @test !(1 < NaN)
 @test !(1 > NaN)
 
-if Base.BUILD_RATIONAL
+@static if Base.BUILD_RATIONAL
 @test 1//1 == 1
 @test 2//2 == 1
 @test 1//1 == 1//1
@@ -943,7 +943,7 @@ end
 @test !(1//3 > NaN)
 end
 
-if Base.BUILD_BIGFLT # SPJ!!! Irrational numbers don't work well without BigInt/BigFloat
+@static if Base.BUILD_BIGFLT # SPJ!!! Irrational numbers don't work well without BigInt/BigFloat
 @test Float64(pi,RoundDown) < pi
 @test Float64(pi,RoundUp) > pi
 @test !(Float64(pi,RoundDown) > pi)
@@ -959,7 +959,7 @@ end
 @test !(Float32(pi,RoundDown) > pi)
 @test !(Float32(pi,RoundUp) < pi)
 
-if Base.BUILD_BIGFLT # SPJ!!! Irrational numbers don't work well without BigInt/BigFloat
+@static if Base.BUILD_BIGFLT # SPJ!!! Irrational numbers don't work well without BigInt/BigFloat
 @test 2646693125139304345//842468587426513207 < pi
 @test !(2646693125139304345//842468587426513207 > pi)
 @test 2646693125139304345//842468587426513207 != pi
@@ -971,12 +971,12 @@ end
 @test 1.5+1 == 2.5
 @test 1+1.5+2 == 4.5
 
-if Base.BUILD_COMPLEX
+@static if Base.BUILD_COMPLEX
     @test is(typeof(convert(Complex{Int16},1)),Complex{Int16})
     @test Complex(1,2)+1 == Complex(2,2)
     @test Complex(1,2)+1.5 == Complex(2.5,2.0)
     @test 1/Complex(2,2) == Complex(.25,-.25)
-    if Base.BUILD_RATIONAL
+    @static if Base.BUILD_RATIONAL
         @test Complex(1.5,1.0) + 1//2 == Complex(2.0,1.0)
         @test real(Complex(1//2,2//3)) == 1//2
         @test imag(Complex(1//2,2//3)) == 2//3
@@ -1008,7 +1008,7 @@ for S = Base.BitSigned64_types,
     @test !(typemax(U) <= -one(S))
 end
 
-if Base.BUILD_RATIONAL
+@static if Base.BUILD_RATIONAL
 # check type of constructed rationals
 int_types = Base.BitInteger64_types
 for N = int_types, D = int_types
@@ -1020,10 +1020,10 @@ end
 @test typeof(convert(Rational{Integer},1)) === Rational{Integer}
 end
 
-if Base.BUILD_COMPLEX
+@static if Base.BUILD_COMPLEX
     # check type of constructed complexes
     real_types = [Base.BitInteger64_types..., Float32, Float64]
-    if Base.BUILD_RATIONAL
+    @static if Base.BUILD_RATIONAL
         real_types = vcat(real_types, [Rational{T} for T in Base.BitInteger64_types])
     end
     for A = real_types, B = real_types
@@ -1038,7 +1038,7 @@ end
 
 yrlist = Any[ 1:6, 0.25:0.25:6.0 ]
 xrlist = Any[ 0:6, 0.0:0.25:6.0  ]
-if Base.BUILD_RATIONAL
+@static if Base.BUILD_RATIONAL
     push!(yrlist, 1//4:1//4:6//1)
     push!(xrlist, 0//1:1//4:6//1)
 end
@@ -1903,7 +1903,7 @@ for f in (trunc, round, floor, ceil)
 @test signif(Float32(7.262839104539736), 4) === Float32(7.263)
 @test signif(Float32(1.2), 3) === Float32(1.2)
 @test signif(Float32(1.2), 5) === Float32(1.2)
-if Base.BUILD_FLOAT16
+@static if Base.BUILD_FLOAT16
     @test signif(Float16(0.6), 2) === Float16(0.6)
     @test signif(Float16(1.1), 70) === Float16(1.1)
 end
@@ -1913,7 +1913,7 @@ end
 @test (~0)%UInt128 == ~UInt128(0)
 @test Int128(~0) == ~Int128(0)
 
-if Base.BUILD_RATIONAL
+@static if Base.BUILD_RATIONAL
 # issue 1552
 @test isa(rationalize(Int8, float(pi)), Rational{Int8})
 @test rationalize(Int8, float(pi)) == 22//7
@@ -1965,15 +1965,13 @@ if Base.BUILD_RATIONAL
          100798//32085
          103993//33102
          312689//99532 ]
-end
 
 # issue 16311
 rationalize(nextfloat(0.0)) == 0//1
 
-if Base.BUILD_RATIONAL
-    # rational-exponent promotion rules (issue #3155):
-    @test 2.0f0^(1//3) == 2.0f0^(1.0f0/3)
-    @test 2^(1//3) == 2^(1/3)
+# rational-exponent promotion rules (issue #3155):
+@test 2.0f0^(1//3) == 2.0f0^(1.0f0/3)
+@test 2^(1//3) == 2^(1/3)
 end
 
 # large shift amounts
@@ -1987,7 +1985,7 @@ end
 # issue #3520 - certain int literals on 32-bit systems
 @test -536870913 === -536870912-1
 
-if Base.BUILD_RATIONAL
+@static if Base.BUILD_RATIONAL
     # overflow in rational comparison
     @test 3//2 < typemax(Int)
     @test 3//2 <= typemax(Int)
@@ -2019,9 +2017,8 @@ end
 @test_throws DivideError powermod(1,0,0)
 # negative power domain error
 @test powermod(1, -1, 1) == 0
-@test_throws DomainError powermod(1,-2,1)
 
-if Base.BUILD_BIGINT
+@static if Base.BUILD_BIGINT
 @test_throws DivideError powermod(1,0,big(0))
 # additional BigInt powermod tests
 @test powermod(0, 1, big(6)) == 0
@@ -2133,10 +2130,12 @@ end
 @test nextfloat(1f0,typemin(Int64)) == -Inf32
 @test nextfloat(1.0,typemax(UInt64)) == Inf
 @test nextfloat(1.0,typemax(UInt128)) == Inf
-@test nextfloat(1.0,big(2)^67) == Inf
-@test nextfloat(1.0,-big(2)^67) == -Inf
+@static if Base.BUILD_BIGINT
+    @test nextfloat(1.0,big(2)^67) == Inf
+    @test nextfloat(1.0,-big(2)^67) == -Inf
+end
 
-for F in (Float16,Float32,Float64)
+for F in flttypes
     @test reinterpret(Unsigned,one(F)) === Base.exponent_one(F)
     @test reinterpret(Signed,one(F)) === signed(Base.exponent_one(F))
 end
@@ -2190,10 +2189,10 @@ end
 @test typeof(widemul(UInt64(1),Int64(1))) == Int128
 
 # .//
-if Base.BUILD_RATIONAL
+@static if Base.BUILD_RATIONAL
     @test [1,2,3] // 4 == [1//4, 2//4, 3//4]
     @test [1,2,3] .// [4,5,6] == [1//4, 2//5, 3//6]
-    if Base.BUILD_COMPLEX
+    @static if Base.BUILD_COMPLEX
         @test [1+2im,3+4im] .// [5,6] == [(1+2im)//5,(3+4im)//6]
         @test [1//3+2im,3+4im] .// [5,6] == [(1//3+2im)//5,(3+4im)//6]
     end
@@ -2212,7 +2211,7 @@ end
 @test_throws ErrorException reinterpret(Int, 0x01)
 
 # issue #12832
-if Base.BUILD_COMPLEX
+@static if Base.BUILD_COMPLEX
     @test_throws ErrorException reinterpret(Float64, Complex{Int64}(1))
     @test_throws ErrorException reinterpret(Float64, Complex64(1))
     @test_throws ErrorException reinterpret(Complex64, Float64(1))
@@ -2262,7 +2261,7 @@ end
 @test_throws InexactError convert(Int16, typemax(UInt64))
 @test_throws InexactError convert(Int, typemax(UInt64))
 
-Base.BUILD_BIGFLOAT &&
+Base.BUILD_BIGFLT &&
 let x = big(-0.0)
     @test signbit(x) && !signbit(abs(x))
 end
@@ -2281,7 +2280,7 @@ end
 @test bswap(reinterpret(Float64,0x000000000000f03f)) === 1.0
 @test bswap(reinterpret(Float32,0x0000c03f)) === 1.5f0
 
-if Base.BUILD_RATIONAL
+@static if Base.BUILD_RATIONAL
     testvec = [1.23, 7, e, 4//5] #[FP, Int, Irrational, Rat]
 else
     testvec = [1.23, 7, e] #[FP, Int, Irrational]
@@ -2383,7 +2382,7 @@ end
 @test_throws InexactError UInt128(-1)
 
 # issue #12536
-if Base.BUILD_RATIONAL
+@static if Base.BUILD_RATIONAL
     @test Rational{Int16}(1,2) === Rational(Int16(1),Int16(2))
     @test Rational{Int16}(500000,1000000) === Rational(Int16(1),Int16(2))
 
@@ -2407,7 +2406,7 @@ end
     var == UInt32(0)
 end
 
-if Base.BUILD_COMPLEX
+@static if Base.BUILD_COMPLEX
 @test Rational(rand_int, 3)/Complex(3, 2) == Complex(Rational(rand_int, 13), -Rational(rand_int*2, 39))
 
 @test Complex(rand_int, 0) == Rational(rand_int)
@@ -2417,11 +2416,11 @@ if Base.BUILD_COMPLEX
 @test (Rational(rand_int) == Complex(rand_int, 4)) == false
 end
 
-if Base.BUILD_BIGINT
+@static if Base.BUILD_BIGINT
 @test trunc(Rational(BigInt(rand_int), BigInt(3))) == Rational(trunc(BigInt, Rational(BigInt(rand_int),BigInt(3))))
 @test  ceil(Rational(BigInt(rand_int), BigInt(3))) == Rational( ceil(BigInt, Rational(BigInt(rand_int),BigInt(3))))
 @test round(Rational(BigInt(rand_int), BigInt(3))) == Rational(round(BigInt, Rational(BigInt(rand_int),BigInt(3))))
-endif
+end
 
 for a = -3:3
     @test Rational(Float32(a)) == Rational(a)
@@ -2438,7 +2437,7 @@ for a = -3:3
     end
 end
 
-if Base.BUILD_RATIONAL && Base.BUILD_COMPLEX
+@static if Base.BUILD_COMPLEX
 # issue #15205
 let T = Rational
     x = Complex{T}(1//3 + 1//4*im)
@@ -2456,7 +2455,7 @@ let T = Rational
     @test Complex(1., 1.)^Rational(2,1) == Complex(1., 1.)*Complex(1.,1.) == Complex(0., 2.)
 end
 
-for Tf = (Float16, Float32, Float64), Ti = (Int16, Int32, Int64)
+for Tf = flttypes, Ti = (Int16, Int32, Int64)
     almost_half  = Rational(div(typemax(Ti),Ti(2))  , typemax(Ti))
     over_half    = Rational(div(typemax(Ti),Ti(2))+one(Ti), typemax(Ti))
     exactly_half = Rational(one(Ti)  , Ti(2))
@@ -2534,6 +2533,7 @@ for T in (Int8, Int16, Int32, Int64, Bool)
     @test_throws DivideError round(T, true//false)
     @test round(T, true//true) === one(T)
     @test round(T, false//true) === zero(T)
+end
 end
 end
 

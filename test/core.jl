@@ -3741,6 +3741,7 @@ let grphtest = ((1, [2]),)
     end
 end
 
+@static if Base.BUILD_PROFILER
 # issue #13229
 module I13229
     using Base.Test
@@ -3752,6 +3753,7 @@ module I13229
         global z = f(i)
     end
     @test z == 10
+end
 end
 
 # issue #15186

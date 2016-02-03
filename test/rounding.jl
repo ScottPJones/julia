@@ -134,6 +134,8 @@ end
 @test Base.Rounding.from_fenv(Base.Rounding.to_fenv(RoundDown)) == RoundDown
 @test_throws ArgumentError Base.Rounding.from_fenv(-99)
 
-badness = 1//0
-@test_throws DivideError round(Int64,badness,RoundNearestTiesAway)
-@test_throws DivideError round(Int64,badness,RoundNearestTiesUp)
+@static if Base.BUILD_RATIONAL
+    badness = 1//0
+    @test_throws DivideError round(Int64,badness,RoundNearestTiesAway)
+    @test_throws DivideError round(Int64,badness,RoundNearestTiesUp)
+end

@@ -128,6 +128,7 @@ let x = [1,3.2,4.7], y = [3.5, pi, 1e-4], α = 0.2342
     @test atan2.(α, y') == broadcast(atan2, α, y')
 end
 
+@static if Base.BUILD_RATIONAL
 # issue 14725
 let a = Number[2, 2.0, 4//2, 2+0im] / 2
     @test eltype(a) == Number
@@ -137,6 +138,7 @@ let a = Real[2, 2.0, 4//2] / 2
 end
 let a = Real[2, 2.0, 4//2] / 2.0
     @test eltype(a) == Real
+end
 end
 
 # issue 16164

@@ -37,7 +37,6 @@ let
         counter += 1
     end
 
-<<<<<<< HEAD
     #tests ASCII 65 - 90
     counter = 65
     for x in upperchars

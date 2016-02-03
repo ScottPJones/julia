@@ -1669,7 +1669,7 @@ end
 end
 
 # sign, conj, ~
-let A = [-10,0,3], B = [-10.0,0.0,3.0], C = [1,im,0]
+let A = [-10,0,3], B = [-10.0,0.0,3.0]
     @test sign(A) == [-1,0,1]
     @test sign(B) == [-1,0,1]
     @test typeof(sign(A)) == Vector{Int}
@@ -1677,10 +1677,14 @@ let A = [-10,0,3], B = [-10.0,0.0,3.0], C = [1,im,0]
 
     @test conj(A) == A
     @test conj(B) == A
-    @test conj(C) == [1,-im,0]
     @test typeof(conj(A)) == Vector{Int}
     @test typeof(conj(B)) == Vector{Float64}
-    @test typeof(conj(C)) == Vector{Complex{Int}}
+   
+    @static if Base.BUILD_COMPLEX
+        C = [1,im,0]
+        @test conj(C) == [1,-im,0]
+        @test typeof(conj(C)) == Vector{Complex{Int}}
+    end
 
     @test ~A == [9,-1,-4]
     @test typeof(~A) == Vector{Int}

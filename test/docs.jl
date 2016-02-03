@@ -604,10 +604,13 @@ f12593_2() = 1
 @test (@doc f12593_1) !== nothing
 @test (@doc f12593_2) !== nothing
 
-if Base.BUILD_LINALG
+@static if Base.BUILD_LINALG
 # @test Docs.doc(svdvals, Tuple{Vector{Float64}}) === nothing
 @test Docs.doc(svdvals, Tuple{Float64}) !== nothing
 end
+
+println(Docs.doc(getindex, Tuple{Dict{Int,Int},Int}))
+println(Docs.doc(getindex, Tuple{Type{Int64},Int}))
 
 # crude test to make sure we sort docstring output by method specificity
 @test !docstrings_equal(Docs.doc(getindex, Tuple{Dict{Int,Int},Int}),

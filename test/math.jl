@@ -27,8 +27,8 @@ end
 @test e^2 == exp(2)
 @test e^2.4 == exp(2.4)
 
-@test Float16(3.) < pi
-@test pi < Float16(4.)
+Base.BUILD_FLOAT16 && @test Float16(3.) < pi
+Base.BUILD_FLOAT16 && @test pi < Float16(4.)
 @test contains(sprint(show,π),"3.14159")
 
 begin
@@ -443,12 +443,9 @@ j43 = besselj(4,3.)
 @test_approx_eq besselj(3.2, 1.3+0.6im) 0.01135309305831220201 + 0.03927719044393515275im
 @test_approx_eq besselj(1, 3im) 3.953370217402609396im
 @test_approx_eq besselj(1.0,3im) besselj(1,3im)
-<<<<<<< HEAD
-=======
 Base.BUILD_BIGFLT && @test besselj(big(1.0),3im) ≈ besselj(1,3im)
 Base.BUILD_BIGFLT &&
     @test besselj(big(0.1), complex(-0.4)) ≈ 0.820421842809028916 + 0.266571215948350899im
->>>>>>> Make J-Lite version of Julia
 @test_throws Base.Math.AmosException besselj(20,1000im)
 @test_throws MethodError besselj(big(1.0),3im)
 
@@ -845,5 +842,7 @@ Base.BUILD_LINALG && let A = [1 2; 3 4]; B = [5 6; 7 8]; C = [9 10; 11 12]
     @test muladd(A,B,C) == A*B + C
 end
 
-@test Base.Math.f32(complex(1.0,1.0)) == complex(Float32(1.),Float32(1.))
-@test Base.Math.f16(complex(1.0,1.0)) == complex(Float16(1.),Float16(1.))
+if Base.BUILD_COMPLEX
+    @test Base.Math.f32(complex(1.0,1.0)) == complex(Float32(1.),Float32(1.))
+    Base.BUILD_FLOAT16 && @test Base.Math.f16(complex(1.0,1.0)) == complex(Float16(1.),Float16(1.))
+end

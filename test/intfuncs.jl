@@ -79,6 +79,7 @@ end
 
 @test ndigits(146, -3) == 5
 
+Base.BUILD_BIGINT &&
 let n = rand(Int)
     @test ndigits(n) == ndigits(big(n)) == ndigits(n, 10)
 end

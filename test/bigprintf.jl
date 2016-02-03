@@ -14,6 +14,8 @@ end
 @test (@sprintf "%f" big"NaN") == "NaN"
 
 # scientific notation
+@test (@sprintf "%.0e" big"3e1042") == "3e+1042"
+
 @test (@sprintf "%.0e" big"3e142") == "3e+142"
 @test (@sprintf "%#.0e" big"3e142") == "3.e+142"
 

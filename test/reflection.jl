@@ -89,7 +89,11 @@ sqrt15819(x::Float64) = box(Float64, sqrt_llvm(unbox(Float64, x)))
 # Use fully qualified name
 sqrt15819(x::Float32) = box(Float32, Core.Intrinsics.sqrt_llvm(unbox(Float32, x)))
 end
-foo11122(x) = @fastmath x - 1.0
+@static if Base.BUILD_FULL
+    foo11122(x) = @fastmath x - 1.0
+else
+    foo11122(x) = x - 1.0
+end
 
 # issue #11122, #13568 and #15819
 @test !warntype_hastag(+, Tuple{Int,Int}, tag)
@@ -437,13 +441,17 @@ ccall(:jl_register_newmeth_tracer, Void, (Ptr{Void},), C_NULL)
 for i = 1:100; @eval fLargeTable(::Val{$i}, ::Any) = 1; end
 for i = 1:100; @eval fLargeTable(::Any, ::Val{$i}) = 2; end
 fLargeTable(::Any...) = 3
-fLargeTable(::Complex, ::Complex) = 4
-fLargeTable(::Union{Complex64, Complex128}...) = 5
 fLargeTable() = 4
-@test length(methods(fLargeTable)) == 204
+@static if Base.BUILD_COMPLEX
+    fLargeTable(::Complex, ::Complex) = 4
+    fLargeTable(::Union{Complex64, Complex128}...) = 5
+    @test fLargeTable(1im, 2im) == 4
+    @test fLargeTable(1.0im, 2.0im) == 5
+    @test length(methods(fLargeTable)) == 204
+else
+    @test length(methods(fLargeTable)) == 202
+end
 @test length(methods(fLargeTable, Tuple{})) == 1
-@test fLargeTable(1im, 2im) == 4
-@test fLargeTable(1.0im, 2.0im) == 5
 @test_throws MethodError fLargeTable(Val{1}(), Val{1}())
 @test fLargeTable(Val{1}(), 1) == 1
 @test fLargeTable(1, Val{1}()) == 2

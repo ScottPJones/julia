@@ -453,7 +453,6 @@ map!(x->1, d)
 # Boundary cases where length(S) <= length(pids)
 @test 2.0 == remotecall_fetch(D->D[2], id_other, Base.shmem_fill(2.0, 2; pids=[id_me, id_other]))
 @test 3.0 == remotecall_fetch(D->D[1], id_other, Base.shmem_fill(3.0, 1; pids=[id_me, id_other]))
-end # SharedArray tests (BUILD_MMAP)
 
 # Issue #14664
 d = SharedArray(Int,10)
@@ -464,6 +463,7 @@ end
 for (x,i) in enumerate(d)
     @test x == i
 end
+end # SharedArray tests (BUILD_MMAP)
 
 # Once finalized accessing remote references and shared arrays should result in exceptions.
 function finalize_and_test(r)
@@ -478,9 +478,11 @@ for id in [id_me, id_other]
     finalize_and_test((r=RemoteChannel(id); put!(r, 1); r))
 end
 
+if Base.BUILD_MMAP
 d = SharedArray(Int,10)
 finalize(d)
 @test_throws BoundsError d[1]
+end # SharedArray tests (BUILD_MMAP)
 
 if Base.BUILD_STATS
 # Test @parallel load balancing - all processors should get either M or M+1

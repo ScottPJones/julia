@@ -117,7 +117,7 @@ Base.BUILD_BIGINT && for T in [UInt32, UInt64, UInt128, Int128]
     @test rand(s) == r
 end
 
-if Base.BUILD_BIGFLT
+@static if Base.BUILD_BIGFLT
 # Test ziggurat tables
 ziggurat_table_size = 256
 nmantissa           = Int64(2)^51 # one bit for the sign
@@ -270,7 +270,7 @@ let mt = MersenneTwister(0)
         @test B[end] == Any[49,0x65,-3725,0x719d,814246081,0xdf61843a,-3010919637398300844,0x61b367cf8810985d,
                             -33032345278809823492812856023466859769,0.20707f0][i]
     end
-    if Base.BUILD_FLOAT16
+    @static if Base.BUILD_FLOAT16
         A = Array(Float16, 16)
         B = Array(Float16, 31)
         rand!(mt, A)
@@ -345,7 +345,7 @@ for rng in ([], [MersenneTwister()], [RandomDevice()])
             X = T == Bool ? T[0,1] : T[0,1,2]
             rand!(rng..., A)            ::typeof(A)
             rand!(rng..., A, X)  ::typeof(A)
-            if Base.BUILD_LINALG
+            @static if Base.BUILD_LINALG
                 rand!(rng..., sparse(A))            ::typeof(sparse(A))
                 rand!(rng..., sparse(A), X)  ::typeof(sparse(A))
             end
@@ -399,13 +399,15 @@ let mta = MersenneTwister(42), mtb = MersenneTwister(42)
 
     @test randperm(mta,10) == randperm(mtb,10)
     @test sort!(randperm(10)) == sort!(shuffle(1:10)) == collect(1:10)
-    @test randperm(mta,big(10)) == randperm(mtb,big(10)) # cf. #16376
+    @static if Base.BUILD_BIGINT
+        @test randperm(mta,big(10)) == randperm(mtb,big(10)) # cf. #16376
+    end
     @test randperm(0) == []
     @test_throws ErrorException randperm(-1)
 
     @test randcycle(mta,10) == randcycle(mtb,10)
 
-    if Base.BUILD_LINALG
+    @static if Base.BUILD_LINALG
         @test sprand(mta,1,1,0.9) == sprand(mtb,1,1,0.9)
         @test sprand(mta,10,10,0.3) == sprand(mtb,10,10,0.3)
     end

@@ -223,15 +223,18 @@ function versioninfo(io::IO=STDOUT, verbose::Bool=false)
         Sys.cpu_summary(io)
         println(io          )
     end
-    if Base.libblas_name == "libopenblas" || BLAS.vendor() == :openblas || BLAS.vendor() == :openblas64
-        openblas_config = BLAS.openblas_get_config()
-        println(io,         "  BLAS: libopenblas (", openblas_config, ")")
-    else
-        println(io,         "  BLAS: ",libblas_name)
+    @static if Base.BUILD_LINALG
+        if Base.libblas_name == "libopenblas" ||
+           BLAS.vendor() == :openblas || BLAS.vendor() == :openblas64
+            openblas_config = BLAS.openblas_get_config()
+            println(io,         "  BLAS: libopenblas (", openblas_config, ")")
+        else
+            println(io,         "  BLAS: ",libblas_name)
+        end
+        println(io,             "  LAPACK: ",liblapack_name)
     end
-    println(io,             "  LAPACK: ",liblapack_name)
-    println(io,             "  LIBM: ",libm_name)
-    println(io,             "  LLVM: libLLVM-",libllvm_version," (", Sys.JIT, ", ", Sys.cpu_name, ")")
+    println(io,         "  LIBM: ",libm_name)
+    println(io,         "  LLVM: libLLVM-",libllvm_version," (", Sys.JIT, ", ", Sys.cpu_name, ")")
     if verbose
         println(io,         "Environment:")
         for (k,v) in ENV

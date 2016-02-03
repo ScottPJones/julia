@@ -113,8 +113,6 @@ end
 @test (@sprintf "%.0e" 3e142) == "3e+142"
 @test (@sprintf "%#.0e" 3e142) == "3.e+142"
 
-@test (@sprintf "%.0e" big"3e1042") == "3e+1042"
-
 @test (@sprintf "%e" 3e42) == "3.000000e+42"
 @test (@sprintf "%E" 3e42) == "3.000000E+42"
 @test (@sprintf "%e" 3e-42) == "3.000000e-42"

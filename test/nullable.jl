@@ -334,12 +334,14 @@ end
 @test promote_type(Nullable{Union{}}, Int) === Nullable{Int}
 @test promote_type(Nullable{Float64}, Nullable{Int}) === Nullable{Float64}
 @test promote_type(Nullable{Union{}}, Nullable{Int}) === Nullable{Int}
+Base.BUILD_DATES &&
 @test promote_type(Nullable{Date}, Nullable{DateTime}) === Nullable{DateTime}
 
 @test Base.promote_op(+, Nullable{Int}, Nullable{Int}) == Nullable{Int}
 @test Base.promote_op(-, Nullable{Int}, Nullable{Int}) == Nullable{Int}
 @test Base.promote_op(+, Nullable{Float64}, Nullable{Int}) == Nullable{Float64}
 @test Base.promote_op(-, Nullable{Float64}, Nullable{Int}) == Nullable{Float64}
+Base.BUILD_DATES &&
 @test Base.promote_op(-, Nullable{DateTime}, Nullable{DateTime}) == Nullable{Base.Dates.Millisecond}
 
 # issue #11675

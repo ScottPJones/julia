@@ -231,8 +231,10 @@ rand_ui23_raw(r::MersenneTwister) = rand_ui52_raw(r)
 rand_ui10_raw(r::AbstractRNG)    = rand(r, UInt16)
 rand_ui23_raw(r::AbstractRNG)    = rand(r, UInt32)
 
+if Base.BUILD_FLOAT16
 rand(r::Union{RandomDevice,MersenneTwister}, ::Type{Float16}) =
     Float16(reinterpret(Float32, (rand_ui10_raw(r) % UInt32 << 13) & 0x007fe000 | 0x3f800000) - 1)
+end
 
 rand(r::Union{RandomDevice,MersenneTwister}, ::Type{Float32}) =
     reinterpret(Float32, rand_ui23_raw(r) % UInt32 & 0x007fffff | 0x3f800000) - 1
@@ -354,12 +356,19 @@ end
 # Break up parsing of UInt128 constants to avoid using BigInt
 @inline _rep32_128(v::UInt32) = UInt128(v)<<96 | UInt128(v)<<64 | UInt128(v)<<32 | v
 
+Base.BUILD_FLOAT16 &&
 @inline mask128(u::UInt128, ::Type{Float16}) =
     (u & _rep32_128(0x03ff03ff)) | _rep32_128(0x3c003c00)
 @inline mask128(u::UInt128, ::Type{Float32}) =
     (u & _rep32_128(0x007fffff)) | _rep32_128(0x3f800000)
 
-function rand!{T<:Union{Float16, Float32}}(r::MersenneTwister, A::Array{T}, ::Type{Close1Open2})
+if Base.BUILD_FLOAT16
+    typealias SmallFloats Union{Float16, Float32}
+else
+    typealias SmallFloats Float32
+end
+
+function rand!{T<:SmallFloats}(r::MersenneTwister, A::Array{T}, ::Type{Close1Open2})
     n = length(A)
     n128 = n * sizeof(T) ÷ 16
     rand!(r, unsafe_wrap(Array, convert(Ptr{Float64}, pointer(A)), 2*n128), 2*n128, Close1Open2)
@@ -383,7 +392,7 @@ function rand!{T<:Union{Float16, Float32}}(r::MersenneTwister, A::Array{T}, ::Ty
     A
 end
 
-function rand!{T<:Union{Float16, Float32}}(r::MersenneTwister, A::Array{T}, ::Type{CloseOpen})
+function rand!{T<:SmallFloats}(r::MersenneTwister, A::Array{T}, ::Type{CloseOpen})
     rand!(r, A, Close1Open2)
     I32 = one(Float32)
     for i in eachindex(A)
@@ -392,7 +401,7 @@ function rand!{T<:Union{Float16, Float32}}(r::MersenneTwister, A::Array{T}, ::Ty
     A
 end
 
-rand!{T<:Union{Float16, Float32}}(r::MersenneTwister, A::Array{T}) = rand!(r, A, CloseOpen)
+rand!{T<:SmallFloats}(r::MersenneTwister, A::Array{T}) = rand!(r, A, CloseOpen)
 
 
 function rand!(r::MersenneTwister, A::Array{UInt128}, n::Int=length(A))

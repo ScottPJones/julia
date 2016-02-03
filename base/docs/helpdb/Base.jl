@@ -5605,13 +5605,6 @@ Returns the number of dimensions of `A`.
 ndims
 
 """
-    ishermitian(A) -> Bool
-
-Test whether a matrix is Hermitian.
-"""
-ishermitian
-
-"""
     sind(x)
 
 Compute sine of `x`, where `x` is in degrees.
@@ -5740,14 +5733,6 @@ scale!
 The arguments to a function or constructor are outside the valid domain.
 """
 DomainError
-
-if BUILD_LINALG
-"""
-    acosh(x)
-
-Compute the inverse hyperbolic cosine of `x`.
-"""
-acosh
 
 """
     IntSet([itr])
@@ -6731,6 +6716,7 @@ Returns a view of array `A` with the given indices like [`sub`](:func:`sub`), bu
 dimensions indexed with scalars.
 """
 slice
+end
 
 """
     time()
@@ -7344,15 +7330,6 @@ Returns a boolean value indicating whether or not the object `x` can be written 
 corresponding `show` function for `typeof(x)`.)
 """
 mimewritable
-
-"""
-    vecdot(x, y)
-
-For any iterable containers `x` and `y` (including arrays of any dimension) of numbers (or
-any element type for which `dot` is defined), compute the Euclidean dot product (the sum of
-`dot(x[i],y[i])`) as if they were vectors.
-"""
-vecdot
 
 """
     >(x, y)
@@ -8183,17 +8160,6 @@ Riemann zeta function ``\\zeta(s)``.
 zeta(s)
 
 """
-    vecnorm(A, [p])
-
-For any iterable container `A` (including arrays of any dimension) of numbers (or any
-element type for which `norm` is defined), compute the `p`-norm (defaulting to `p=2`) as if
-`A` were a vector of the corresponding length.
-
-For example, if `A` is a matrix and `p=2`, then this is equivalent to the Frobenius norm.
-"""
-vecnorm
-
-"""
     isvalid(value) -> Bool
 
 Returns `true` if the given value is valid for its type, which currently can be one of
@@ -8276,13 +8242,6 @@ sortcols
 Similar to `split`, but starting from the end of the string.
 """
 rsplit
-
-"""
-    trace(M)
-
-Matrix trace.
-"""
-trace
 
 """
     runtests([tests=["all"] [, numcores=ceil(Integer, Sys.CPU_CORES / 2) ]])
