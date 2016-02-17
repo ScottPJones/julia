@@ -587,6 +587,45 @@ function RemoteChannel(f::Function, pid::Integer=myid())
     end
 end
 
+"""
+    Future()
+
+Create a `Future` on the local machine.
+"""
+Future()
+
+"""
+    Future(n)
+
+Create a `Future` on process `n`.
+"""
+Future(::Integer)
+
+"""
+    RemoteChannel()
+
+Make an reference to a `Channel{Any}(1)` on the local machine.
+"""
+RemoteChannel()
+
+"""
+    RemoteChannel(n)
+
+Make an reference to a `Channel{Any}(1)` on process `n`.
+"""
+RemoteChannel(::Integer)
+
+"""
+    RemoteChannel(f::Function, pid)
+
+Create references to remote channels of a specific size and type. `f()` is a function that
+when executed on `pid` must return an implementation of an `AbstractChannel`.
+
+For example, `RemoteChannel(()->Channel{Int}(10), pid)`, will return a reference to a
+channel of type `Int` and size 10 on `pid`.
+"""
+RemoteChannel(f::Function, pid)
+
 hash(r::AbstractRemoteRef, h::UInt) = hash(r.whence, hash(r.id, h))
 ==(r::AbstractRemoteRef, s::AbstractRemoteRef) = (r.whence==s.whence && r.id==s.id)
 

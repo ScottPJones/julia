@@ -386,10 +386,6 @@ function nextfloat(f::Union{Float16,Float32,Float64}, d::Integer)
     reinterpret(F, fu)
 end
 
-nextfloat(x::Float32, i::Integer) =
-    (isinf(x)&&sign(x)==sign(i)) ? x : reinterpret(Float32,float_lex_order(reinterpret(Int32,x), i))
-nextfloat(x::Float64, i::Integer) =
-    (isinf(x)&&sign(x)==sign(i)) ? x : reinterpret(Float64,float_lex_order(reinterpret(Int64,x), i))
 """
     nextfloat(x::AbstractFloat)
 

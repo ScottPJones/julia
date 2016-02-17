@@ -154,7 +154,6 @@ end
 # hex float
 @test (@sprintf "%a" 1.5) == "0x1.8p+0"
 @test (@sprintf "%a" 1.5f0) == "0x1.8p+0"
-@test (@sprintf "%a" big"1.5") == "0x1.8p+0"
 @test (@sprintf "%#.0a" 1.5) == "0x2.p+0"
 @test (@sprintf "%+30a" 1/3) == "         +0x1.5555555555555p-2"
 

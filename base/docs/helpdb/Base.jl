@@ -216,13 +216,6 @@ Print (using [`print`](:func:`print`)) `x` followed by a newline.
 println
 
 """
-    besselj(nu, x)
-
-Bessel function of the first kind of order `nu`, ``J_\\nu(x)``.
-"""
-besselj
-
-"""
     //(num, den)
 
 Divide two integers or rational numbers, giving a `Rational` result.
@@ -286,13 +279,6 @@ IPv6
 Multiply elements of `A` over the singleton dimensions of `r`, and write results to `r`.
 """
 prod!
-
-"""
-    airybi(x)
-
-Airy function ``\\operatorname{Bi}(x)``.
-"""
-airybi
 
 """
     gensym([tag])
@@ -414,45 +400,6 @@ values in matrix `A`, and `V` is a vector of the non-zero values.
 findnz
 
 """
-    Future()
-
-Create a `Future` on the local machine.
-"""
-Future()
-
-"""
-    Future(n)
-
-Create a `Future` on process `n`.
-"""
-Future(::Integer)
-
-"""
-    RemoteChannel()
-
-Make an reference to a `Channel{Any}(1)` on the local machine.
-"""
-RemoteChannel()
-
-"""
-    RemoteChannel(n)
-
-Make an reference to a `Channel{Any}(1)` on process `n`.
-"""
-RemoteChannel(::Integer)
-
-"""
-    RemoteChannel(f::Function, pid)
-
-Create references to remote channels of a specific size and type. `f()` is a function that
-when executed on `pid` must return an implementation of an `AbstractChannel`.
-
-For example, `RemoteChannel(()->Channel{Int}(10), pid)`, will return a reference to a
-channel of type `Int` and size 10 on `pid`.
-"""
-RemoteChannel(f::Function, pid)
-
-"""
     foldl(op, v0, itr)
 
 Like [`reduce`](:func:`reduce`), but with guaranteed left associativity. `v0` will be used
@@ -469,19 +416,11 @@ cannot be used with empty collections (see `reduce(op, itr)`).
 foldl(op, itr)
 
 """
-    airybiprime(x)
-
-Airy function derivative ``\\operatorname{Bi}'(x)``.
-"""
-airybiprime
-
-"""
     Ac_rdiv_B(A, B)
 
 For matrices or vectors ``A`` and ``B``, calculates ``Aᴴ / B``.
 """
 Ac_rdiv_B
-
 
 """
     linspace(start, stop, n=50)
@@ -891,13 +830,6 @@ additional optimizations, such as inlining, are also applied.
 code_typed
 
 """
-    hankelh1x(nu, x)
-
-Scaled Bessel function of the third kind of order `nu`, ``H^{(1)}_\\nu(x) e^{-x i}``.
-"""
-hankelh1x
-
-"""
     replace(string, pat, r[, n])
 
 Search for the given pattern `pat`, and replace each occurrence with `r`. If `n` is
@@ -982,20 +914,6 @@ Performs a left rotation operation.
 rol
 
 """
-    airyprime(x)
-
-Airy function derivative ``\\operatorname{Ai}'(x)``.
-"""
-airyprime
-
-"""
-    bessely0(x)
-
-Bessel function of the second kind of order 0, ``Y_0(x)``.
-"""
-bessely0
-
-"""
     any!(r, A)
 
 Test whether any values in `A` along the singleton dimensions of `r` are `true`, and write
@@ -1017,13 +935,6 @@ filter!
 Decodes the base64-encoded `string` and returns a `Vector{UInt8}` of the decoded bytes.
 """
 base64decode
-
-"""
-    besselkx(nu, x)
-
-Scaled modified Bessel function of the second kind of order `nu`, ``K_\\nu(x) e^x``.
-"""
-besselkx
 
 """
     myid()
@@ -1328,13 +1239,6 @@ Wrap an expression in a `Task` and add it to the local machine's scheduler queue
 :@schedule
 
 """
-    bessely(nu, x)
-
-Bessel function of the second kind of order `nu`, ``Y_\\nu(x)``.
-"""
-bessely
-
-"""
     tan(x)
 
 Compute tangent of `x`, where `x` is in radians.
@@ -1554,13 +1458,6 @@ Receive the next value passed to `produce` by the specified task. Additional arg
 be passed, to be returned from the last `produce` call in the producer.
 """
 consume
-
-"""
-    hankelh2x(nu, x)
-
-Scaled Bessel function of the third kind of order `nu`, ``H^{(2)}_\\nu(x) e^{x i}``.
-"""
-hankelh2x
 
 """
     ndigits(n, b = 10)
@@ -1854,13 +1751,6 @@ Construct a tuple of the given objects.
 tuple
 
 """
-    besseli(nu, x)
-
-Modified Bessel function of the first kind of order `nu`, ``I_\\nu(x)``.
-"""
-besseli
-
-"""
     eachmatch(r::Regex, s::AbstractString[, overlap::Bool=false])
 
 Search for all matches of a the regular expression `r` in `s` and return a iterator over the
@@ -1973,14 +1863,6 @@ exp10
 Bitwise and.
 """
 &
-
-"""
-    besselyx(nu, x)
-
-Scaled Bessel function of the second kind of order `nu`,
-``Y_\\nu(x) e^{- | \\operatorname{Im}(x) |}``.
-"""
-besselyx
 
 """
     PipeBuffer()
@@ -2424,13 +2306,6 @@ The item or field is not defined for the given object.
 UndefRefError
 
 """
-    bessely1(x)
-
-Bessel function of the second kind of order 1, ``Y_1(x)``.
-"""
-bessely1
-
-"""
     cumprod(A, [dim])
 
 Cumulative product along a dimension `dim` (defaults to 1). See also
@@ -2440,13 +2315,6 @@ to control the precision of the output (e.g. to avoid overflow).
 cumprod
 
 """
-    besseljx(nu, x)
-
-Scaled Bessel function of the first kind of order `nu`, ``J_\\nu(x) e^{- | \\operatorname{Im}(x) |}``.
-"""
-besseljx
-
-"""
     print(x)
 
 Write (to the default output stream) a canonical (un-decorated) text representation of a
@@ -2454,22 +2322,6 @@ value if there is one, otherwise call `show`. The representation used by `print`
 minimal formatting and tries to avoid Julia-specific details.
 """
 print
-
-"""
-    filt(b, a, x, [si])
-
-Apply filter described by vectors `a` and `b` to vector `x`, with an optional initial filter
-state vector `si` (defaults to zeros).
-"""
-filt
-
-"""
-    indexpids(S::SharedArray)
-
-Returns the index of the current worker into the `pids` vector, i.e., the list of workers
-mapping the SharedArray
-"""
-indexpids
 
 """
     remotecall_wait(func, id, args...; kwargs...)
@@ -2728,13 +2580,6 @@ block columns.
 hvcat
 
 """
-    besselj1(x)
-
-Bessel function of the first kind of order 1, ``J_1(x)``.
-"""
-besselj1
-
-"""
     sinpi(x)
 
 Compute ``\\sin(\\pi x)`` more accurately than `sin(pi*x)`, especially for large `x`.
@@ -2965,13 +2810,6 @@ Create all directories in the given `path`, with permissions `mode`. `mode` defa
 `0o777`, modified by the current file creation mask.
 """
 mkpath
-
-"""
-    besselix(nu, x)
-
-Scaled modified Bessel function of the first kind of order `nu`, ``I_\\nu(x) e^{- | \\operatorname{Re}(x) |}``.
-"""
-besselix
 
 """
     union(s1,s2...)
@@ -3310,13 +3148,6 @@ Return a collection of all instances of the given type, if applicable. Mostly us
 enumerated types (see `@enum`).
 """
 instances
-
-"""
-    besselj0(x)
-
-Bessel function of the first kind of order 0, ``J_0(x)``.
-"""
-besselj0
 
 """
     erfcinv(x)
@@ -3971,6 +3802,7 @@ An indexing operation into an array, `a`, tried to access an out-of-bounds eleme
 """
 BoundsError
 
+#=
 """
     which(f, types)
 
@@ -4139,13 +3971,6 @@ squeeze
 Bitwise not.
 """
 ~
-
-"""
-    hankelh1(nu, x)
-
-Bessel function of the third kind of order `nu`, ``H^{(1)}_\\nu(x)``.
-"""
-hankelh1
 
 """
     gcdx(x,y)
@@ -4668,21 +4493,6 @@ Base64DecodePipe
 Get a module's enclosing `Module`. `Main` is its own parent, as is `LastMain` after `workspace()`.
 """
 module_parent
-
-"""
-    airyaiprime(x)
-
-Airy function derivative ``\\operatorname{Ai}'(x)``.
-"""
-airyaiprime
-
-"""
-    besselh(nu, k, x)
-
-Bessel function of the third kind of order `nu` (Hankel function). `k` is either 1 or 2,
-selecting `hankelh1` or `hankelh2`, respectively.
-"""
-besselh
 
 """
     prepend!(collection, items) -> collection
@@ -5558,13 +5368,6 @@ called in last in first out (LIFO) order and run before object finalizers.
 atexit
 
 """
-    besselk(nu, x)
-
-Modified Bessel function of the second kind of order `nu`, ``K_\\nu(x)``.
-"""
-besselk
-
-"""
     readchomp(x)
 
 Read the entirety of `x` as a string and remove a single trailing newline. Equivalent to `chomp(readstring(x))`.
@@ -6221,13 +6024,6 @@ general.
 setdiff
 
 """
-    airyai(x)
-
-Airy function ``\\operatorname{Ai}(x)``.
-"""
-airyai
-
-"""
     error(message::AbstractString)
 
 Raise an `ErrorException` with the given message.
@@ -6602,13 +6398,6 @@ julia> leading_zeros(Int32(1))
 leading_zeros
 
 """
-    hankelh2(nu, x)
-
-Bessel function of the third kind of order `nu`, ``H^{(2)}_\\nu(x)``.
-"""
-hankelh2
-
-"""
     lexcmp(x, y)
 
 Compare `x` and `y` lexicographically and return -1, 0, or 1 depending on whether `x` is
@@ -6804,7 +6593,7 @@ put!(::Future, value)
 Appends an item to the channel. Blocks if the channel is full.
 """
 put!(::Channel, value)
-
+=#
 """
     operm(file)
 
@@ -7311,13 +7100,6 @@ characters, tests whether the last character of `string` belongs to that set.
 endswith
 
 """
-    airy(k,x)
-
-The `k`th derivative of the Airy function ``\\operatorname{Ai}(x)``.
-"""
-airy
-
-"""
     !(x)
 
 Boolean not.
@@ -7707,15 +7489,6 @@ unsafe_load
 Get the backtrace of the current exception, for use within `catch` blocks.
 """
 catch_backtrace
-
-"""
-    airyx(k,x)
-
-scaled `k`th derivative of the Airy function, return ``\\operatorname{Ai}(x) e^{\\frac{2}{3} x \\sqrt{x}}``
-for `k == 0 || k == 1`, and ``\\operatorname{Ai}(x) e^{- \\left| \\operatorname{Re} \\left( \\frac{2}{3} x \\sqrt{x} \\right) \\right|}``
-for `k == 2 || k == 3`.
-"""
-airyx
 
 """
     get_zero_subnormals() -> Bool

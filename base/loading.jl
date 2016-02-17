@@ -103,22 +103,13 @@ function find_in_path(name::String, wd)
     if wd !== nothing
         isfile_casesensitive(joinpath(wd,name)) && return joinpath(wd,name)
     end
-<<<<<<< HEAD
-    p = try_path(Pkg.dir(), base, name)
-    p !== nothing && return p
+    if Base.BUILD_PKG
+        p = try_path(Pkg.dir(), base, name)
+        p !== nothing && return p
+    end
     for prefix in LOAD_PATH
         p = try_path(prefix, base, name)
         p !== nothing && return p
-=======
-    paths = Base.BUILD_PKG ? [Pkg.dir(); LOAD_PATH] : LOAD_PATH
-    for prefix in paths
-        path = joinpath(prefix, name)
-        isfile_casesensitive(path) && return abspath(path)
-        path = joinpath(prefix, base, "src", name)
-        isfile_casesensitive(path) && return abspath(path)
-        path = joinpath(prefix, name, "src", name)
-        isfile_casesensitive(path) && return abspath(path)
->>>>>>> Make J-Lite version of Julia
     end
     return nothing
 end

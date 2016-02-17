@@ -27,8 +27,6 @@ widen(::Type{Float16}) = Float32
 ## precision, as defined by the effective number of bits in the mantissa ##
 precision(::Type{Float16}) = 11
 
-nextfloat(x::Float16, i::Integer) =
-    (isinf(x)&&sign(x)==sign(i)) ? x : reinterpret(Float16,float_lex_order(reinterpret(Int16,x), i))
 @eval begin
     typemin(::Type{Float16}) = $(box(Float16,unbox(UInt16,0xfc00)))
     typemax(::Type{Float16}) = $(Inf16)

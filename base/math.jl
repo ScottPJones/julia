@@ -412,29 +412,176 @@ end
 muladd(x,y,z) = x*y+z
 
 # Add generic function definitions
+"""
+    besselj(nu, x)
+
+Bessel function of the first kind of order `nu`, ``J_\\nu(x)``.
+"""
 function besselj end
+
+"""
+    bessely0(x)
+
+Bessel function of the second kind of order 0, ``Y_0(x)``.
+"""
 function bessely0 end
+
+"""
+    besselkx(nu, x)
+
+Scaled modified Bessel function of the second kind of order `nu`, ``K_\\nu(x) e^x``.
+"""
 function besselkx end
+
+"""
+    bessely(nu, x)
+
+Bessel function of the second kind of order `nu`, ``Y_\\nu(x)``.
+"""
 function bessely end
+
+"""
+    besseli(nu, x)
+
+Modified Bessel function of the first kind of order `nu`, ``I_\\nu(x)``.
+"""
 function besseli end
+
+"""
+    besselyx(nu, x)
+
+Scaled Bessel function of the second kind of order `nu`,
+``Y_\\nu(x) e^{- | \\operatorname{Im}(x) |}``.
+"""
 function besselyx end
+
+"""
+    bessely1(x)
+
+Bessel function of the second kind of order 1, ``Y_1(x)``.
+"""
 function bessely1 end
+
+"""
+    besseljx(nu, x)
+
+Scaled Bessel function of the first kind of order `nu`, ``J_\\nu(x) e^{- | \\operatorname{Im}(x) |}``.
+"""
 function besseljx end
+
+"""
+    besselj1(x)
+
+Bessel function of the first kind of order 1, ``J_1(x)``.
+"""
 function besselj1 end
+
+"""
+    besselix(nu, x)
+
+Scaled modified Bessel function of the first kind of order `nu`, ``I_\\nu(x) e^{- | \\operatorname{Re}(x) |}``.
+"""
 function besselix end
+
+"""
+    besselj0(x)
+
+Bessel function of the first kind of order 0, ``J_0(x)``.
+"""
 function besselj0 end
+
+"""
+    besselh(nu, k, x)
+
+Bessel function of the third kind of order `nu` (Hankel function). `k` is either 1 or 2,
+selecting `hankelh1` or `hankelh2`, respectively.
+"""
 function besselh end
+
+"""
+    besselk(nu, x)
+
+Modified Bessel function of the second kind of order `nu`, ``K_\\nu(x)``.
+"""
 function besselk end
+
+"""
+    hankelh1(nu, x)
+
+Bessel function of the third kind of order `nu`, ``H^{(1)}_\\nu(x)``.
+"""
 function hankelh1 end
+
+"""
+    hankelh1x(nu, x)
+
+Scaled Bessel function of the third kind of order `nu`, ``H^{(1)}_\\nu(x) e^{-x i}``.
+"""
 function hankelh1x end
+
+"""
+    hankelh2(nu, x)
+
+Bessel function of the third kind of order `nu`, ``H^{(2)}_\\nu(x)``.
+"""
 function hankelh2 end
+
+"""
+    hankelh2x(nu, x)
+
+Scaled Bessel function of the third kind of order `nu`, ``H^{(2)}_\\nu(x) e^{x i}``.
+"""
 function hankelh2x end
+
+"""
+    airy(k,x)
+
+The `k`th derivative of the Airy function ``\\operatorname{Ai}(x)``.
+"""
 function airy end
+
+"""
+    airybi(x)
+
+Airy function ``\\operatorname{Bi}(x)``.
+"""
 function airybi end
+
+"""
+    airybiprime(x)
+
+Airy function derivative ``\\operatorname{Bi}'(x)``.
+"""
 function airybiprime end
+
+"""
+    airyprime(x)
+
+Airy function derivative ``\\operatorname{Ai}'(x)``.
+"""
 function airyprime end
+
+"""
+    airyaiprime(x)
+
+Airy function derivative ``\\operatorname{Ai}'(x)``.
+"""
 function airyaiprime end
+
+"""
+    airyai(x)
+
+Airy function ``\\operatorname{Ai}(x)``.
+"""
 function airyai end
+
+"""
+    airyx(k,x)
+
+scaled `k`th derivative of the Airy function, return ``\\operatorname{Ai}(x) e^{\\frac{2}{3} x \\sqrt{x}}``
+for `k == 0 || k == 1`, and ``\\operatorname{Ai}(x) e^{- \\left| \\operatorname{Re} \\left( \\frac{2}{3} x \\sqrt{x} \\right) \\right|}``
+for `k == 2 || k == 3`.
+"""
 function airyx end
 
 # More special functions

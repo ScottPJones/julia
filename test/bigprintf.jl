@@ -38,3 +38,5 @@ end
 @test( @sprintf( "%010.5g", big"-123.4" ) == "-0000123.4")
 @test( @sprintf( "%.6g", big"12340000.0" ) == "1.234e+07")
 @test( @sprintf( "%#.6g", big"12340000.0" ) == "1.23400e+07")
+
+@test (@sprintf "%a" big"1.5") == "0x1.8p+0"

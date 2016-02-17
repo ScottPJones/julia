@@ -39,8 +39,8 @@ if slt_int(unbox(Int,arraylen(Core.ARGS)),unbox(Int,2))
     include("build_h.jl")
     include("version_git.jl")
 else
-    include(UTF8String(vcat(Core.ARGS[2].data, "build_h.jl".data)))
-    include(UTF8String(vcat(Core.ARGS[2].data, "version_git.jl".data)))
+    include(String(vcat(Core.ARGS[2].data, "build_h.jl".data)))
+    include(String(vcat(Core.ARGS[2].data, "version_git.jl".data)))
 end
 include("exports.jl")
 
@@ -125,9 +125,6 @@ typealias StridedVector{T,A<:Union{DenseArray,StridedReshapedArray},I<:Tuple{Var
 typealias StridedMatrix{T,A<:Union{DenseArray,StridedReshapedArray},I<:Tuple{Vararg{Union{RangeIndex, NoSlice, AbstractCartesianIndex}}}}  Union{DenseArray{T,2}, SubArray{T,2,A,I}, StridedReshapedArray{T,2}}
 typealias StridedVecOrMat{T} Union{StridedVector{T}, StridedMatrix{T}}
 
-# For OS specific stuff
-include(String(vcat(length(Core.ARGS)>=2?Core.ARGS[2].data:"".data, "build_h.jl".data))) # include($BUILDROOT/base/build_h.jl)
-include(String(vcat(length(Core.ARGS)>=2?Core.ARGS[2].data:"".data, "version_git.jl".data))) # include($BUILDROOT/base/version_git.jl)
 include("osutils.jl")
 include("c.jl")
 include("sysinfo.jl")
@@ -264,7 +261,6 @@ if BUILD_PARALLEL
     include("managers.jl")
     include("asyncmap.jl")
 end
-include("mapiterator.jl")
 
 # code loading
 include("loading.jl")
@@ -377,11 +373,15 @@ BUILD_FULL && include("deprecated.jl")
 # Documentation -- should always be included last in sysimg.
 
 if BUILD_DOCS
+    # Some basic documentation
+    include("docs/helpdb.jl")
+    include("docs/basedocs.jl")
+
     include("markdown/Markdown.jl")
     include("docs/Docs.jl")
     using .Docs
     using .Markdown
-    Docs.loaddocs(Core.Inference.CoreDocs.DOCS)
+    #Docs.loaddocs(Core.Inference.CoreDocs.DOCS)
 end
 
 function __init__()
