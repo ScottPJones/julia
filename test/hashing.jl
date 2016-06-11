@@ -2,7 +2,7 @@
 
 types = Any[ Bool, Int8, UInt8, Int16, UInt16, Int32, UInt32, Int64, UInt64, Float32, Float64 ]
 
-@static if Base.BUILD_RATIONAL
+@static if Build.RATIONAL
     push!(types, Rational{Int8}, Rational{UInt8}, Rational{Int16}, Rational{UInt16},
                  Rational{Int32}, Rational{UInt32}, Rational{Int64}, Rational{UInt64})
 end
@@ -52,9 +52,9 @@ end
 @test hash(prevfloat(2.0^64)) == hash(UInt64(prevfloat(2.0^64)))
 
 # issue #9264
-@static if Base.BUILD_RATIONAL
+@static if Build.RATIONAL
     @test hash(1//6,zero(UInt)) == invoke(hash, Tuple{Real, UInt}, 1//6, zero(UInt))
-    Base.BUILD_BIGINT && @test hash(1//6) == hash(big(1)//big(6))
+    Build.BIGINT && @test hash(1//6) == hash(big(1)//big(6))
     @test hash(1//6) == hash(0x01//0x06)
 end
 
@@ -74,7 +74,7 @@ vals = Any[
     [], [1], [2], [1, 1], [1, 2], [1, 3], [2, 2], [1, 2, 2], [1, 3, 3],
     zeros(2, 2), eye(2, 2), ones(2, 2)
 ]
-Base.BUILD_LINALG &&
+Build.LINALG &&
     push!(vals, spzeros(2, 2), speye(2, 2), sparse(ones(2, 2)), sparse([0 0; 1 0]),
           SparseMatrixCSC(2, 2, [1, 3, 3], [1, 2], [-0., -0.]),
           [0 0; 1 0], [-0. 0; -0. 0.])
@@ -90,7 +90,7 @@ end
 @test hash([1,2]) == hash(sub([1,2,3,4],1:2))
 
 # test explicit zeros in SparseMatrixCSC
-@static if Base.BUILD_LINALG
+@static if Build.LINALG
 x = sprand(10, 10, 0.5)
 x[1] = 1
 x.nzval[1] = 0
@@ -112,12 +112,12 @@ end
 @test hash(Dict(),hash(Set())) != hash(Set(),hash(Dict()))
 
 # issue 15659
-@static if Base.BUILD_RATIONAL
+@static if Build.RATIONAL
     tstv = Any[-0.0, 0, 1, -1, pi, 1//10, 2//10, 3//10, 1//2]
 else
     tstv = Any[-0.0, 0, 1, -1, pi]
 end
-Base.BUILD_BIGFLT &&
+Build.BIGFLT &&
 for prec in [3, 11, 15, 16, 31, 32, 33, 63, 64, 65, 254, 255, 256, 257, 258, 1023, 1024, 1025],
     v in tstv
     setprecision(prec) do

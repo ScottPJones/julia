@@ -32,7 +32,7 @@ f() = backtrace()
 h_inlined() = g_inlined()
 h_noinlined() = g_noinlined()
 
-if Base.BUILD_PROFILER
+if Build.PROFILER
 function foundfunc(bt, funcname)
     for b in bt
         for lkup in StackTraces.lookup(b)

@@ -56,106 +56,111 @@ ifeq ($(USE_GPL_LIBS), 1)
 else
 	@echo "const USE_GPL_LIBS = false" >> $@
 endif
+
+	@echo "baremodule Build" >> $@
 ifeq ($(BUILD_FULL), 1)
-	@echo "const BUILD_FULL   = true" >> $@
+	@echo "const FULL   = true" >> $@
 else
-	@echo "const BUILD_FULL   = false" >> $@
+	@echo "const FULL   = false" >> $@
 endif
 ifeq ($(BUILD_BIGINT), 1)
-	@echo "const BUILD_BIGINT = true" >> $@
+	@echo "const BIGINT = true" >> $@
 else
-	@echo "const BUILD_BIGINT = false" >> $@
+	@echo "const BIGINT = false" >> $@
 endif
 ifeq ($(BUILD_BIGFLT), 1)
-	@echo "const BUILD_BIGFLT = true" >> $@
+	@echo "const BIGFLT = true" >> $@
 else
-	@echo "const BUILD_BIGFLT = false" >> $@
+	@echo "const BIGFLT = false" >> $@
 endif
 ifeq ($(BUILD_DSP), 1)
-	@echo "const BUILD_DSP    = true" >> $@
+	@echo "const DSP    = true" >> $@
 else
-	@echo "const BUILD_DSP    = false" >> $@
+	@echo "const DSP    = false" >> $@
 endif
 ifeq ($(BUILD_DATES), 1)
-	@echo "const BUILD_DATES  = true" >> $@
+	@echo "const DATES  = true" >> $@
 else
-	@echo "const BUILD_DATES  = false" >> $@
+	@echo "const DATES  = false" >> $@
 endif
 ifeq ($(BUILD_STATS), 1)
-	@echo "const BUILD_STATS  = true" >> $@
+	@echo "const STATS  = true" >> $@
 else
-	@echo "const BUILD_STATS  = false" >> $@
+	@echo "const STATS  = false" >> $@
 endif
 ifeq ($(BUILD_COMPLEX), 1)
-	@echo "const BUILD_COMPLEX = true" >> $@
+	@echo "const COMPLEX = true" >> $@
 else
-	@echo "const BUILD_COMPLEX = false" >> $@
+	@echo "const COMPLEX = false" >> $@
 endif
 ifeq ($(BUILD_RATIONAL), 1)
-	@echo "const BUILD_RATIONAL = true" >> $@
+	@echo "const RATIONAL = true" >> $@
 else
-	@echo "const BUILD_RATIONAL = false" >> $@
+	@echo "const RATIONAL = false" >> $@
 endif
 ifeq ($(BUILD_PARALLEL), 1)
-	@echo "const BUILD_PARALLEL = true" >> $@
+	@echo "const PARALLEL = true" >> $@
 else
-	@echo "const BUILD_PARALLEL = false" >> $@
+	@echo "const PARALLEL = false" >> $@
 endif
 ifeq ($(BUILD_THREADS), 1)
-	@echo "const BUILD_THREADS = true" >> $@
+	@echo "const THREADS = true" >> $@
 else
-	@echo "const BUILD_THREADS = false" >> $@
+	@echo "const THREADS = false" >> $@
 endif
 ifeq ($(BUILD_PROFILER), 1)
-	@echo "const BUILD_PROFILER = true" >> $@
+	@echo "const PROFILER = true" >> $@
 else
-	@echo "const BUILD_PROFILER = false" >> $@
+	@echo "const PROFILER = false" >> $@
 endif
 ifeq ($(BUILD_MMAP), 1)
-	@echo "const BUILD_MMAP = true" >> $@
+	@echo "const MMAP = true" >> $@
 else
-	@echo "const BUILD_MMAP = false" >> $@
+	@echo "const MMAP = false" >> $@
 endif
 ifeq ($(BUILD_PKG), 1)
-	@echo "const BUILD_PKG = true" >> $@
+	@echo "const PKG = true" >> $@
 else
-	@echo "const BUILD_PKG = false" >> $@
+	@echo "const PKG = false" >> $@
 endif
 ifeq ($(BUILD_SPARSE), 1)
-	@echo "const BUILD_SPARSE = true" >> $@
+	@echo "const SPARSE = true" >> $@
 else
-	@echo "const BUILD_SPARSE = false" >> $@
+	@echo "const SPARSE = false" >> $@
 endif
 ifeq ($(BUILD_DOCS), 1)
-	@echo "const BUILD_DOCS = true" >> $@
+	@echo "const DOCS = true" >> $@
 else
-	@echo "const BUILD_DOCS = false" >> $@
+	@echo "const DOCS = false" >> $@
 endif
 ifeq ($(BUILD_HELP), 1)
-	@echo "const BUILD_HELP = true" >> $@
+	@echo "const HELP = true" >> $@
 else
-	@echo "const BUILD_HELP = false" >> $@
+	@echo "const HELP = false" >> $@
 endif
 ifeq ($(BUILD_TEST), 1)
-	@echo "const BUILD_TEST = true" >> $@
+	@echo "const TEST = true" >> $@
 else
-	@echo "const BUILD_TEST = false" >> $@
+	@echo "const TEST = false" >> $@
 endif
 ifeq ($(BUILD_FLOAT16), 1)
-	@echo "const BUILD_FLOAT16 = true" >> $@
+	@echo "const FLOAT16 = true" >> $@
 else
-	@echo "const BUILD_FLOAT16 = false" >> $@
+	@echo "const FLOAT16 = false" >> $@
 endif
 ifeq ($(BUILD_LINALG), 1)
-	@echo "const BUILD_LINALG = true" >> $@
+	@echo "const LINALG = true" >> $@
 else
-	@echo "const BUILD_LINALG = false" >> $@
+	@echo "const LINALG = false" >> $@
 endif
 ifeq ($(BUILD_REPL), 1)
-	@echo "const BUILD_REPL = true" >> $@
+	@echo "const REPL = true" >> $@
 else
-	@echo "const BUILD_REPL = false" >> $@
+	@echo "const REPL = false" >> $@
 endif
+	@echo "end # baremodule" >> $@
+	@echo "export Build" >> $@
+
 	@echo "const libfftw_name = \"$(LIBFFTWNAME)\"" >> $@
 	@echo "const libfftwf_name = \"$(LIBFFTWFNAME)\"" >> $@
 	@echo "const libllvm_version = \"$$($(LLVM_CONFIG_HOST) --version)\"" >> $@

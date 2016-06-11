@@ -80,7 +80,7 @@ for arr in (identity, as_sub)
     @test A == fill(7, 2, 2)
     A = arr(zeros(3,3))
     broadcast_setindex!(A, 10:12, 1:3, 1:3)
-    Base.BUILD_LINALG && @test A == diagm(10:12)
+    Build.LINALG && @test A == diagm(10:12)
     @test_throws BoundsError broadcast_setindex!(A, 7, [1,-1], [1 2])
 
     for (f, ewf) in (((==), (.==)),
@@ -128,7 +128,7 @@ let x = [1,3.2,4.7], y = [3.5, pi, 1e-4], α = 0.2342
     @test atan2.(α, y') == broadcast(atan2, α, y')
 end
 
-@static if Base.BUILD_RATIONAL
+@static if Build.RATIONAL
 # issue 14725
 let a = Number[2, 2.0, 4//2, 2+0im] / 2
     @test eltype(a) == Number

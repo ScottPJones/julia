@@ -1,6 +1,6 @@
 # This file is a part of Julia. License is MIT: http://julialang.org/license
 
-if Base.BUILD_BIGINT # SPJ!!! Could some of these be rewritten not to use BigInt?
+if Build.BIGINT # SPJ!!! Could some of these be rewritten not to use BigInt?
 @test muladd(big(1),2,3) == big(1)*2+3
 @test muladd(big(1//1),2,3) == big(1//1)*2+3
 @test muladd(big(1.0),2,3) == big(1.0)*2+3
@@ -247,7 +247,7 @@ end
 @test typeof(widemul(UInt128(1),Int128(1))) == BigInt
 end
 
-if Base.BUILD_BIGFLT
+if Build.BIGFLT
 # issue 3412
 @test convert(Rational,zero(BigFloat)) == 0
 @test convert(Rational,-zero(BigFloat)) == 0
@@ -276,7 +276,7 @@ let x = big(-0.0)
     @test signbit(x) && !signbit(abs(x))
 end
 
-if Base.BUILD_BIGINT
+if Build.BIGINT
 @test rationalize(BigInt,nextfloat(parse(BigFloat,"0.1")),tol=1.5eps(big(0.1))) == 1//10
 @test rationalize(BigInt,prevfloat(parse(BigFloat,"0.1"))) == 1//10
 @test rationalize(BigInt,nextfloat(parse(BigFloat,"0.1")),tol=0) == 46316835694926478169428394003475163141307993866256225615783033603165251855975//463168356949264781694283940034751631413079938662562256157830336031652518559744

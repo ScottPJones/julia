@@ -22,7 +22,7 @@ lgamma_r(x::Number) = lgamma(x), 1 # lgamma does not take abs for non-real x
 lfact(x::Real) = (x<=1 ? zero(float(x)) : lgamma(x+one(x)))
 @vectorize_1arg Number lfact
 
-if Base.BUILD_COMPLEX
+@static if Build.COMPLEX
 const clg_coeff = [76.18009172947146,
                    -86.50532032941677,
                    24.01409824083091,
@@ -223,7 +223,7 @@ macro pg_horner(x, m, p...)
     :(($me + 1) * ($(p[1]) + $xe * $ex))
 end
 
-if Base.BUILD_COMPLEX
+@static if Build.COMPLEX
 # compute oftype(x, y)^p efficiently, choosing the correct branch cut
 pow_oftype(x, y, p) = oftype(x, y)^p
 pow_oftype(x::Complex, y::Real, p::Complex) = oftype(x, y^p)
@@ -397,7 +397,7 @@ end
 f64(x::Real) = Float64(x)
 f32(x::Real) = Float32(x)
 f16(x::Real) = Float16(x)
-if Base.BUILD_COMPLEX
+@static if Build.COMPLEX
 f64(z::Complex) = Complex128(z)
 f32(z::Complex) = Complex64(z)
 f16(z::Complex) = Complex32(z)
@@ -469,7 +469,7 @@ lbeta(x::Number, w::Number) = lgamma(x)+lgamma(w)-lgamma(x+w)
 
 # Riemann zeta function; algorithm is based on specializing the Hurwitz
 # zeta function above for z==1.
-Base.BUILD_COMPLEX &&
+Build.COMPLEX &&
 function zeta(s::Union{Float64,Complex{Float64}})
     # blows up to ±Inf, but get correct sign of imaginary zero
     s == 1 && return NaN + zero(s) * imag(s)
@@ -517,10 +517,10 @@ end
 
 zeta(x::Integer) = zeta(Float64(x))
 zeta(x::Real)    = oftype(float(x),zeta(Float64(x)))
-Base.BUILD_COMPLEX && (zeta(z::Complex) = oftype(float(z),zeta(Complex128(z))))
+Build.COMPLEX && (zeta(z::Complex) = oftype(float(z),zeta(Complex128(z))))
 @vectorize_1arg Number zeta
 
-Base.BUILD_COMPLEX &&
+Build.COMPLEX &&
 function eta(z::Union{Float64,Complex{Float64}})
     δz = 1 - z
     if abs(real(δz)) + abs(imag(δz)) < 7e-3 # Taylor expand around z==1
@@ -537,5 +537,5 @@ function eta(z::Union{Float64,Complex{Float64}})
 end
 eta(x::Integer) = eta(Float64(x))
 eta(x::Real)    = oftype(float(x),eta(Float64(x)))
-Base.BUILD_COMPLEX && (eta(z::Complex) = oftype(float(z),eta(Complex128(z))))
+Build.COMPLEX && (eta(z::Complex) = oftype(float(z),eta(Complex128(z))))
 @vectorize_1arg Number eta

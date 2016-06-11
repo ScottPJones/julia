@@ -233,7 +233,7 @@ sp = pointer(s)
 @test isnull(tryparse(Float32, "32o"))
 
 numtypes = [Int8, UInt8, Int16, UInt16, Int32, UInt32, Int64, UInt64, Int128, UInt128]
-Base.BUILD_BIGINT && push!(numtypes, BigInt)
+Build.BIGINT && push!(numtypes, BigInt)
 
 # issue #10994: handle embedded NUL chars for string parsing
 for T in numtypes

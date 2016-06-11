@@ -14,8 +14,8 @@ end
 @test sprint(io -> show(io,complex(true,true))) == "Complex(true,true)"
 
 flttypes = [Float32, Float64]
-Base.BUILD_FLOAT16 && push!(flttypes, Float16)
-Base.BUILD_BIGFLT && push!(flttypes, BigFloat)
+Build.FLOAT16 && push!(flttypes, Float16)
+Build.BIGFLT && push!(flttypes, BigFloat)
 
 # Basic arithmetic
 for T in flttypes
@@ -73,7 +73,7 @@ for T in (Float32, Float64)
     y = Complex{T}(1//2 + 1//5*im)
     yi = 4
     # Test random values
-    if Base.BUILD_BIGFLT # SPJ!!! Can this be changed to not be dependent on BigFloat?
+    if Build.BIGFLT # SPJ!!! Can this be changed to not be dependent on BigFloat?
     @test_approx_eq x^y big(x)^big(y)
     @test_approx_eq x^yi big(x)^yi
     @test_approx_eq x^true big(x)^true
@@ -807,7 +807,7 @@ harddivs = ((1.0+im*1.0, 1.0+im*2^1023.0, 2^-1023.0-im*2^-1023.0), #1
       (2^-622.0+im*2^-1071., 2^-343.0+im*2^-798.0, z10)#10
       )
 
-if Base.BUILD_BIGFLT # SPJ!!! Can this be done without depending on BigFloat?
+if Build.BIGFLT # SPJ!!! Can this be done without depending on BigFloat?
 # calculate "accurate bits" in range 0:53 by algorithm given in arxiv.1210.4539
 function sb_accuracy(x,expected)
   min(logacc(real(x),real(expected)),
@@ -900,7 +900,7 @@ end
 @test round(float(Complex(π, e)),3) == Complex(3.142, 2.718)
 
 # Complex32 arithmetic #10003
-if Base.BUILD_FLOAT16
+if Build.FLOAT16
     @test Float16(1)+Float16(1)im === Complex32(1, 1)
     @test Float16(1)-Float16(1)im === Float16(1)+Float16(-1)im === Complex32(1, -1)
     @test Float16(1)*im === Complex32(im)

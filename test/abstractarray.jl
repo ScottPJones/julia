@@ -410,7 +410,7 @@ Base.iteratorsize{N}(::Type{GenericIterator{N}}) = Base.SizeUnknown()
 numtypes = [Float32, Float64,
             Int8, Int16, Int32, Int64, Int128,
             UInt8, UInt16, UInt32, UInt64, UInt128]
-Base.BUILD_FLOAT16 && push!(numtypes, Float16)
+Build.FLOAT16 && push!(numtypes, Float16)
 
 function test_map(::Type{TestAbstractArray})
     empty_pool = WorkerPool()
@@ -451,7 +451,7 @@ function test_map(::Type{TestAbstractArray})
 
         @test map!(f, A, B, C, D) == Int[ 3 * i for i in 1:10 ]
         @test mapf(f, B, C, D) == Float64[ 3 * i for i in 1:10 ]
-        Base.BUILD_COMPLEX && @test mapf(f, Int[], Int[], Complex{Int}[]) == Union{}[]
+        Build.COMPLEX && @test mapf(f, Int[], Int[], Complex{Int}[]) == Union{}[]
     end
 
     # In-place map

@@ -31,7 +31,7 @@ momenttype{T}(::Type{T}) = typeof((zero(T) + zero(T)) / 2)
 momenttype(::Type{Float32}) = Float32
 momenttype{T<:Union{Float64,Int32,Int64,UInt32,UInt64}}(::Type{T}) = Float64
 
-if Base.BUILD_LINALG
+@static if Build.LINALG
 mean{T}(A::AbstractArray{T}, region) =
     mean!(reducedim_initarray(A, region, 0, momenttype(T)), A)
 

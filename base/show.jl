@@ -1159,7 +1159,7 @@ function alignment(io::IO, x::Real)
                    (length(m.captures[1]), length(m.captures[2]))
 end
 
-if Base.BUILD_COMPLEX
+if Build.COMPLEX
 "`alignment(1 + 10im)` yields (3,5) for `1 +` and `_10im` (plus sign on left, space on right)"
 function alignment(io::IO, x::Complex)
     m = match(r"^(.*[\+\-])(.*)$", sprint(0, show, x, env=io))
@@ -1167,7 +1167,7 @@ function alignment(io::IO, x::Complex)
                    (length(m.captures[1]), length(m.captures[2]))
 end
 end
-if Base.BUILD_RATIONAL
+if Build.RATIONAL
 function alignment(io::IO, x::Rational)
     m = match(r"^(.*?/)(/.*)$", sprint(0, show, x, env=io))
     m === nothing ? (length(sprint(0, show, x, env=io)), 0) :

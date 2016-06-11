@@ -1278,7 +1278,7 @@ fill!(buffer,0);
 map(x->Grisu.Bignums.zero!(x),bignums)
 
 #Float16
-if Base.BUILD_FLOAT16
+if Build.FLOAT16
 min_double = realmin(Float16)
 status,len,point = Grisu.fastshortest(min_double,buffer)
 @test status

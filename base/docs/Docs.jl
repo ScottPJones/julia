@@ -363,7 +363,7 @@ function summarize(io::IO, T::DataType, binding)
     end
 end
 
-if Base.BUILD_PKG
+@static if Build.PKG
 function summarize(io::IO, m::Module, binding)
         readme = Pkg.dir(string(m), "README.md")
         if isfile(readme)

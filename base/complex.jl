@@ -769,10 +769,10 @@ float{T<:AbstractFloat}(z::Complex{T}) = z
 float(z::Complex) = Complex(float(real(z)), float(imag(z)))
 @vectorize_1arg Complex float
 
-if BUILD_BIGFLT
+@static if Build.BIGFLT
     big{T<:AbstractFloat}(z::Complex{T}) = Complex{BigFloat}(z)
 end
-if BUILD_BIGINT
+@static if Build.BIGINT
     big{T<:Integer}(z::Complex{T}) = Complex{BigInt}(z)
 end
 
@@ -787,11 +787,11 @@ function complex{T}(A::AbstractArray{T})
     convert(AbstractArray{typeof(complex(zero(T)))}, A)
 end
 
-if BUILD_BIGINT
+@static if Build.BIGINT
     big{T<:Integer,N}(A::AbstractArray{Complex{T},N}) =
         convert(AbstractArray{Complex{BigInt},N}, A)
 end
-if BUILD_BIGFLT
+@static if Build.BIGFLT
     big{T<:AbstractFloat,N}(A::AbstractArray{Complex{T},N}) =
         convert(AbstractArray{Complex{BigFloat},N}, A)
 end

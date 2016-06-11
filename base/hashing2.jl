@@ -13,7 +13,7 @@ function hash_integer(n::Integer, h::UInt)
     return h
 end
 
-BUILD_BIGINT &&
+@static if Build.BIGINT
 function hash_integer(n::BigInt, h::UInt)
     s = n.size
     s == 0 && return hash_integer(0, h)
@@ -24,6 +24,7 @@ function hash_integer(n::BigInt, h::UInt)
         h = hash_uint(unsafe_load(p, k) $ h) $ h
     end
     return h
+end
 end
 
 ## generic hashing for rational values ##
@@ -95,7 +96,7 @@ Special values:
 =#
 
 decompose(x::Integer) = x, 0, 1
-if BUILD_RATIONAL
+@static if Build.RATIONAL
     decompose(x::Rational) = num(x), 0, den(x)
 end
 
@@ -132,7 +133,7 @@ function decompose(x::Float64)
     s, Int(e - 1075 + (e == 0)), d
 end
 
-BUILD_BIGFLT && BUILD_BIGINT &&
+@static if (Build.BIGFLT & Build.BIGINT)
 function decompose(x::BigFloat)
     isnan(x) && return big(0), 0, 0
     isinf(x) && return big(x.sign), 0, 0
@@ -144,10 +145,11 @@ function decompose(x::BigFloat)
     ccall(:memcpy, Ptr{Void}, (Ptr{Void}, Ptr{Void}, Csize_t), s.d, x.d, b) # bytes
     s, Int(x.exp - 8b), Int(x.sign)
 end
+end
 
 ## streamlined hashing for smallish rational types ##
 
-BUILD_RATIONAL &&
+@static if Build.RATIONAL
 function hash{T<:BitInteger64}(x::Rational{T}, h::UInt)
     num, den = Base.num(x), Base.den(x)
     den == 1 && return hash(num, h)
@@ -168,10 +170,11 @@ function hash{T<:BitInteger64}(x::Rational{T}, h::UInt)
     h = hash_integer(num, h)
     return h
 end
+end
 
 ## hashing Float16s ##
 
-BUILD_FLOAT16 && (hash(x::Float16, h::UInt) = hash(Float64(x), h))
+Build.FLOAT16 && (hash(x::Float16, h::UInt) = hash(Float64(x), h))
 
 ## hashing strings ##
 

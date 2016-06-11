@@ -586,7 +586,7 @@ function airyx end
 
 # More special functions
 include("special/trig.jl")
-Base.BUILD_COMPLEX && include("special/bessel.jl")
+Build.COMPLEX && include("special/bessel.jl")
 include("special/erf.jl")
 include("special/gamma.jl")
 

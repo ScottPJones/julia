@@ -57,9 +57,6 @@ USEIFC  ?= 0
 
 JULIA_THREADS := 1 # Enable threading with one thread
 
-# Set to 1 to build a "lite" version of Julia
-BUILD_LITE ?= 0
-
 ifeq ($(USE_MKL), 1)
 $(warning "The julia make variable USE_MKL has been renamed to USE_INTEL_MKL")
 USE_INTEL_MKL := 1

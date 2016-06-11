@@ -131,7 +131,7 @@ let exename = `$(Base.julia_cmd()) --precompiled=yes`
     # check-bounds takes yes/no as argument
     @test !success(`$exename -E "exit(0)" --check-bounds=false`)
 
-if Base.BUILD_FULL
+if Build.FULL
     # --depwarn
     @test readchomp(`$exename --depwarn=no -E "Base.syntax_deprecation_warnings(true)"`) == "false"
     @test readchomp(`$exename --depwarn=yes -E "Base.syntax_deprecation_warnings(false)"`) == "true"

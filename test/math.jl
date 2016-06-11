@@ -15,11 +15,11 @@
 @test clamp([0, 1, 2, 3, 4], 1.0, 3.0) == [1.0, 1.0, 2.0, 3.0, 3.0]
 @test clamp([0 1; 2 3], 1.0, 3.0) == [1.0 1.0; 2.0 3.0]
 
-if Base.BUILD_RATIONAL
+if Build.RATIONAL
     @test !(e == 1//2)
     @test 1//2 <= e
-    Base.BUILD_BIGINT && @test big(1//2) < e
-    Base.BUILD_BIGINT && @test e < big(20//6)
+    Build.BIGINT && @test big(1//2) < e
+    Build.BIGINT && @test e < big(20//6)
     @test e^(2//3) == exp(2//3)
 end
 @test !(pi == e)
@@ -27,8 +27,8 @@ end
 @test e^2 == exp(2)
 @test e^2.4 == exp(2.4)
 
-Base.BUILD_FLOAT16 && @test Float16(3.) < pi
-Base.BUILD_FLOAT16 && @test pi < Float16(4.)
+Build.FLOAT16 && @test Float16(3.) < pi
+Build.FLOAT16 && @test pi < Float16(4.)
 @test contains(sprint(show,π),"3.14159")
 
 begin
@@ -37,7 +37,7 @@ begin
     @test x == [1.0, 1.0, 2.0, 3.0, 3.0]
 end
 
-if Base.BUILD_FLOAT16
+if Build.FLOAT16
     flttypes = (Float16,Float32,Float64)
 else
     flttypes = (Float32,Float64)
@@ -83,7 +83,7 @@ for T in (Float32, Float64)
     y = T(0.5)  # T(1//2)
     yi = 4
     # Test random values
-    if Base.BUILD_BIGFLT # SPJ!!! Can this be done without depending on BigFloat?
+    if Build.BIGFLT # SPJ!!! Can this be done without depending on BigFloat?
     @test_approx_eq x^y big(x)^big(y)
     @test_approx_eq x^yi big(x)^yi
     @test_approx_eq acos(x) acos(big(x))
@@ -115,7 +115,7 @@ for T in (Float32, Float64)
     end
 
     # Test special values
-    if Base.BUILD_RATIONAL
+    if Build.RATIONAL
         @test isequal(T(1//4)^T(1//2), T(1//2))
         @test isequal(T(1//4)^2, T(1//16))
     end
@@ -202,10 +202,10 @@ for T in (Float32, Float64)
     @test isnan(hypot(T(x), T(NaN)))
 end
 @test_approx_eq exp10(5) exp10(5.0)
-Base.BUILD_FLOAT16 && (@test_approx_eq exp2(Float16(2.)) exp2(2.))
+Build.FLOAT16 && (@test_approx_eq exp2(Float16(2.)) exp2(2.))
 @test log(e) == 1
 
-for T in (Base.BUILD_BIGFLT ? (Int, Float64, BigFloat) : (Int, Float64))
+for T in (Build.BIGFLT ? (Int, Float64, BigFloat) : (Int, Float64))
     @test_approx_eq deg2rad(T(180)) 1pi
     @test_approx_eq deg2rad(T[45, 60]) [pi/T(4), pi/T(3)]
     @test_approx_eq rad2deg([pi/T(4), pi/T(3)]) [45, 60]
@@ -215,7 +215,7 @@ for T in (Base.BUILD_BIGFLT ? (Int, Float64, BigFloat) : (Int, Float64))
 end
 
 # degree-based trig functions
-if Base.BUILD_RATIONAL
+if Build.RATIONAL
     testtypes = (Float32,Float64,Rational{Int})
 else
     testtypes = (Float32,Float64)
@@ -275,35 +275,35 @@ end
 @test cospi(2) == 1
 
 @test sinc(1) == 0
-Base.BUILD_COMPLEX && (@test sinc(complex(1,0)) == 0)
+Build.COMPLEX && (@test sinc(complex(1,0)) == 0)
 @test sinc(0) == 1
 @test sinc(Inf) == 0
 @test cosc(1) == -1
 @test cosc(0) == 0
-Base.BUILD_COMPLEX && (@test cosc(complex(1,0)) == -1)
+Build.COMPLEX && (@test cosc(complex(1,0)) == -1)
 @test cosc(Inf) == 0
 
 # check type stability
-for T = (Base.BUILD_BIGFLT ? (Float32, Float64, BigFloat) : (Float32, Float64))
+for T = (Build.BIGFLT ? (Float32, Float64, BigFloat) : (Float32, Float64))
     for f = (sind,cosd,sinpi,cospi)
         @test Base.return_types(f,Tuple{T}) == [T]
     end
 end
 
 # error functions
-Base.BUILD_FLOAT16 && (@test_approx_eq erf(Float16(1)) 0.84270079294971486934)
+Build.FLOAT16 && (@test_approx_eq erf(Float16(1)) 0.84270079294971486934)
 @test_approx_eq erf(1) 0.84270079294971486934
 @test_approx_eq erfc(1) 0.15729920705028513066
-Base.BUILD_FLOAT16 && (@test_approx_eq erfc(Float16(1)) 0.15729920705028513066)
+Build.FLOAT16 && (@test_approx_eq erfc(Float16(1)) 0.15729920705028513066)
 @test_approx_eq erfcx(1) 0.42758357615580700442
 @test_approx_eq erfcx(Float32(1)) 0.42758357615580700442
-Base.BUILD_COMPLEX && (@test_approx_eq erfcx(Complex64(1)) 0.42758357615580700442)
+Build.COMPLEX && (@test_approx_eq erfcx(Complex64(1)) 0.42758357615580700442)
 @test_approx_eq erfi(1) 1.6504257587975428760
 @test_approx_eq erfinv(0.84270079294971486934) 1
 @test_approx_eq erfcinv(0.15729920705028513066) 1
 @test_approx_eq dawson(1) 0.53807950691276841914
 
-if Base.BUILD_COMPLEX
+if Build.COMPLEX
 @test_approx_eq erf(1+2im) -0.53664356577856503399-5.0491437034470346695im
 @test_approx_eq erfc(1+2im) 1.5366435657785650340+5.0491437034470346695im
 @test_approx_eq erfcx(1+2im) 0.14023958136627794370-0.22221344017989910261im
@@ -334,9 +334,9 @@ end
 @test erfinv(one(Int)) == erfinv(1.0)
 @test erfcinv(one(Int)) == erfcinv(1.0)
 
-if Base.BUILD_COMPLEX
+if Build.COMPLEX
 const complextypes =
-    (Base.BUILD_BIGFLT ? (Complex64, Complex128, Complex{BigFloat}):(Complex64, Complex128))
+    (Build.BIGFLT ? (Complex64, Complex128, Complex{BigFloat}):(Complex64, Complex128))
 
 # airy
 @test_approx_eq airy(1.8) airyai(1.8)
@@ -443,8 +443,8 @@ j43 = besselj(4,3.)
 @test_approx_eq besselj(3.2, 1.3+0.6im) 0.01135309305831220201 + 0.03927719044393515275im
 @test_approx_eq besselj(1, 3im) 3.953370217402609396im
 @test_approx_eq besselj(1.0,3im) besselj(1,3im)
-Base.BUILD_BIGFLT && @test besselj(big(1.0),3im) ≈ besselj(1,3im)
-Base.BUILD_BIGFLT &&
+Build.BIGFLT && @test besselj(big(1.0),3im) ≈ besselj(1,3im)
+Build.BIGFLT &&
     @test besselj(big(0.1), complex(-0.4)) ≈ 0.820421842809028916 + 0.266571215948350899im
 @test_throws Base.Math.AmosException besselj(20,1000im)
 @test_throws MethodError besselj(big(1.0),3im)
@@ -530,11 +530,11 @@ end
 @test_approx_eq beta(3,5) 1/105
 @test_approx_eq lbeta(5,4) log(beta(5,4))
 @test_approx_eq beta(5,4) beta(4,5)
-Base.BUILD_FULL && @test beta(-1/2, 3) ≈ beta(-1/2 + 0im, 3 + 0im) ≈ -16/3
+Build.FULL && @test beta(-1/2, 3) ≈ beta(-1/2 + 0im, 3 + 0im) ≈ -16/3
 @test_approx_eq lbeta(-1/2, 3) log(16/3)
 @test beta(Float32(5),Float32(4)) == beta(Float32(4),Float32(5))
-Base.BUILD_FULL && @test beta(3,5) ≈ beta(3+0im,5+0im)
-Base.BUILD_FULL && @test(beta(3.2+0.1im,5.3+0.3im) ≈ exp(lbeta(3.2+0.1im,5.3+0.3im)) ≈
+Build.FULL && @test beta(3,5) ≈ beta(3+0im,5+0im)
+Build.FULL && @test(beta(3.2+0.1im,5.3+0.3im) ≈ exp(lbeta(3.2+0.1im,5.3+0.3im)) ≈
       0.00634645247782269506319336871208405439180447035257028310080 -
       0.00169495384841964531409376316336552555952269360134349446910im)
 end
@@ -550,7 +550,7 @@ for elty in (Float32, Float64)
     @test_approx_eq gamma(convert(elty,-1/2)) convert(elty,-2sqrt(π))
     @test_approx_eq lgamma(convert(elty,-1/2)) convert(elty,log(abs(gamma(-1/2))))
 end
-if Base.BUILD_BIGFLT
+if Build.BIGFLT
     @test_approx_eq lgamma(1.4+3.7im) -3.7094025330996841898 + 2.4568090502768651184im
     @test_approx_eq lgamma(1.4+3.7im) log(gamma(1.4+3.7im))
     @test_approx_eq lgamma(-4.2+0im) lgamma(-4.2)-pi*im
@@ -562,7 +562,7 @@ end
 @test lfact(1) == 0
 @test lfact(2) == lgamma(3)
 
-if Base.BUILD_COMPLEX
+if Build.COMPLEX
 # digamma
 for elty in (Float32, Float64)
 
@@ -609,12 +609,12 @@ end
 @test abs(invdigamma(2)) == abs(invdigamma(2.))
 
 @test_approx_eq polygamma(20, 7.) -4.644616027240543262561198814998587152547
-Base.BUILD_FLOAT16 &&
+Build.FLOAT16 &&
     (@test_approx_eq polygamma(20, Float16(7.)) -4.644616027240543262561198814998587152547)
 end
 
 # eta, zeta
-if Base.BUILD_COMPLEX
+if Build.COMPLEX
 @test_approx_eq eta(1) log(2)
 @test_approx_eq eta(2) pi^2/12
 @test_approx_eq eta(Float32(2)) eta(2)
@@ -622,7 +622,7 @@ if Base.BUILD_COMPLEX
 @test_approx_eq zeta(2) pi^2/6
 @test_approx_eq zeta(4) pi^4/90
 @test_approx_eq zeta(one(Float32)) Float32(zeta(one(Float64)))
-if Base.BUILD_FLOAT16
+if Build.FLOAT16
     @test_approx_eq zeta(1,Float16(2.)) zeta(1,2.)
     @test_approx_eq zeta(1.,Float16(2.)) zeta(1,2.)
     @test_approx_eq zeta(Float16(1.),Float16(2.)) zeta(1,2.)
@@ -634,7 +634,7 @@ end
     @test isnan(zeta(complex(-Inf,0)))
 end
 
-if Base.BUILD_FULL
+if Build.FULL
 # quadgk
 @test_approx_eq quadgk(cos, 0,0.7,1)[1] sin(1)
 @test_approx_eq quadgk(x -> exp(im*x), 0,0.7,1)[1] (exp(1im)-1)/im
@@ -659,7 +659,7 @@ err(z, x) = z == x ? 0.0 : abs(z - x) / abs(x)
 errc(z, x) = max(err(real(z),real(x)), err(imag(z),imag(x)))
 ≅(a,b) = errc(a,b) ≤ 1e-13
 
-if Base.BUILD_COMPLEX
+if Build.COMPLEX
 for x in -10.2:0.3456:50
     @test 1e-12 > err(digamma(x+0im), digamma(x))
 end
@@ -774,7 +774,7 @@ end
 # log/log1p
 # if using Tang's algorithm, should be accurate to within 0.56 ulps
 X = rand(100)
-Base.BUILD_BIGFLT && for x in X
+Build.BIGFLT && for x in X
     for n = -5:5
         xn = ldexp(x,n)
 
@@ -801,7 +801,7 @@ end
 for n = 0:28
     @test log(2,2^n) == n
 end
-Base.BUILD_BIGINT && setprecision(10_000) do
+Build.BIGINT && setprecision(10_000) do
     @test log(2,big(2)^100) == 100
     @test log(2,big(2)^200) == 200
     @test log(2,big(2)^300) == 300
@@ -818,7 +818,7 @@ for T in (Float32,Float64)
 end
 # test vectorization of 2-arg vectorized functions
 binary_math_functions = [ copysign, flipsign, log, atan2, hypot, max, min ]
-if Base.BUILD_COMPLEX
+if Build.COMPLEX
     push!(binary_math_functions, airy, airyx, besselh, hankelh1, hankelh2, hankelh1x, hankelh2x,
           besseli, besselix, besselj, besseljx, besselk, besselkx, bessely, besselyx,
           polygamma, zeta, beta, lbeta)
@@ -838,11 +838,11 @@ end
 @test_throws DomainError (-2.0)^(2.2)
 
 # issue #13748
-Base.BUILD_LINALG && let A = [1 2; 3 4]; B = [5 6; 7 8]; C = [9 10; 11 12]
+Build.LINALG && let A = [1 2; 3 4]; B = [5 6; 7 8]; C = [9 10; 11 12]
     @test muladd(A,B,C) == A*B + C
 end
 
-if Base.BUILD_COMPLEX
+if Build.COMPLEX
     @test Base.Math.f32(complex(1.0,1.0)) == complex(Float32(1.),Float32(1.))
-    Base.BUILD_FLOAT16 && @test Base.Math.f16(complex(1.0,1.0)) == complex(Float16(1.),Float16(1.))
+    Build.FLOAT16 && @test Base.Math.f16(complex(1.0,1.0)) == complex(Float16(1.),Float16(1.))
 end

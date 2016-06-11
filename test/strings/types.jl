@@ -45,7 +45,7 @@ ss=SubString(str2,1,4)  #empty source string
 ss=SubString(str2,1,1)  #empty source string, identical start and end index
 @test length(ss)==0
 
-Base.BUILD_BIGINT && @test SubString("foobar",big(1),big(3)) == "foo"
+Build.BIGINT && @test SubString("foobar",big(1),big(3)) == "foo"
 
 str = "aa\u2200\u2222bb"
 u = SubString(str, 3, 6)

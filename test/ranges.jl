@@ -425,7 +425,7 @@ end
 @test length(typemin(Int64):3:typemax(Int64)) == 6148914691236517206
 @test length(typemax(Int64):-3:typemin(Int64)) == 6148914691236517206
 
-Base.BUILD_BIGINT && for s in 3:100
+Build.BIGINT && for s in 3:100
     @test length(typemin(Int):s:typemax(Int)) == length(big(typemin(Int)):big(s):big(typemax(Int)))
     @test length(typemax(Int):-s:typemin(Int)) == length(big(typemax(Int)):big(-s):big(typemin(Int)))
 end
@@ -472,7 +472,7 @@ r7484 = 0.1:0.1:1
 @test [reverse(r7484);] == reverse([r7484;])
 
 # issue #7387
-Base.BUILD_COMPLEX &&
+Build.COMPLEX &&
 for r in (0:1, 0.0:1.0)
     @test r+im == [r;]+im
     @test r-im == [r;]-im
@@ -504,7 +504,7 @@ let smallint = (Int === Int64 ?
 end
 
 # issue #8584
-Base.BUILD_RATIONAL && @test (0:1//2:2)[1:2:3] == 0:1//1:1
+Build.RATIONAL && @test (0:1//2:2)[1:2:3] == 0:1//1:1
 
 # issue #12278
 @test length(1:UInt(0)) == 0
@@ -520,7 +520,7 @@ for (thisx, thisy) in zip(x, y)
 end
 end
 
-if Base.BUILD_RATIONAL
+if Build.RATIONAL
 # issue #9962
 @test eltype(0:1//3:10) <: Rational
 @test (0:1//3:10)[1] == 0
@@ -561,7 +561,7 @@ let io = IOBuffer()
 end
 
 # issue 10950
-if Base.BUILD_RATIONAL
+if Build.RATIONAL
     r = 1//2:3
     @test length(r) == 3
     i = 1
@@ -652,7 +652,7 @@ test_linspace_identity(linspace(1f0, 1f0, 1), linspace(-1f0, -1f0, 1))
     reverse([linspace(1.0, 27.0, 1275);])
 
 # PR 12200 and related
-Base.BUILD_BIGFLT && Base.BUILD_BIGINT &&
+Build.BIGFLT && Build.BIGINT &&
     for _r in (1:2:100, 1:100, 1f0:2f0:100f0, 1.0:2.0:100.0,
            linspace(1, 100, 10), linspace(1f0, 100f0, 10))
     float_r = float(_r)
@@ -712,7 +712,7 @@ let r = 0x02:0x05
 end
 
 # Issue #13738
-Base.BUILD_BIGINT && for r in (big(1):big(2), UInt128(1):UInt128(2), 0x1:0x2)
+Build.BIGINT && for r in (big(1):big(2), UInt128(1):UInt128(2), 0x1:0x2)
     rr = r[r]
     @test typeof(rr) == typeof(r)
     @test r[r] == r

@@ -532,7 +532,7 @@ end
 #429: 98792821
 #430: 5000624921.38
 
-@static if Base.BUILD_BIGINT
+@static if Build.BIGINT
 #8: 40824
 function euler8(n,m)
     d = digits(n)

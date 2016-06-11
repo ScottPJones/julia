@@ -10,7 +10,7 @@
 @test isapprox(1.001, 1.002; rtol=0.001, atol=0.0001)
 @test !isapprox(4.5, 4.9; rtol=0.001, atol=0.001)
 
-if Base.BUILD_COMPLEX
+if Build.COMPLEX
     # Complex numbers
     @test 1.0 + 1.0im ≈ 1.0 + 1.00000000000001im
     @test 0.9999999999999 + 1.0im ≈ 1.0 + 1.000000000000001im
@@ -26,7 +26,7 @@ end
 @test 4.0 ≉ NaN
 @test NaN ≉ 4.0
 @test NaN ≉ NaN
-if Base.BUILD_COMPLEX
+if Build.COMPLEX
     @test complex(2.3,NaN) ≉ complex(NaN,2.3)
     @test complex(NaN,NaN) ≉ complex(NaN,NaN)
     @test complex(NaN,2.3) ≉ complex(NaN,2.3)
@@ -37,7 +37,7 @@ end
 @test Inf ≈ Inf
 @test Inf ≉ 1
 @test Inf ≉ -Inf
-if Base.BUILD_COMPLEX
+if Build.COMPLEX
     @test complex(0.0,Inf) ≈ complex(0.0,Inf)
     @test complex(0.0,Inf) ≉ complex(0.0,-Inf)
 end
@@ -48,7 +48,7 @@ end
 @test !isapprox(4,6; atol=1)
 @test !isapprox(4,5)
 
-if Base.BUILD_RATIONAL && Base.BUILD_COMPLEX
+if Build.RATIONAL && Build.COMPLEX
     @test isapprox(1//2+3im, 1//2+3im)
     @test isapprox(1//3, 0.33333333333333333)
     @test isapprox(1//3, 0.3333; rtol=0.0001, atol=0.0001)
@@ -63,7 +63,7 @@ end
 @test !isapprox(1e17, 1)
 
 # Tests for arrays:
-if Base.BUILD_LINALG
+if Build.LINALG
 @test [1,2,3] ≈ [1,2,3+1e-9]
 @test [0,1] ≈ [1e-9, 1]
 @test [0,Inf] ≈ [0,Inf]

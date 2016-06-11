@@ -223,7 +223,7 @@ function versioninfo(io::IO=STDOUT, verbose::Bool=false)
         Sys.cpu_summary(io)
         println(io          )
     end
-    @static if Base.BUILD_LINALG
+    @static if Build.LINALG
         if Base.libblas_name == "libopenblas" ||
            BLAS.vendor() == :openblas || BLAS.vendor() == :openblas64
             openblas_config = BLAS.openblas_get_config()

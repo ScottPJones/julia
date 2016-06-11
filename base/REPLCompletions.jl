@@ -434,7 +434,7 @@ function completions(string, pos)
         # also search for packages
         s = string[startpos:pos]
         if dotpos <= startpos
-            paths = Base.BUILD_PKG ? [Pkg.dir(); LOAD_PATH; pwd()] : [LOAD_PATH; pwd()]
+            paths = @static Build.PKG ? [Pkg.dir(); LOAD_PATH; pwd()] : [LOAD_PATH; pwd()]
             for dir in paths
                 isdir(dir) || continue
                 for pname in readdir(dir)

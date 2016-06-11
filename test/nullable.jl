@@ -14,7 +14,7 @@ types = [
     UInt64,
     UInt8,
 ]
-Base.BUILD_FLOAT16 && push!(types, Float16)
+Build.FLOAT16 && push!(types, Float16)
 
 # Nullable{T}() = new(true)
 for T in types
@@ -90,7 +90,7 @@ p1s = [
     "Nullable{UInt64}()",
     "Nullable{UInt8}()",
 ]
-Base.BUILD_FLOAT16 && push!(p1s, "Nullable{Float16}()")
+Build.FLOAT16 && push!(p1s, "Nullable{Float16}()")
 
 p2s = [
     "Nullable{Bool}(false)",
@@ -107,7 +107,7 @@ p2s = [
     "Nullable{UInt64}(0x0000000000000000)",
     "Nullable{UInt8}(0x00)",
 ]
-Base.BUILD_FLOAT16 && push!(p2s, "Nullable{Float16}(Float16(0.0))")
+Build.FLOAT16 && push!(p2s, "Nullable{Float16}(Float16(0.0))")
 
 p3s = [
     "Nullable{Bool}(true)",
@@ -124,7 +124,7 @@ p3s = [
     "Nullable{UInt64}(0x0000000000000001)",
     "Nullable{UInt8}(0x01)",
 ]
-Base.BUILD_FLOAT16 && push!(p3s, "Nullable{Float16}(Float16(1.0))")
+Build.FLOAT16 && push!(p3s, "Nullable{Float16}(Float16(1.0))")
 
 # show{T}(io::IO, x::Nullable{T})
 io1 = IOBuffer()
@@ -334,14 +334,14 @@ end
 @test promote_type(Nullable{Union{}}, Int) === Nullable{Int}
 @test promote_type(Nullable{Float64}, Nullable{Int}) === Nullable{Float64}
 @test promote_type(Nullable{Union{}}, Nullable{Int}) === Nullable{Int}
-Base.BUILD_DATES &&
+Build.DATES &&
 @test promote_type(Nullable{Date}, Nullable{DateTime}) === Nullable{DateTime}
 
 @test Base.promote_op(+, Nullable{Int}, Nullable{Int}) == Nullable{Int}
 @test Base.promote_op(-, Nullable{Int}, Nullable{Int}) == Nullable{Int}
 @test Base.promote_op(+, Nullable{Float64}, Nullable{Int}) == Nullable{Float64}
 @test Base.promote_op(-, Nullable{Float64}, Nullable{Int}) == Nullable{Float64}
-Base.BUILD_DATES &&
+Build.DATES &&
 @test Base.promote_op(-, Nullable{DateTime}, Nullable{DateTime}) == Nullable{Base.Dates.Millisecond}
 
 # issue #11675

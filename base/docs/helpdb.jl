@@ -2,6 +2,6 @@
 
 include("helpdb/Base.jl")
 include("helpdb/statistics.jl")
-BUILD_LINALG && include("helpdb/LinAlg.jl")
-BUILD_DATES  && include("helpdb/Dates.jl")
-BUILD_MMAP   && include("helpdb/Mmap.jl")
+@static if Build.LINALG ; include("helpdb/LinAlg.jl") ; end
+@static if Build.DATES ;  include("helpdb/Dates.jl") ; end
+@static if Build.MMAP ;   include("helpdb/Mmap.jl") ; end

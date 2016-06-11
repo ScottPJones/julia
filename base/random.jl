@@ -3,7 +3,7 @@
 module Random
 
 using Base.dSFMT
-if Base.BUILD_BIGINT || Base.BUILD_BIGFLT
+@static if (Build.BIGINT|Build.BIGFLT)
     using Base.GMP: GMP_VERSION, Limb
 end
 import Base.copymutable
@@ -231,7 +231,7 @@ rand_ui23_raw(r::MersenneTwister) = rand_ui52_raw(r)
 rand_ui10_raw(r::AbstractRNG)    = rand(r, UInt16)
 rand_ui23_raw(r::AbstractRNG)    = rand(r, UInt32)
 
-if Base.BUILD_FLOAT16
+@static if Build.FLOAT16
 rand(r::Union{RandomDevice,MersenneTwister}, ::Type{Float16}) =
     Float16(reinterpret(Float32, (rand_ui10_raw(r) % UInt32 << 13) & 0x007fe000 | 0x3f800000) - 1)
 end
@@ -266,7 +266,7 @@ rand(r::MersenneTwister, ::Type{Int128})  = reinterpret(Int128, rand(r, UInt128)
 
 ## random Complex values
 
-if Base.BUILD_COMPLEX
+@static if Build.COMPLEX
     rand{T<:Real}(r::AbstractRNG, ::Type{Complex{T}}) = complex(rand(r, T), rand(r, T))
 end
 
@@ -356,13 +356,12 @@ end
 # Break up parsing of UInt128 constants to avoid using BigInt
 @inline _rep32_128(v::UInt32) = UInt128(v)<<96 | UInt128(v)<<64 | UInt128(v)<<32 | v
 
-Base.BUILD_FLOAT16 &&
-@inline mask128(u::UInt128, ::Type{Float16}) =
-    (u & _rep32_128(0x03ff03ff)) | _rep32_128(0x3c003c00)
 @inline mask128(u::UInt128, ::Type{Float32}) =
     (u & _rep32_128(0x007fffff)) | _rep32_128(0x3f800000)
 
-if Base.BUILD_FLOAT16
+@static if Build.FLOAT16
+    @inline mask128(u::UInt128, ::Type{Float16}) =
+        (u & _rep32_128(0x03ff03ff)) | _rep32_128(0x3c003c00)
     typealias SmallFloats Union{Float16, Float32}
 else
     typealias SmallFloats Float32
@@ -488,7 +487,7 @@ for (T, U) in [(UInt8, UInt32), (UInt16, UInt32),
     end
 end
 
-if Base.BUILD_BIGINT
+@static if Build.BIGINT
 if GMP_VERSION.major >= 6
     immutable RangeGeneratorBigInt <: RangeGenerator
         a::BigInt             # first
@@ -545,7 +544,7 @@ function rand{T<:Integer, U<:Unsigned}(rng::AbstractRNG, g::RangeGeneratorInt{T,
     (unsigned(g.a) + rem_knuth(x, g.k)) % T
 end
 
-if Base.BUILD_BIGINT
+@static if Build.BIGINT
 if GMP_VERSION.major >= 6
     # mpz_limbs_write and mpz_limbs_finish are available only in GMP version 6
     function rand(rng::AbstractRNG, g::RangeGeneratorBigInt)
@@ -579,7 +578,7 @@ else
 end
 end
 
-if Base.BUILD_BIGINT
+@static if Build.BIGINT
     const _RandTypes = Union{Bool,Signed,Unsigned,BigInt}
     const _RandTypesC = Union{Bool,Char,Signed,Unsigned,BigInt}
 else

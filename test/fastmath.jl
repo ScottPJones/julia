@@ -47,7 +47,7 @@ let eps = 1.0/2^30, one_eps = 1+eps
                    2147483649/1152921504606846976)
 end
 
-flttypes = (Base.BUILD_BIGFLT ? (Float32, Float64, BigFloat) : (Float32, Float64))
+flttypes = (Build.BIGFLT ? (Float32, Float64, BigFloat) : (Float32, Float64))
 
 for T in flttypes
     zero = convert(T, 0)
@@ -79,7 +79,7 @@ for T in flttypes
 end
 
 const complextypes =
-    (Base.BUILD_BIGFLT ? (Complex64, Complex128, Complex{BigFloat}):(Complex64, Complex128))
+    (Build.BIGFLT ? (Complex64, Complex128, Complex{BigFloat}):(Complex64, Complex128))
 
 for T in complextypes
     zero = convert(T, 0)

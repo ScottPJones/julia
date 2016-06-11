@@ -1240,15 +1240,15 @@ export assert,
     @goto
 end
 
-if isdefined(Base, :BUILD_FULL)
-BUILD_BIGFLT && export BigFloat
-BUILD_BIGINT && export BigInt
+if isdefined(Base, :Build) && isdefined(Build, :FULL)
+Build.BIGFLT && export BigFloat
+Build.BIGINT && export BigInt
 
 # dates
-BUILD_DATES && export Dates, Date, DateTime
+Build.DATES && export Dates, Date, DateTime
 
 # statistics
-if BUILD_STATS
+if Build.STATS
 export cor,
     cov,
     hist,
@@ -1266,7 +1266,7 @@ export cor,
 end
 
 # signal processing
-if BUILD_DSP
+if Build.DSP
 export bfft!,
     bfft,
     brfft,
@@ -1306,7 +1306,7 @@ export bfft!,
     quadgk
 end
 
-if BUILD_LINALG
+if Build.LINALG
 # Array operators
 export A_ldiv_B!,
     A_ldiv_Bc,
@@ -1447,5 +1447,6 @@ export A_ldiv_B!,
     rowvals,
     nzrange,
     nnz
-end
-end
+end # Build.LINALG
+    
+end # module

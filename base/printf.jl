@@ -859,7 +859,7 @@ const HEX_symbols = "0123456789ABCDEF".data
 decode_hex(x::Integer) = decode_hex(x,hex_symbols)
 decode_HEX(x::Integer) = decode_hex(x,HEX_symbols)
 
-if Base.BUILD_BIGINT
+@static if Build.BIGINT
 function decode(b::Int, x::BigInt)
     neg = x.size < 0
     pt = Base.ndigits(x, abs(b))
@@ -997,7 +997,7 @@ function ini_dec(x::SmallFloatingPoint, n::Int)
     return Int32(len), Int32(pt), neg
 end
 
-if Base.BUILD_BIGINT
+@static if Build.BIGINT
 function ini_dec(x::BigInt, n::Int)
     if x.size == 0
         ccall(:memset, Ptr{Void}, (Ptr{Void}, Cint, Csize_t), DIGITS, '0', n)
@@ -1085,7 +1085,7 @@ end
 ini_hex(x::Integer,ndigits::Int) = throw(MethodError(ini_hex,(x,ndigits)))
 
 #BigFloat
-if Base.BUILD_BIGFLT
+@static if Build.BIGFLT
 fix_dec(out, d::BigFloat, flags::String, width::Int, precision::Int, c::Char) = bigfloat_printf(out, d, flags, width, precision, c)
 ini_dec(out, d::BigFloat, ndigits::Int, flags::String, width::Int, precision::Int, c::Char) = bigfloat_printf(out, d, flags, width, precision, c)
 ini_hex(out, d::BigFloat, ndigits::Int, flags::String, width::Int, precision::Int, c::Char) = bigfloat_printf(out, d, flags, width, precision, c)

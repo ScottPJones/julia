@@ -176,7 +176,7 @@ tmp = zeros(Int,map(maximum,rng)...)
 tmp[rng...] = A[rng...]
 @test  tmp == cat(3,zeros(Int,2,3),[0 0 0; 0 47 52],zeros(Int,2,3),[0 0 0; 0 127 132])
 
-Base.BUILD_LINALG && @test cat([1,2],1,2,3.,4.,5.) == diagm([1,2,3.,4.,5.])
+Build.LINALG && @test cat([1,2],1,2,3.,4.,5.) == diagm([1,2,3.,4.,5.])
 blk = [1 2;3 4]
 tmp = cat([1,3],blk,blk)
 @test tmp[1:2,1:2,1] == blk
@@ -459,7 +459,7 @@ end
 
 ## unique across dim ##
 
-if Base.BUILD_LINALG
+if Build.LINALG
 # All rows and columns unique
 A = ones(10, 10)
 A[diagind(A)] = shuffle!([1:10;])
@@ -814,7 +814,7 @@ let
         @test s[:,i] == sort(a[:,i])
         @test vec(S[i,:]) == sort(vec(a[i,:]))
     end
-    if Base.BUILD_STATS
+    if Build.STATS
         h = mapslices(v -> hist(v,0:0.1:1)[2], a, 1)
         H = mapslices(v -> hist(v,0:0.1:1)[2], a, 2)
         for i = 1:5
@@ -986,7 +986,7 @@ a = [1:10;]
 X = [ i+2j for i=1:5, j=1:5 ]
 @test X[2,3] == 8
 @test X[4,5] == 14
-Base.BUILD_LINALG && @test isequal(ones(2,3) * ones(2,3)', [3. 3.; 3. 3.])
+Build.LINALG && @test isequal(ones(2,3) * ones(2,3)', [3. 3.; 3. 3.])
 @test isequal([ [1,2] for i=1:2, : ], [1 2; 1 2])
 # where element type is a Union. try to confuse type inference.
 foo32_64(x) = (x<2) ? Int32(x) : Int64(x)
@@ -1032,7 +1032,7 @@ end
 @test_throws ArgumentError flipdim(1:10, -1)
 @test isequal(flipdim(Array{Int}(0,0),1), Array{Int}(0,0))  # issue #5872
 
-if Base.BUILD_LINALG
+if Build.LINALG
 # isdiag, istril, istriu
 @test isdiag(3)
 @test istril(4)
@@ -1048,7 +1048,7 @@ end
 # issue 4228
 A = [[i i; i i] for i=1:2]
 @test cumsum(A) == Any[[1 1; 1 1], [3 3; 3 3]]
-Base.BUILD_LINALG && @test cumprod(A) == Any[[1 1; 1 1], [4 4; 4 4]]
+Build.LINALG && @test cumprod(A) == Any[[1 1; 1 1], [4 4; 4 4]]
 
 # PR #4627
 A = [1,2]
@@ -1089,7 +1089,7 @@ for N = 1:Nmax
 end
 
 # issue #6645 (32-bit)
-Base.BUILD_LINALG && let
+Build.LINALG && let
     x = Float64[]
     for i=1:5; push!(x, 1.0); end
     @test dot(zeros(5),x) == 0.0
@@ -1105,7 +1105,7 @@ end
 @test map(join, ["z", "я"]) == ["z", "я"]
 
 # Handle block matrices
-if Base.BUILD_LINALG
+if Build.LINALG
 A = [randn(2,2) for i = 1:2, j = 1:2]
 @test issymmetric(A.'A)
 A = [complex(randn(2,2), randn(2,2)) for i = 1:2, j = 1:2]
@@ -1286,7 +1286,7 @@ I2 = CartesianIndex((-1,5,2))
 @test isless(CartesianIndex((2,1)), CartesianIndex((1,2)))
 @test !isless(CartesianIndex((1,2)), CartesianIndex((2,1)))
 
-if Base.BUILD_LINALG
+if Build.LINALG
 a = spzeros(2,3)
 @test CartesianRange(size(a)) == eachindex(a)
 a[CartesianIndex{2}(2,3)] = 5
@@ -1324,7 +1324,7 @@ val, state = next(itr, state)
 @test done(itr, state)
 @test r[val] == 3
 
-if Base.BUILD_LINALG
+if Build.LINALG
 r = sparse(collect(2:3:8))
 itr = eachindex(r)
 state = start(itr)
@@ -1396,7 +1396,7 @@ A = Array(trues(5))
 @test false - A == [-1,-1,-1,-1,-1]
 
 # simple transposes
-if Base.BUILD_COMPLEX
+if Build.COMPLEX
 a = ones(Complex,1,5)
 b = zeros(Complex,5)
 c = ones(Complex,2,5)
@@ -1462,7 +1462,7 @@ module RetTypeDecl
     @test @inferred([m,m]+m) == [m+m,m+m]
     @test @inferred(m.*[m,m]) == [m2,m2]
     @test @inferred([m,m].*m) == [m2,m2]
-    Base.BUILD_LINALG && @test @inferred([m 2m; m m]*[m,m]) == [3m2,2m2]
+    Build.LINALG && @test @inferred([m 2m; m m]*[m,m]) == [3m2,2m2]
     @test @inferred([m m].*[m,m]) == [m2 m2; m2 m2]
 end
 
@@ -1680,7 +1680,7 @@ let A = [-10,0,3], B = [-10.0,0.0,3.0]
     @test typeof(conj(A)) == Vector{Int}
     @test typeof(conj(B)) == Vector{Float64}
    
-    @static if Base.BUILD_COMPLEX
+    @static if Build.COMPLEX
         C = [1,im,0]
         @test conj(C) == [1,-im,0]
         @test typeof(conj(C)) == Vector{Complex{Int}}

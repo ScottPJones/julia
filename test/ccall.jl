@@ -44,7 +44,7 @@ end
 @test ccall_echo_load(Ref([144,172],2), Ptr{Int}, Ref{Int}) === 172
 # @test ccall_echo_load(Ref([8],1,1), Ptr{Int}, Ref{Int}) === 8
 
-if Base.BUILD_COMPLEX
+if Build.COMPLEX
 
 ## Tests for passing and returning structs
 
@@ -128,7 +128,7 @@ let
     @test_approx_eq x.y a.y - 2*b
 end
 
-Base.BUILD_COMPLEX &&
+Build.COMPLEX &&
 let
     a = Complex{Int32}(Int32(10),Int32(31))
     b = Int32(42)
@@ -142,7 +142,7 @@ let
     @test x == a + b*1 - b*2im
 end
 
-Base.BUILD_COMPLEX &&
+Build.COMPLEX &&
 let
     a = Complex{Int64}(Int64(20),Int64(51))
     b = Int64(42)
@@ -280,7 +280,7 @@ type Struct11
     x::Complex64
 end
 
-Base.BUILD_COMPLEX &&
+Build.COMPLEX &&
 let
     a = Struct11(0.8877077f0 + 0.4591081f0im)
     b = Float32(42)
@@ -295,7 +295,7 @@ type Struct12
     y::Complex64
 end
 
-Base.BUILD_COMPLEX &&
+Build.COMPLEX &&
 let
     a = Struct12(0.8877077f5 + 0.4591081f2im, 0.0004842868f0 - 6982.3265f3im)
     b = Float32(42)
@@ -310,7 +310,7 @@ type Struct13
     x::Complex128
 end
 
-Base.BUILD_COMPLEX &&
+Build.COMPLEX &&
 let
     a = Struct13(42968.97560380495 - 803.0576845153616im)
     b = Float64(42)
@@ -474,7 +474,7 @@ end
 @test_huge 2 'a' ((1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0),)
 @test_huge 2 'b' ((1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0),)
 
-@static if Base.BUILD_COMPLEX
+@static if Build.COMPLEX
 @test_huge 3 'a' ((1.0 + 2.0im, 3.0 + 4.0im, 5.0 + 6.0im), 7.0, 8.0)
 @test_huge 3 'b' ((1.0 + 2.0im, 3.0 + 4.0im, 5.0 + 6.0im, 7.0 + 8.0im, 9.0 + 10.0im, 11.0 + 12.0im, 13.0 + 14.0im), 7.0, 8.0)
 @test_huge 3 'c' ((1.0 + 2.0im, 3.0 + 4.0im, 5.0 + 6.0im, 7.0 + 8.0im, 9.0 + 10.0im, 11.0 + 12.0im, 13.0 + 14.0im), 7.0, 8.0, 9.0)
@@ -579,7 +579,7 @@ foo13031(x,y,z) = z
 foo13031p = cfunction(foo13031, Cint, (Ref{Tuple{}},Ref{Tuple{}},Cint))
 ccall(foo13031p, Cint, (Ref{Tuple{}},Ref{Tuple{}},Cint), (), (), 8)
 
-@static if Base.BUILD_THREADS
+@static if Build.THREADS
 # @threadcall functionality
 threadcall_test_func(x) =
     @threadcall((:testUcharX, libccalltest), Int32, (UInt8,), x % UInt8)

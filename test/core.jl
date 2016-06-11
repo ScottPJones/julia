@@ -387,7 +387,7 @@ let
     @test foo() === convert(Int8,100)
 end
 
-if Base.BUILD_COMPLEX
+if Build.COMPLEX
 function bar{T}(x::T)
     local z::Complex{T}
     z = x
@@ -853,7 +853,7 @@ let
     @test b == 3
     @test e == 4
 
-    if Base.BUILD_COMPLEX
+    if Build.COMPLEX
         a = complex(1,2)
         b = 3
         b, a = a.re, b
@@ -869,7 +869,7 @@ end
 
 # accessing fields by index
 let
-    if Base.BUILD_COMPLEX
+    if Build.COMPLEX
         local z = complex(3, 4)
         v = Int[0,0]
         for i=1:2
@@ -1423,7 +1423,7 @@ end
 # issue #4526
 f4526(x) = isa(x.a, Void)
 @test_throws ErrorException f4526(1)
-if Base.BUILD_COMPLEX
+if Build.COMPLEX
     @test_throws ErrorException f4526(im)
     @test_throws ErrorException f4526(1+2im)
 end
@@ -1674,7 +1674,7 @@ h5142b(1)
 @test_throws TypeError h5142b(2)
 
 # accessing bits tuples of structs
-if Base.BUILD_COMPLEX
+if Build.COMPLEX
     function test_bits_tuples()
         a = (complex(1,2),complex(1,3));s=0
         for i=1:10
@@ -1812,7 +1812,7 @@ test5536(a::Union{Real, AbstractArray}) = "Non-splatting"
 # issue #6142
 import Base: +
 type A6142 <: AbstractMatrix{Float64}; end
-if Base.BUILD_LINALG
+if Build.LINALG
 +{TJ}(x::A6142, y::UniformScaling{TJ}) = "UniformScaling method called"
 +(x::A6142, y::AbstractArray) = "AbstractArray method called"
 @test A6142() + I == "UniformScaling method called"
@@ -1999,7 +1999,7 @@ end
 @test ttt7049(init="a") == "init=a"
 
 # issue #7074
-Base.BUILD_COMPLEX &&
+Build.COMPLEX &&
 let z{T<:Union{Float64,Complex{Float64},Float32,Complex{Float32}}}(A::StridedMatrix{T}) = T,
     S = zeros(Complex,2,2)
     @test_throws MethodError z(S)
@@ -2229,7 +2229,7 @@ call_lambda7() = ((x...)->x)(1,2)
 # jl_new_bits testing
 let x = [1,2,3]
     @test ccall(:jl_new_bits, Any, (Any,Ptr{Void},), Int, x) === 1
-    Base.BUILD_COMPLEX &&
+    Build.COMPLEX &&
         @test ccall(:jl_new_bits, Any, (Any,Ptr{Void},), Complex{Int}, x) === 1+2im
     @test ccall(:jl_new_bits, Any, (Any,Ptr{Void},), NTuple{3,Int}, x) === (1,2,3)
     @test ccall(:jl_new_bits, Any, (Any,Ptr{Void},), Tuple{Int,Int,Int}, x) === (1,2,3)
@@ -2264,7 +2264,7 @@ end
 @test try; [][]; catch ex; isempty((ex::BoundsError).a::Array{Any,1}) && ex.i == (1,); end
 @test try; [][1,2]; catch ex; isempty((ex::BoundsError).a::Array{Any,1}) && ex.i == (1,2); end
 @test try; [][10]; catch ex; isempty((ex::BoundsError).a::Array{Any,1}) && ex.i == (10,); end
-if Base.BUILD_COMPLEX
+if Build.COMPLEX
     f9534a() = (a=1+2im; getfield(a, -100))
     f9534a(x) = (a=1+2im; getfield(a, x))
     @test try; f9534a() catch ex; (ex::BoundsError).a === 1+2im && ex.i == -100; end
@@ -2289,7 +2289,7 @@ f9534f(x) = (a=IOBuffer(); getfield(a, x))
 @test try; f9534f() catch ex; isa((ex::BoundsError).a,Base.IOBuffer) && ex.i == -2; end
 @test try; f9534f(typemin(Int)+2) catch ex; isa((ex::BoundsError).a,Base.IOBuffer) && ex.i == typemin(Int)+2; end
 x9634 = 3
-if Base.BUILD_COMPLEX
+if Build.COMPLEX
     @test try; getfield(1+2im, x9634); catch ex; (ex::BoundsError).a === 1+2im && ex.i == 3; end
 end
 @test try; throw(BoundsError()) catch ex; !isdefined((ex::BoundsError), :a) && !isdefined((ex::BoundsError), :i); end
@@ -2998,7 +2998,7 @@ let T = TypeVar(:T, true), TB = TypeVar(:T, B11136, true)
 end
 
 # issue #11367
-if Base.BUILD_BIGINT # SPJ!!! Could this be rewritten to not use BigInt for the test?
+if Build.BIGINT # SPJ!!! Could this be rewritten to not use BigInt for the test?
 abstract Foo11367
 let T1 = TypeVar(:T1, true), T2 = TypeVar(:T2, Foo11367, true)
     @testintersect(Tuple{T1, T1}, Tuple{Type{BigInt}, T2}, Bottom)
@@ -3205,7 +3205,7 @@ end
 @test Tuple{Int} === Tuple{Int, Vararg{Integer, 0}}
 
 # issue #12003
-if Base.BUILD_DATES
+if Build.DATES
 const DATE12003 = DateTime(1917,1,1)
 failure12003(dt=DATE12003) = Dates.year(dt)
 @test isa(failure12003(), Integer)
@@ -3241,7 +3241,7 @@ let N = TypeVar(:N,true)
 end
 
 # issue #12063
-if Base.BUILD_LINALG
+if Build.LINALG
 # NOTE: should have > MAX_TUPLETYPE_LEN arguments
 f12063{T}(tt, g, p, c, b, v, cu::T, d::AbstractArray{T, 2}, ve) = 1
 f12063(args...) = 2
@@ -3741,7 +3741,7 @@ let grphtest = ((1, [2]),)
     end
 end
 
-@static if Base.BUILD_PROFILER
+@static if Build.PROFILER
 # issue #13229
 module I13229
     using Base.Test

@@ -18,7 +18,7 @@ using Base.Test
 @test isnan(mean([1.,-1.,Inf,-Inf]))
 @test isnan(mean([-Inf,Inf]))
 
-if Base.BUILD_STATS
+if Build.STATS
 @test mean([0 1 2; 4 5 6], 1) == [2.  3.  4.]
 @test mean([1 2 3; 4 5 6], 1) == [2.5 3.5 4.5]
 @test isequal(mean([NaN 0.0; 1.2 4.5], 2), reshape([NaN; 2.85], 2, 1))

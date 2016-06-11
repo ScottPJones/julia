@@ -285,7 +285,7 @@ end
 
 # issue #12960
 type T12960 end
-Base.BUILD_LINALG && let
+Build.LINALG && let
     A = speye(3)
     B = similar(A, T12960)
     @test sprint(show, B)  == "\n\t[1, 1]  =  #undef\n\t[2, 2]  =  #undef\n\t[3, 3]  =  #undef"
@@ -314,7 +314,7 @@ end
 #test methodshow.jl functions
 @test Base.inbase(Base)
 @test !Base.inbase(Core)
-Base.BUILD_LINALG && @test Base.inbase(LinAlg)
+Build.LINALG && @test Base.inbase(LinAlg)
 
 let repr = sprint(io -> show(io,"text/plain", methods(Base.inbase)))
     @test contains(repr, "inbase(m::Module)")
@@ -331,7 +331,7 @@ let repr = sprint(io -> show(io,"text/html", methods(f5971)))
     @test contains(repr, "f5971(x, y...; <i>z</i>)")
 end
 
-if Base.BUILD_LINALG
+if Build.LINALG
 if isempty(Base.GIT_VERSION_INFO.commit)
     @test contains(Base.url(first(methods(eigs))),"https://github.com/JuliaLang/julia/tree/v$VERSION/base/linalg/arnoldi.jl#L")
 else
@@ -345,7 +345,7 @@ end
 # This fits on screen:
 @test replstr(eye(10)) == "10×10 Array{Float64,2}:\n 1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0\n 0.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0\n 0.0  0.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0\n 0.0  0.0  0.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0\n 0.0  0.0  0.0  0.0  1.0  0.0  0.0  0.0  0.0  0.0\n 0.0  0.0  0.0  0.0  0.0  1.0  0.0  0.0  0.0  0.0\n 0.0  0.0  0.0  0.0  0.0  0.0  1.0  0.0  0.0  0.0\n 0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  0.0  0.0\n 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0  0.0\n 0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0  1.0"
 
-if Base.BUILD_LINALG
+if Build.LINALG
 # an array too long vertically to fit on screen, and too long horizontally:
 @test replstr(collect(1.:100.)) == "100-element Array{Float64,1}:\n   1.0\n   2.0\n   3.0\n   4.0\n   5.0\n   6.0\n   7.0\n   8.0\n   9.0\n  10.0\n   ⋮  \n  92.0\n  93.0\n  94.0\n  95.0\n  96.0\n  97.0\n  98.0\n  99.0\n 100.0"
 @test replstr(collect(1.:100.)') == "1×100 Array{Float64,2}:\n 1.0  2.0  3.0  4.0  5.0  6.0  7.0  …  95.0  96.0  97.0  98.0  99.0  100.0"
@@ -389,7 +389,7 @@ str_ex2a, str_ex2b = @strquote(begin x end), string(quote x end)
 
 
 # test structured zero matrix printing for select structured types
-if Base.BUILD_LINALG
+if Build.LINALG
 A = reshape(1:16,4,4)
     @test replstr(Diagonal(A)) == "4×4 Diagonal{$Int}:\n 1  ⋅   ⋅   ⋅\n ⋅  6   ⋅   ⋅\n ⋅  ⋅  11   ⋅\n ⋅  ⋅   ⋅  16"
     @test replstr(Bidiagonal(A,true)) == "4×4 Bidiagonal{$Int}:\n 1  5   ⋅   ⋅\n ⋅  6  10   ⋅\n ⋅  ⋅  11  15\n ⋅  ⋅   ⋅  16"

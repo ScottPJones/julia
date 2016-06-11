@@ -51,7 +51,7 @@ module CompletionFoo
     test_y_array=[CompletionFoo.Test_y(rand()) for i in 1:10]
 end
 
-if Base.BUILD_PKG
+if Build.PKG
 function temp_pkg_dir(fn::Function)
     # Used in tests below to setup and teardown a sandboxed package directory
     const tmpdir = ENV["JULIA_PKGDIR"] = joinpath(tempdir(),randstring())
@@ -371,7 +371,7 @@ c, r, res = test_complete(s)
 @test length(c) == 0
 
 # Test completion of packages
-if Base.BUILD_PKG
+if Build.PKG
 mkp(p) = ((@assert !isdir(p)); mkpath(p))
 temp_pkg_dir() do
     # Complete <Mod>/src/<Mod>.jl and <Mod>.jl/src/<Mod>.jl

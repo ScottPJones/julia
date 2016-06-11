@@ -138,7 +138,7 @@ precompile(Base.REPLCompletions.complete_methods, (String,))
 precompile(Base.REPLCompletions.complete_symbol, (String, Function))
 precompile(Base.REPLCompletions.completions, (String, Int))
 
-if BUILD_FULL
+@static if Build.FULL
 precompile(Base.Random.srand, ())
 precompile(Base.Random.srand, (String, Int))
 precompile(Base.Random.srand, (UInt,))
@@ -379,7 +379,7 @@ precompile(Base.split, (String, String))
 precompile(Base.split, (String, Regex))
 precompile(Base.split, (String,))
 
-if BUILD_FULL
+@static if Build.FULL
 precompile(Base.srand, (Array{UInt32,1},))
 end
 
@@ -418,7 +418,7 @@ precompile(Base.write, (Base.Terminals.TerminalBuffer, String))
 precompile(Base.write, (IOBuffer, Vector{UInt8}))
 precompile(Base.show, (Base.Terminals.TTYTerminal, Base.Multimedia.MIME{Symbol("text/plain")}, Int))
 
-if BUILD_FULL
+@static if Build.FULL
 # The following are intended to help speed Pkg.update()
 precompile(Base.Pkg.Entry.update, (String,))
 precompile(Base.Pkg.Query.prune_dependencies, (Dict{String, Base.Pkg.Types.VersionSet}, Dict{String, Dict{VersionNumber, Base.Pkg.Types.Available}}))

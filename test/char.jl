@@ -68,7 +68,7 @@ let
     #convert(::Type{Char}, x::Float16) = char(convert(UInt32, x))
     #convert(::Type{Char}, x::Float32) = char(convert(UInt32, x))
     #convert(::Type{Char}, x::Float64) = char(convert(UInt32, x))
-    Base.BUILD_FLOAT16 && for x = 1:9
+    Build.FLOAT16 && for x = 1:9
         @test convert(Char, Float16(x)) == convert(Char, Float32(x)) == convert(Char, Float64(x)) == Char(x)
     end
 

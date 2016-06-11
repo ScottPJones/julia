@@ -6,7 +6,7 @@ using Base.Test
 
 # flipsign
 
-if Base.BUILD_BIGFLT
+if Build.BIGFLT
 for elty in (Float32,Float64)
     x = convert(elty,-2.0)
     x = flipsign(x,-1.0)
@@ -16,7 +16,7 @@ end
 
 #maxintfloat
 
-if Base.BUILD_FLOAT16
+if Build.FLOAT16
     floattypes = (Float16,Float32,Float64)
     @test maxintfloat(Float16) == Float16(2048f0)
 else

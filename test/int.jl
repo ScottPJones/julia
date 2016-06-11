@@ -4,7 +4,7 @@
 
 postypes = [4, Float32(4), 4.0]
 negtypes = [-4, Float32(-4), -4.0]
-Base.BUILD_BIGFLT && (push!(negtypes, big(-4.0)) ; push!(postypes, big(4.0)))
+Build.BIGFLT && (push!(negtypes, big(-4.0)) ; push!(postypes, big(4.0)))
 
 for y in negtypes
     @test flipsign(3, y)  == -3
@@ -21,11 +21,11 @@ for y in postypes
 end
 
 numtypes = [Base.BitInteger_types..., Float32, Float64]
-Base.BUILD_FLOAT16 && push!(numtypes, Float16)
-Base.BUILD_BIGINT && push!(numtypes, BigInt)
-if Base.BUILD_RATIONAL
+Build.FLOAT16 && push!(numtypes, Float16)
+Build.BIGINT && push!(numtypes, BigInt)
+if Build.RATIONAL
     push!(numtypes, Rational{Int})
-    Base.BUILD_BIGINT && push!(numtypes, Rational{BigInt})
+    Build.BIGINT && push!(numtypes, Rational{BigInt})
 end
 
 # Result type must be type of first argument
@@ -35,7 +35,7 @@ for T in numtypes, U in numtypes
 end
 
 for s1 in (-1,+1), s2 in (-1,+1)
-    Base.BUILD_FLOAT16 && @test flipsign(Int16(3s1), Float16(3s2)) === Int16(3s1*s2)
+    Build.FLOAT16 && @test flipsign(Int16(3s1), Float16(3s2)) === Int16(3s1*s2)
     @test flipsign(Int32(3s1), Float32(3s2)) === Int32(3s1*s2)
     @test flipsign(Int64(3s1), Float64(3s2)) === Int64(3s1*s2)
 end

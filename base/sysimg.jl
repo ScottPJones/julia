@@ -44,7 +44,6 @@ else
 end
 include("exports.jl")
 
-
 # core operations & types
 include("promotion.jl")
 include("tuple.jl")
@@ -96,8 +95,8 @@ include("hashing.jl")
 include("rounding.jl")
 importall .Rounding
 include("float.jl")
-BUILD_COMPLEX && include("complex.jl")
-BUILD_RATIONAL && include("rational.jl")
+Build.COMPLEX && include("complex.jl")
+Build.RATIONAL && include("rational.jl")
 include("multinverses.jl")
 using .MultiplicativeInverses
 include("abstractarraymath.jl")
@@ -180,7 +179,7 @@ include("math.jl")
 importall .Math
 const (√)=sqrt
 const (∛)=cbrt
-BUILD_FLOAT16 && include("float16.jl")
+Build.FLOAT16 && include("float16.jl")
 
 # multidimensional arrays
 include("cartesian.jl")
@@ -215,17 +214,17 @@ importall .Sort
 include("version.jl")
 
 # BigInts and BigFloats
-if BUILD_BIGINT
+if Build.BIGINT
     include("gmp.jl")
     importall .GMP
     big(n::Integer) = convert(BigInt,n)
 end
-if BUILD_BIGFLT
+if Build.BIGFLT
     include("mpfr.jl")
     importall .MPFR
     big(x::AbstractFloat) = convert(BigFloat,x)
 end
-if BUILD_RATIONAL && (BUILD_BIGINT || BUILD_BIGFLT)
+if Build.RATIONAL && (Build.BIGINT || Build.BIGFLT)
     big(q::Rational) = big(num(q))//big(den(q))
 end
 
@@ -253,7 +252,7 @@ importall .Enums
 # concurrency and parallelism
 include("serialize.jl")
 importall .Serializer
-if BUILD_PARALLEL
+if Build.PARALLEL
     include("channels.jl")
     include("multi.jl")
     include("workerpool.jl")
@@ -266,7 +265,7 @@ end
 include("loading.jl")
 
 # memory-mapped and shared arrays
-if BUILD_MMAP
+if Build.MMAP
     include("mmap.jl")
     import .Mmap
     include("sharedarray.jl")
@@ -277,13 +276,13 @@ include("datafmt.jl")
 importall .DataFmt
 include("deepcopy.jl")
 include("interactiveutil.jl")
-BUILD_REPL && include("replutil.jl")
-BUILD_TEST && include("test.jl")
+Build.REPL && include("replutil.jl")
+Build.TEST && include("test.jl")
 include("i18n.jl")
 using .I18n
 
 # frontend
-if BUILD_REPL
+if Build.REPL
     include("initdefs.jl")
     include("Terminals.jl")
     include("LineEdit.jl")
@@ -296,7 +295,7 @@ end
 include("util.jl")
 
 # dense linear algebra
-if BUILD_LINALG
+if Build.LINALG
     include("linalg.jl")
     importall .LinAlg
     const ⋅ = dot
@@ -313,14 +312,14 @@ include("statistics.jl")
 include("irrationals.jl")
 
 # signal processing
-if BUILD_DSP
+if Build.DSP
     include("dft.jl")
     importall .DFT
     include("dsp.jl")
     importall .DSP
 end
 
-if BUILD_FULL
+if Build.FULL
     # Numerical integration
     include("quadgk.jl")
     importall .QuadGK
@@ -330,7 +329,7 @@ if BUILD_FULL
     importall .FastMath
 end
 
-if BUILD_PKG
+if Build.PKG
     # libgit2 support
     include("libgit2.jl")
 
@@ -344,35 +343,35 @@ include("stacktraces.jl")
 importall .StackTraces
 
 # profiler
-if BUILD_PROFILER
+if Build.PROFILER
     include("profile.jl")
     importall .Profile
 end
 
 # dates
-if BUILD_DATES
+if Build.DATES
     include("Dates.jl")
     import .Dates: Date, DateTime, now
 end
 
 # sparse matrices, vectors, and sparse linear algebra
-if BUILD_SPARSE
+if Build.SPARSE
     include("sparse.jl")
     importall .SparseArrays
 end
 
 # threads
-if BUILD_THREADS
+if Build.THREADS
     include("threads.jl")
     include("threadcall.jl")
 end
 
 # deprecated functions
-BUILD_FULL && include("deprecated.jl")
+Build.FULL && include("deprecated.jl")
 
 # Documentation -- should always be included last in sysimg.
 
-if BUILD_DOCS
+if Build.DOCS
     # Some basic documentation
     include("docs/helpdb.jl")
     include("docs/basedocs.jl")
@@ -381,7 +380,7 @@ if BUILD_DOCS
     include("docs/Docs.jl")
     using .Docs
     using .Markdown
-    #Docs.loaddocs(Core.Inference.CoreDocs.DOCS)
+    Docs.loaddocs(Core.Inference.CoreDocs.DOCS)
 end
 
 function __init__()
@@ -391,13 +390,13 @@ function __init__()
     early_init()
     init_load_path()
     init_parallel()
-    BUILD_THREADS && init_threadcall()
+    Build.THREADS && init_threadcall()
 end
 
 include = include_from_node1
 include("precompile.jl")
 
-if BUILD_DOCS
+if Build.DOCS
 include("precompiledocs.jl")
 end
 

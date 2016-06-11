@@ -89,7 +89,7 @@ sqrt15819(x::Float64) = box(Float64, sqrt_llvm(unbox(Float64, x)))
 # Use fully qualified name
 sqrt15819(x::Float32) = box(Float32, Core.Intrinsics.sqrt_llvm(unbox(Float32, x)))
 end
-@static if Base.BUILD_FULL
+@static if Build.FULL
     foo11122(x) = @fastmath x - 1.0
 else
     foo11122(x) = x - 1.0
@@ -442,7 +442,7 @@ for i = 1:100; @eval fLargeTable(::Val{$i}, ::Any) = 1; end
 for i = 1:100; @eval fLargeTable(::Any, ::Val{$i}) = 2; end
 fLargeTable(::Any...) = 3
 fLargeTable() = 4
-@static if Base.BUILD_COMPLEX
+@static if Build.COMPLEX
     fLargeTable(::Complex, ::Complex) = 4
     fLargeTable(::Union{Complex64, Complex128}...) = 5
     @test fLargeTable(1im, 2im) == 4

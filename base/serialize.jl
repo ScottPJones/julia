@@ -5,7 +5,7 @@ module Serializer
 import Base: Bottom, svec, unsafe_convert, uncompressed_ast
 using Base: ViewIndex, index_lengths
 
-Base.BUILD_BIGINT && import Base.GMP
+Build.BIGINT && import Base.GMP
 
 export serialize, deserialize
 
@@ -242,12 +242,12 @@ function serialize(s::SerializationState, r::Regex)
     serialize(s, r.match_options)
 end
 
-Base.BUILD_BIGINT && function serialize(s::SerializationState, n::BigInt)
+Build.BIGINT && function serialize(s::SerializationState, n::BigInt)
     serialize_type(s, BigInt)
     serialize(s, base(62,n))
 end
 
-Base.BUILD_BIGFLT && function serialize(s::SerializationState, n::BigFloat)
+Build.BIGFLT && function serialize(s::SerializationState, n::BigFloat)
     serialize_type(s, BigFloat)
     serialize(s, string(n))
 end
@@ -886,10 +886,10 @@ function deserialize{K,V}(s::SerializationState, T::Type{Dict{K,V}})
     return t
 end
 
-Base.BUILD_BIGFLT &&
+Build.BIGFLT &&
     (deserialize(s::SerializationState, ::Type{BigFloat}) = parse(BigFloat, deserialize(s)))
 
-Base.BUILD_BIGINT &&
+Build.BIGINT &&
     (deserialize(s::SerializationState, ::Type{BigInt}) =
      get(GMP.tryparse_internal(BigInt, deserialize(s), 62, true)))
 

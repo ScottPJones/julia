@@ -103,7 +103,7 @@ function find_in_path(name::String, wd)
     if wd !== nothing
         isfile_casesensitive(joinpath(wd,name)) && return joinpath(wd,name)
     end
-    if Base.BUILD_PKG
+    if Build.PKG
         p = try_path(Pkg.dir(), base, name)
         p !== nothing && return p
     end

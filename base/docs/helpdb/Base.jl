@@ -3,6 +3,31 @@
 # Base
 
 """
+    getindex(type[, elements...])
+
+Construct a 1-d array of the specified type. This is usually called with the syntax
+`Type[]`. Element values can be specified using `Type[a,b,c,...]`.
+"""
+getindex(::Type, elements...)
+
+"""
+    getindex(A, inds...)
+
+Returns a subset of array `A` as specified by `inds`, where each `ind` may be an
+`Int`, a `Range`, or a `Vector`. See the manual section on
+[array indexing](:ref:`array indexing <man-array-indexing>`) for details.
+"""
+getindex(::AbstractArray, inds...)
+
+"""
+    getindex(collection, key...)
+
+Retrieve the value(s) stored at the given key or index within a collection. The syntax
+`a[i,j,...]` is converted by the compiler to `getindex(a, i, j, ...)`.
+"""
+getindex(collection, key...)
+
+"""
     @time
 
 A macro to execute an expression, printing the time it took to execute, the number of
@@ -619,31 +644,6 @@ launch
 Compute the inverse digamma function of `x`.
 """
 invdigamma
-
-"""
-    getindex(type[, elements...])
-
-Construct a 1-d array of the specified type. This is usually called with the syntax
-`Type[]`. Element values can be specified using `Type[a,b,c,...]`.
-"""
-getindex(::Type, elements...)
-
-"""
-    getindex(A, inds...)
-
-Returns a subset of array `A` as specified by `inds`, where each `ind` may be an
-`Int`, a `Range`, or a `Vector`. See the manual section on
-[array indexing](:ref:`array indexing <man-array-indexing>`) for details.
-"""
-getindex(::AbstractArray, inds...)
-
-"""
-    getindex(collection, key...)
-
-Retrieve the value(s) stored at the given key or index within a collection. The syntax
-`a[i,j,...]` is converted by the compiler to `getindex(a, i, j, ...)`.
-"""
-getindex(collection, key...)
 
 """
     cconvert(T,x)
@@ -4155,6 +4155,7 @@ them. Compares mutable objects by address in memory, and compares immutable obje
 numbers) by contents at the bit level. This function is sometimes called `egal`.
 """
 is(x,y)
+=#
 
 """
     mark(s)
@@ -4430,7 +4431,7 @@ specified order. Returns `length(a)+1` if `x` is greater than all values in `a`.
 """
 searchsortedfirst
 
-if BUILD_BIGINT || BUILD_BIGFLT
+@static if (Build.BIGINT|Build.BIGFLT)
 """
     big(x)
 
@@ -5053,6 +5054,7 @@ See `rounding` for available rounding modes.
 """
 setrounding(f::Function, T, mode)
 
+#=
 """
     Mmap.sync!(array)
 
@@ -5060,6 +5062,7 @@ Forces synchronization between the in-memory version of a memory-mapped `Array` 
 `BitArray` and the on-disk version.
 """
 Mmap.sync!
+=#
 
 """
     csc(x)
@@ -5713,6 +5716,7 @@ Returns `true` if `path` has the setuid flag set, `false` otherwise.
 """
 issetuid
 
+#=
 """
     scale!(A, b)
     scale!(b, A)
@@ -5726,6 +5730,7 @@ thrown if the scaling produces a number not representable by the element type of
 e.g. for integer types.
 """
 scale!
+=#
 
 """
     DomainError()
@@ -5826,7 +5831,7 @@ Determine whether a process is currently running.
 """
 process_running
 
-if BUILD_BIGINT
+@static if Build.BIGINT
 """
     BigInt(x)
 
@@ -6298,7 +6303,6 @@ Get a unique integer id for `x`. `object_id(x)==object_id(y)` if and only if `is
 object_id
 
 """
-"""
     unescape_string(io, s::AbstractString)
 
 General unescaping of traditional C and Unicode escape sequences. Reverse of [`escape_string`](:func:`escape_string`).
@@ -6391,7 +6395,6 @@ lexicographically comparable types, and `lexless` will call `lexcmp` by default.
 """
 lexcmp
 
-if BUILD_FULL # deprecated.jl
 """
     isupper(c::Union{Char,AbstractString}) -> Bool
 
@@ -6492,6 +6495,7 @@ provided as a generic fallback (based on `isnan`, `signbit`, and `==`).
 """
 isequal
 
+#=
 """
     sec(x)
 
@@ -6578,6 +6582,7 @@ put!(::Future, value)
 Appends an item to the channel. Blocks if the channel is full.
 """
 put!(::Channel, value)
+
 =#
 """
     operm(file)
@@ -6708,7 +6713,7 @@ julia> "Hello " * "world"
 """
 Base.:(*)(s::AbstractString, t::AbstractString)
 
-if BUILD_FULL # deprecated.jl
+@static if Build.FULL # deprecated.jl
 """
     slice(A, inds...)
 
@@ -8356,7 +8361,7 @@ Compute ``x \\times 2^n``.
 """
 ldexp
 
-if BUILD_FULL
+@static if Build.FULL
 """
     quadgk(f, a,b,c...; reltol=sqrt(eps), abstol=0, maxevals=10^7, order=7, norm=vecnorm)
 

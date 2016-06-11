@@ -21,7 +21,7 @@ using Base.Test
 @test_throws ArgumentError Fruit(3)
 @test_throws ArgumentError Fruit(-1)
 @test Fruit(0x00) == apple
-Base.BUILD_BIGINT && @test Fruit(big(0)) == apple
+Build.BIGINT && @test Fruit(big(0)) == apple
 @test_throws MethodError Fruit(0.0)
 @test typemin(Fruit) == apple
 @test typemax(Fruit) == kiwi
@@ -33,8 +33,8 @@ Base.BUILD_BIGINT && @test Fruit(big(0)) == apple
 @test convert(UInt8,apple) === 0x00
 @test convert(UInt16,orange) === 0x0001
 @test convert(UInt128,kiwi) === 0x00000000000000000000000000000002
-Base.BUILD_BIGINT && @test typeof(convert(BigInt,apple)) <: BigInt
-Base.BUILD_BIGINT && @test convert(BigInt,apple) == 0
+Build.BIGINT && @test typeof(convert(BigInt,apple)) <: BigInt
+Build.BIGINT && @test convert(BigInt,apple) == 0
 @test convert(Bool,apple) == false
 @test convert(Bool,orange) == true
 @test_throws InexactError convert(Bool,kiwi)
@@ -74,7 +74,7 @@ end
 @test_throws ArgumentError eval(:(@enum Test1 _zerofp=0.0))
 @test_throws ArgumentError eval(:(@enum Test11 _zerofp2=0.5))
 
-Base.BUILD_BIGINT && include("bigenums.jl")
+Build.BIGINT && include("bigenums.jl")
 
 # can't use non-identifiers as enum members
 @test_throws ArgumentError eval(:(@enum(Test2, ?)))

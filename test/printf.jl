@@ -225,4 +225,4 @@ end
 # @printf
 @test_throws ArgumentError eval(:(@printf 1))
 
-Base.BUILD_BIGFLT && include("bigprintf.jl")
+Build.BIGFLT && include("bigprintf.jl")

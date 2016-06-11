@@ -15,7 +15,7 @@ convert(::Type{Float16}, x::Irrational) = Float16(Float32(x))
 convert{T<:Real}(::Type{Complex{T}}, x::Irrational) = convert(Complex{T}, convert(T,x))
 convert{T<:Integer}(::Type{Rational{T}}, x::Irrational) = convert(Rational{T}, Float64(x))
 
-if BUILD_BIGINT # SPJ!!! How can this be done without depending on big?
+@static if Build.BIGINT # SPJ!!! How can this be done without depending on big?
 @generated function (t::Type{T}){T<:Union{Float32,Float64},s}(c::Irrational{s},r::RoundingMode)
     f = T(big(c()),r())
     :($f)
@@ -42,7 +42,7 @@ end
 <(x::Irrational, y::Float16) = Float32(x,RoundUp) <= y
 <(x::Float16, y::Irrational) = x <= Float32(y,RoundDown)
 
-if BUILD_BIGFLT
+@static if Build.BIGFLT
     <(x::Irrational, y::BigFloat) = setprecision(precision(y)+32) do
         big(x) < y
     end
@@ -54,7 +54,7 @@ end
 <=(x::Irrational,y::AbstractFloat) = x < y
 <=(x::AbstractFloat,y::Irrational) = x < y
 
-if BUILD_BIGFLT
+@static if Build.BIGFLT
 # Irrational vs Rational
 @generated function <{T}(x::Irrational, y::Rational{T})
     bx = big(x())
@@ -83,7 +83,7 @@ end
     ry < by ? :(x <= $ry) : :(x < $ry)
 end
 end
-if BUILD_BIGINT
+@static if Build.BIGINT
     <(x::Irrational, y::Rational{BigInt}) = big(x) < y
     <(x::Rational{BigInt}, y::Irrational) = x < big(y)
 end
@@ -103,7 +103,7 @@ end
 macro irrational(sym, val, def)
     esym = esc(sym)
     qsym = esc(Expr(:quote, sym))
-    if BUILD_BIGFLT
+    if Build.BIGFLT
         bigconvert = isa(def,Symbol) ? quote
             function Base.convert(::Type{BigFloat}, ::Irrational{$qsym})
                 c = BigFloat()
@@ -122,7 +122,7 @@ macro irrational(sym, val, def)
         const $esym = Irrational{$qsym}()
         Base.convert(::Type{Float64}, ::Irrational{$qsym}) = $val
         Base.convert(::Type{Float32}, ::Irrational{$qsym}) = $(Float32(val))
-        if Base.BUILD_BIGFLT
+        if Build.BIGFLT
             $bigconvert
             @assert isa(big($esym), BigFloat)
             @assert Float64($esym) == Float64(big($esym))
@@ -131,7 +131,7 @@ macro irrational(sym, val, def)
     end
 end
 
-BUILD_BIGFLT && (big(x::Irrational) = convert(BigFloat,x))
+Build.BIGFLT && (big(x::Irrational) = convert(BigFloat,x))
 
 ## specific irrational mathematical constants
 
@@ -139,7 +139,7 @@ BUILD_BIGFLT && (big(x::Irrational) = convert(BigFloat,x))
 @irrational γ        0.57721566490153286061  euler
 @irrational catalan  0.91596559417721901505  catalan
 
-if BUILD_BIGINT
+@static if Build.BIGINT
     @irrational e        2.71828182845904523536  exp(big(1))
     @irrational φ        1.61803398874989484820  (1+sqrt(big(5)))/2
 else

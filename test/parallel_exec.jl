@@ -226,7 +226,7 @@ test_indexing(RemoteChannel(id_other))
 
 dims = (20,20,20)
 
-if is_linux() && Base.BUILD_MMAP
+if is_linux() && Build.MMAP
     S = SharedArray(Int64, dims)
     @test startswith(S.segname, "/jl")
     @test !ispath("/dev/shm" * S.segname)
@@ -429,7 +429,7 @@ a = d[1,1,1:3:end]
 d[2:4] = 7
 d[5,1:2:4,8] = 19
 
-if Base.BUILD_LINALG
+if Build.LINALG
 AA = rand(4,2)
 A = convert(SharedArray, AA)
 B = convert(SharedArray, AA')
@@ -478,13 +478,13 @@ for id in [id_me, id_other]
     finalize_and_test((r=RemoteChannel(id); put!(r, 1); r))
 end
 
-if Base.BUILD_MMAP
+if Build.MMAP
 d = SharedArray(Int,10)
 finalize(d)
 @test_throws BoundsError d[1]
 end # SharedArray tests (BUILD_MMAP)
 
-if Base.BUILD_STATS
+if Build.STATS
 # Test @parallel load balancing - all processors should get either M or M+1
 # iterations out of the loop range for some M.
 ids = @parallel((a,b)->[a;b], for i=1:7; myid(); end)
@@ -933,7 +933,7 @@ let A = Any[]
 end
 
 # issue #13168
-if Base.BUILD_LINALG
+if Build.LINALG
 function f13168(n)
     val = 0
     for i=1:n val+=sum(rand(n,n)^2) end
