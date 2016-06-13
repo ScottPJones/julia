@@ -56,6 +56,7 @@ info_color()   = repl_color("JULIA_INFO_COLOR", default_color_info)
 input_color()  = text_colors[repl_color("JULIA_INPUT_COLOR", default_color_input)]
 answer_color() = text_colors[repl_color("JULIA_ANSWER_COLOR", default_color_answer)]
 
+@static if Build.REPL
 function repl_cmd(cmd, out)
     shell = shell_split(get(ENV,"JULIA_SHELL",get(ENV,"SHELL","/bin/sh")))
     # Note that we can't support the fish shell due to its lack of subshells
@@ -91,6 +92,7 @@ function repl_cmd(cmd, out)
         run(ignorestatus(@static is_windows() ? cmd : (isa(STDIN, TTY) ? `$shell -i -c "($(shell_escape(cmd))) && true"` : `$shell -c "($(shell_escape(cmd))) && true"`)))
     end
     nothing
+end
 end
 
 display_error(er) = display_error(er, [])
@@ -208,7 +210,7 @@ function process_options(opts::JLOptions)
         end
         deleteat!(ARGS, idxs)
     end
-    repl                  = true
+    @static if Build.REPL ; repl = true ; else repl = false ; end
     startup               = (opts.startupfile != 2)
     history_file          = (opts.historyfile != 0)
     quiet                 = (opts.quiet != 0)
@@ -296,6 +298,7 @@ function load_machine_file(path::AbstractString)
     return machines
 end
 
+@static if Build.REPL
 import .Terminals
 import .REPL
 
@@ -313,6 +316,7 @@ function _atreplinit(repl)
         end
     end
 end
+end # Build.REPL
 
 function _start()
     empty!(ARGS)
@@ -321,6 +325,7 @@ function _start()
     try
         (quiet,repl,startup,color_set,history_file) = process_options(opts)
 
+        @static if Build.REPL
         local term
         global active_repl
         global active_repl_backend
@@ -364,6 +369,7 @@ function _start()
                 REPL.run_repl(active_repl, backend->(global active_repl_backend = backend))
             end
         end
+        end # Build.REPL
     catch err
         display_error(err,catch_backtrace())
         exit(1)

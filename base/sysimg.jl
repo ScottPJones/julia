@@ -282,14 +282,14 @@ include("i18n.jl")
 using .I18n
 
 # frontend
+include("initdefs.jl")
 if Build.REPL
-    include("initdefs.jl")
     include("Terminals.jl")
     include("LineEdit.jl")
     include("REPLCompletions.jl")
     include("REPL.jl")
-    include("client.jl")
 end
+include("client.jl")
 
 # misc useful functions & macros
 include("util.jl")

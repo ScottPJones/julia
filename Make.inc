@@ -166,6 +166,7 @@ BUILD_FULL ?= 0
 # Whether to use GPL libraries or not.
 USE_GPL_LIBS   ?= $(BUILD_FULL)
 
+# Whether to build certain parts of the standard library (i.e. Base)
 BUILD_BIGINT   ?= $(BUILD_FULL)
 BUILD_BIGFLT   ?= $(BUILD_FULL)
 BUILD_DSP      ?= $(BUILD_FULL)
