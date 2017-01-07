@@ -91,27 +91,34 @@ end
 
 # REPL help
 
+const keyword_exceptions = (:hi, :hello, :help, :julia, :?)
+
 function helpmode(io::IO, line::AbstractString)
     line = strip(line)
-    expr =
-        if haskey(keywords, Symbol(line))
-            # Docs for keywords must be treated separately since trying to parse a single
-            # keyword such as `function` would throw a parse error due to the missing `end`.
-            Symbol(line)
-        else
-            x = Base.syntax_deprecation_warnings(false) do
-                parse(line, raise = false)
-            end
+    sym = Symbol(line)
+    # the following must call repl(io, x) via the @repl macro
+    # so that the resulting expressions are evaluated in the Base.Docs namespace
+    if haskey(keywords, sym) && !(sym in keyword_exceptions)
+        # Docs for keywords must be treated separately since trying to parse a single
+        # keyword such as `function` would throw a parse error due to the missing `end`.
+        :(Base.Docs.@repl $io $sym $line)
+    else
+        x = Base.syntax_deprecation_warnings(false) do
+            parse(line, raise = false)
+        end
+        if isexpr(x, :error) || isexpr(x, :incomplete)
+            :(Base.Docs.@repl_notid $io $line)
+        elseif isexpr(x, :macrocall, 1) && !endswith(line, "()")
             # Retrieving docs for macros requires us to make a distinction between the text
             # `@macroname` and `@macroname()`. These both parse the same, but are used by
             # the docsystem to return different results. The first returns all documentation
             # for `@macroname`, while the second returns *only* the docs for the 0-arg
             # definition if it exists.
-            (isexpr(x, :macrocall, 1) && !endswith(line, "()")) ? quot(x) : x
+            :(Base.Docs.@repl $io $(quot(x)) $line)
+        else
+            :(Base.Docs.@repl $io $x $line)
         end
-    # the following must call repl(io, expr) via the @repl macro
-    # so that the resulting expressions are evaluated in the Base.Docs namespace
-    :(Base.Docs.@repl $io $expr)
+    end
 end
 helpmode(line::AbstractString) = helpmode(STDOUT, line)
 
@@ -121,7 +128,6 @@ function repl_search(io::IO, s)
     printmatches(io, s, completions(s), cols = displaysize(io)[2] - length(pre))
     println(io, "\n")
 end
-repl_search(s) = repl_search(STDOUT, s)
 
 function repl_corrections(io::IO, s)
     print(io, "Couldn't find ")
@@ -130,7 +136,6 @@ function repl_corrections(io::IO, s)
     end
     print_correction(io, s)
 end
-repl_corrections(s) = repl_corrections(STDOUT, s)
 
 # inverse of latex_symbols Dict, lazily created as needed
 const symbols_latex = Dict{String,String}()
@@ -173,13 +178,19 @@ function repl_latex(io::IO, s::String)
         println(io, '\n')
     end
 end
-repl_latex(s::String) = repl_latex(STDOUT, s)
 
-macro repl(ex) repl(ex) end
-macro repl(io, ex) repl(io, ex) end
+macro repl_notid(io, str) repl_notid(io, str) end
+function repl_notid(io, str)
+    quote
+        repl_latex($io, $str)
+        repl_search($io, $str)
+    end
+end
 
-function repl(io::IO, s::Symbol)
-    str = string(s)
+macro repl(ex, str) repl(ex, str) end
+macro repl(io, ex, str) repl(io, ex, str) end
+
+function repl(io::IO, s::Symbol, str)
     quote
         repl_latex($io, $str)
         repl_search($io, $str)
@@ -187,16 +198,22 @@ function repl(io::IO, s::Symbol)
         $(_repl(s))
     end
 end
-isregex(x) = isexpr(x, :macrocall, 2) && x.args[1] === Symbol("@r_str") && !isempty(x.args[2])
-repl(io::IO, ex::Expr) = isregex(ex) ? :(apropos($io, $ex)) : _repl(ex)
-repl(io::IO, str::AbstractString) = :(apropos($io, $str))
-repl(io::IO, other) = :(@doc $(esc(other)))
 
-repl(x) = repl(STDOUT, x)
+isregex(x) = isexpr(x, :macrocall, 2) && x.args[1] === Symbol("@r_str") && !isempty(x.args[2])
+repl(io::IO, ex::Expr, line) = isregex(ex) ? :(apropos($io, $ex)) : _repl(ex)
+repl(io::IO, str::AbstractString, line) = :(apropos($io, $str))
+function repl(io::IO, other, str)
+    quote
+        repl_search($(esc(io)), $(esc(str)))
+        @doc $(esc(other))
+    end
+end
+repl(x, y) = repl(STDOUT, x, y)
 
 function _repl(x)
-    docs = (isexpr(x, :call) && !any(isexpr(x, :(::)) for x in x.args)) ?
-        Base.gen_call_with_extracted_types(doc, x) : :(@doc $(esc(x)))
+    docs = ((isexpr(x, :call) && !any(isexpr(x, :(::)) for x in x.args))
+            ? Base.gen_call_with_extracted_types(doc, x)
+            : :(@doc $(esc(x))))
     if isfield(x)
         quote
             if isa($(esc(x.args[1])), DataType)

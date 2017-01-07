@@ -624,17 +624,22 @@ f12593_2() = 1
                         Docs.doc(getindex, Tuple{Type{Int64},Int}))
 
 # test that macro documentation works
-@test (Docs.@repl :@assert) !== nothing
+@test (Docs.@repl(:@assert, "@assert")) !== nothing
 
-@test (Docs.@repl 0) !== nothing
+# Stop search results from getting displayed during testing,
+# and make sure there are some search results
+let buf = IOBuffer()
+    @test eval(:(Docs.@repl($buf, 0, "0"))) !== nothing
+    @test startswith(String(take!(buf)), "search:")
+end
 
 let t = @doc(DocsTest.t(::Int, ::Int))
-    @test docstrings_equal(Docs.@repl(DocsTest.t(0, 0)), t)
-    @test docstrings_equal(Docs.@repl(DocsTest.t(::Int, ::Int)), t)
+    @test docstrings_equal(Docs.@repl(DocsTest.t(0, 0), "DocsTest.t(0, 0)"), t)
+    @test docstrings_equal(Docs.@repl(DocsTest.t(::Int, ::Int), "DocsTest.t(::Int, ::Int)"), t)
 end
 
 # Issue #13467.
-@test (Docs.@repl :@r_str) !== nothing
+@test (Docs.@repl(:@r_str, "@r_str")) !== nothing
 
 # Simple tests for apropos:
 @test contains(sprint(apropos, "pearson"), "cor")
@@ -908,7 +913,7 @@ for (line, expr) in Pair[
     "\"...\""      => "...",
     "r\"...\""     => :(r"..."),
     ]
-    @test Docs.helpmode(line) == :(Base.Docs.@repl($STDOUT, $expr))
+    @test Docs.helpmode(line) == :(Base.Docs.@repl($STDOUT, $expr, $(strip(line))))
     buf = IOBuffer()
     @test eval(Base, Docs.helpmode(buf, line)) isa Union{Base.Markdown.MD,Void}
 end
@@ -918,6 +923,10 @@ let save_color = Base.have_color
         eval(Base, :(have_color = false))
         @test sprint(Base.Docs.repl_latex, "√") == "\"√\" can be typed by \\sqrt<tab>\n\n"
         @test sprint(Base.Docs.repl_latex, "x̂₂") == "\"x̂₂\" can be typed by x\\hat<tab>\\_2<tab>\n\n"
+        # Make sure help is available even when string is not a valid identifier
+        buf = IOBuffer()
+        eval(Base, Docs.helpmode(buf, "†"))
+        @test String(take!(buf)) == "\"†\" can be typed by \\dagger<tab>\n\nsearch:\n\n"
     finally
         eval(Base, :(have_color = $save_color))
     end
