@@ -926,7 +926,7 @@ let save_color = Base.have_color
         # Make sure help is available even when string is not a valid identifier
         buf = IOBuffer()
         eval(Base, Docs.helpmode(buf, "†"))
-        @test String(take!(buf)) == "\"†\" can be typed by \\dagger<tab>\n\nsearch:\n\n"
+        @test String(take!(buf)) == "\"†\" can be typed by \\dagger<tab>\n\n"
     finally
         eval(Base, :(have_color = $save_color))
     end

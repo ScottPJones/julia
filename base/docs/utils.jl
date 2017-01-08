@@ -123,9 +123,13 @@ end
 helpmode(line::AbstractString) = helpmode(STDOUT, line)
 
 function repl_search(io::IO, s)
+    matches = completions(s)
+    # Don't bother to output prefix if no matches will actually be printed
+    isempty(matches) && return
+    fuzzyscore(s, matches[1]) < 0 && return
     pre = "search:"
     print(io, pre)
-    printmatches(io, s, completions(s), cols = displaysize(io)[2] - length(pre))
+    printmatches(io, s, matches, cols = displaysize(io)[2] - length(pre))
     println(io, "\n")
 end
 
