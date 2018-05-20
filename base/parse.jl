@@ -43,10 +43,11 @@ function parse(::Type{T}, c::AbstractChar; base::Integer = 10) where T<:Integer
     convert(T, d)
 end
 
-function parseint_iterate(s::AbstractString, startpos::Int, endpos::Int)
-    (0 < startpos <= endpos) || (return Char(0), 0, 0)
+function parseint_iterate(s::T, startpos::Int, endpos::Int) where {T<:AbstractString}
+    C = eltype(T)
+    (0 < startpos <= endpos) || (return C(0), 0, 0)
     j = startpos
-    c, startpos = iterate(s,startpos)::Tuple{Char, Int}
+    c, startpos = iterate(s,startpos)::Tuple{C, Int}
     c, startpos, j
 end
 
@@ -73,7 +74,7 @@ function parseint_preamble(signed::Bool, base::Int, s::AbstractString, startpos:
 
     if base == 0
         if c == '0' && i <= ncodeunits(s)
-            c, i = iterate(s,i)::Tuple{Char, Int}
+            c, i = iterate(s,i)::Tuple{eltype(s), Int}
             base = c=='b' ? 2 : c=='o' ? 8 : c=='x' ? 16 : 10
             if base != 10
                 c, i, j = parseint_iterate(s,i,endpos)
@@ -85,7 +86,9 @@ function parseint_preamble(signed::Bool, base::Int, s::AbstractString, startpos:
     return sgn, base, j
 end
 
-function tryparse_internal(::Type{T}, s::AbstractString, startpos::Int, endpos::Int, base_::Integer, raise::Bool) where T<:Integer
+function tryparse_internal(::Type{T}, s::S, startpos::Int, endpos::Int,
+                           base_::Integer, raise::Bool) where {T<:Integer, S<:AbstractString}
+    C = eltype(S)
     sgn, base, i = parseint_preamble(T<:Signed, Int(base_), s, startpos, endpos)
     if sgn == 0 && base == 0 && i == 0
         raise && throw(ArgumentError("input string is empty or only contains whitespace"))
@@ -123,7 +126,7 @@ function tryparse_internal(::Type{T}, s::AbstractString, startpos::Int, endpos::
             n *= sgn
             return n
         end
-        c, i = iterate(s,i)::Tuple{Char, Int}
+        c, i = iterate(s,i)::Tuple{C, Int}
         isspace(c) && break
     end
     (T <: Signed) && (n *= sgn)
@@ -144,10 +147,10 @@ function tryparse_internal(::Type{T}, s::AbstractString, startpos::Int, endpos::
             return nothing
         end
         (i > endpos) && return n
-        c, i = iterate(s,i)::Tuple{Char, Int}
+        c, i = iterate(s,i)::Tuple{C, Int}
     end
     while i <= endpos
-        c, i = iterate(s,i)::Tuple{Char, Int}
+        c, i = iterate(s,i)::Tuple{C, Int}
         if !isspace(c)
             raise && throw(ArgumentError("extra characters after whitespace in $(repr(SubString(s,startpos,endpos)))"))
             return nothing
