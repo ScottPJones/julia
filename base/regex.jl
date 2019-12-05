@@ -8,6 +8,30 @@ const DEFAULT_COMPILER_OPTS = PCRE.UTF | PCRE.NO_UTF_CHECK | PCRE.ALT_BSUX | PCR
 const DEFAULT_MATCH_OPTS = PCRE.NO_UTF_CHECK
 
 """
+    AbstractPattern
+
+Abstract supertype describing types that
+implement a pattern matching interface:
+[`occursin`](pattern, string; offset=0)
+[`startswith`](string, pattern)
+[`endswith`](string, pattern)
+[`match`](pattern, string, index; add_opts=UInt32(0))
+[`findnext`](pattern, string, index)
+[`findfirst`](pattern, string)
+[`==`](pattern1, pattern2)
+[`hash`](pattern, hash)
+[`eachmatch`](pattern, string; overlap=false)
+[`*`](pattern, pattern/string/character)
+[`*`](pattern/string/character, pattern)
+[`^`](pattern, count)
+
+There are also pattern functions, which have generic implementions (using `findnext`):
+[`findall`](pattern, string; overlap=false)
+[`count`](pattern, string; overlap=false)
+"""
+abstract type AbstractPattern end
+
+"""
     Regex(pattern[, flags])
 
 A type representing a regular expression. `Regex` objects can be used to match strings
@@ -17,7 +41,7 @@ with [`match`](@ref).
 `Regex(pattern[, flags])` constructor is usually used if the `pattern` string needs
 to be interpolated. See the documentation of the string macro for details on flags.
 """
-mutable struct Regex
+mutable struct Regex <: AbstractPattern
     pattern::String
     compile_options::UInt32
     match_options::UInt32
@@ -341,7 +365,7 @@ matching sequence is found, like the return value of [`findnext`](@ref).
 If `overlap=true`, the matching sequences are allowed to overlap indices in the
 original string, otherwise they must be from disjoint character ranges.
 """
-function findall(t::Union{AbstractString,Regex}, s::AbstractString; overlap::Bool=false)
+function findall(t::Union{AbstractString,AbstractPattern}, s::AbstractString; overlap::Bool=false)
     found = UnitRange{Int}[]
     i, e = firstindex(s), lastindex(s)
     while true
@@ -357,7 +381,7 @@ end
 
 """
     count(
-        pattern::Union{AbstractString,Regex},
+        pattern::Union{AbstractString,AbstractPattern},
         string::AbstractString;
         overlap::Bool = false,
     )
@@ -368,7 +392,7 @@ calling `length(findall(pattern, string))` but more efficient.
 If `overlap=true`, the matching sequences are allowed to overlap indices in the
 original string, otherwise they must be from disjoint character ranges.
 """
-function count(t::Union{AbstractString,Regex}, s::AbstractString; overlap::Bool=false)
+function count(t::Union{AbstractString,AbstractPattern}, s::AbstractString; overlap::Bool=false)
     n = 0
     i, e = firstindex(s), lastindex(s)
     while true

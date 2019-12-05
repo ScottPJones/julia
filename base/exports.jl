@@ -16,6 +16,7 @@ export
     AbstractChannel,
     AbstractIrrational,
     AbstractMatrix,
+    AbstractPattern,
     AbstractRange,
     AbstractSet,
     AbstractUnitRange,
