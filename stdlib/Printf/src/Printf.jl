@@ -383,6 +383,8 @@ _snprintf(ptr, siz, str, arg) =
     @ccall "libmpfr".mpfr_snprintf(ptr::Ptr{UInt8}, siz::Csize_t, str::Ptr{UInt8};
                                    arg::Ref{BigFloat})::Cint
 
+const __BIG_FLOAT_MAX__ = 8192
+
 @inline function fmt(buf, pos, arg, spec::Spec{T}) where {T <: Floats}
     leftalign, plus, space, zero, hash, width, prec =
         spec.leftalign, spec.plus, spec.space, spec.zero, spec.hash, spec.width, spec.precision
@@ -392,12 +394,14 @@ _snprintf(ptr, siz, str, arg) =
             GC.@preserve buf begin
                 siz = length(buf) - pos + 1
                 str = string(spec; modifier="R")
-                len = _snprintf(pointer(buf, pos), siz, str, arg)
+                len = _snprintf(pointer(buf, pos), siz, str, x)
                 if len > siz
-                    len > 4096 &&
-                        error("Over 4096 bytes ($len) needed to output BigFloat ($arg)")
+                    maxout = max(__BIG_FLOAT_MAX__,
+                                 ceil(Int, precision(x) * log(2) / log(10)) + 25)
+                    len > maxout &&
+                        error("Over $maxout bytes $len needed to output BigFloat $x")
                     resize!(buf, len + 1)
-                    len = _snprintf(pointer(buf, pos), len + 1, str, arg)
+                    len = _snprintf(pointer(buf, pos), len + 1, str, x)
                 end
                 len > 0 || throw(ArgumentError("invalid printf formatting $str for BigFloat"))
                 return pos + len
